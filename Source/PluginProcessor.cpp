@@ -97,6 +97,11 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+	
+	const int numChannels = getNumInputChannels();
+	const int delayBufferSize = 2 * sampleRate + 2 * samplesPerBlock;
+
+	mDelayBuffer.setSize(numChannels, delayBufferSize);
 }
 
 void SpacePanAudioProcessor::releaseResources()

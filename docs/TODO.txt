@@ -1,0 +1,12 @@
+improve reverb:
+
+Prevent delay from introducing artefact when changed
+Fix allpass filter
+Add predelay
+
+Pan:
+true pan
+
+pan = 2*mPan - 1
+L = -(pan-1)
+

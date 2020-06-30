@@ -17,13 +17,22 @@
 SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor (SpacePanAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
+    setSize (852, 600);
+
+
 	mRevMixKnob.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
 	mRevMixKnob.setRange(0.0f, 1.0f);
 	mRevMixKnob.setValue(0.5f);
 	addAndMakeVisible(mRevMixKnob);
-
-    setSize (710, 500);
 	mRevMixKnob.setBounds(getWidth() / 2, getHeight() / 2, 200, 200);
+
+	mPanKnob.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+	mPanKnob.setRange(-1.0f, 1.0f);
+	mPanKnob.setValue(0.0f);
+	mPanKnob.hideTextBox(true);
+	mPanKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+	addAndMakeVisible(mPanKnob);
+	mPanKnob.setBounds(getWidth() / 2 - 25, getHeight() / 6, 50, 50);
 }
 
 SpacePanAudioProcessorEditor::~SpacePanAudioProcessorEditor()
@@ -53,3 +62,5 @@ void SpacePanAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
 }
+
+//void Slider::mouseEnter(MouseEvent&)

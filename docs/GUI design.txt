@@ -1,0 +1,38 @@
+Parameters
+
+Global:
+pan
+head size
+volume
+
+Sidechain:
+attack
+decay
+sustain
+release
+threshold
+ratio
+enabled
+
+Reverb:
+size <- decay
+feedback
+delay <- size
+saturation gain
+saturation mix
+saturation character (velvet/crunch)
+width
+mix
+sidechain amount
+diffusion
+
+Delay:
+sync
+time
+width
+saturation gain
+saturation mix
+saturation character
+mix
+sidechain amount
+diffusion

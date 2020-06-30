@@ -34,8 +34,9 @@ private:
 	// Load background image
 	File f = "C:/Users/zac/Documents/SpacePan/Resource/background.png";
 	Image backgroundImage = ImageFileFormat::loadFrom(f);
-
+	//Image backgroundImage = ImageFileFormat::loadFrom(BinaryData);
 	Slider mRevMixKnob;
+	Slider mPanKnob;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpacePanAudioProcessorEditor)
 };
