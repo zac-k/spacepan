@@ -32,10 +32,9 @@ private:
     // access the processor object that created it.
     SpacePanAudioProcessor& processor;
 
-	// Load background image
-	File f = "C:/Users/zac/Documents/SpacePan/Resource/background.png";
-	Image backgroundImage = ImageFileFormat::loadFrom(f);
-	//Image backgroundImage = ImageFileFormat::loadFrom(BinaryData);
+	// Load background image	
+	Image backgroundImage = ImageCache::getFromMemory(BinaryData::background_png, 
+													  BinaryData::background_pngSize);
 
 
 	// Global controls
