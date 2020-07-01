@@ -4,6 +4,12 @@
               pluginFormats="buildVST,buildVST3" pluginManufacturer="ZacK">
   <MAINGROUP id="VUMoM3" name="SpacePan">
     <GROUP id="{261BCDE9-08FB-1CA5-8C62-B1BC32715FEF}" name="Source">
+      <FILE id="Addjbh" name="AudioBufferWithPos.cpp" compile="1" resource="0"
+            file="Source/AudioBufferWithPos.cpp"/>
+      <FILE id="ZHMDci" name="AudioBufferWithPos.h" compile="0" resource="0"
+            file="Source/AudioBufferWithPos.h"/>
+      <FILE id="T1Q0nB" name="StandardRotary.cpp" compile="1" resource="0"
+            file="Source/StandardRotary.cpp"/>
       <FILE id="bUU30G" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="xj3Ym1" name="PluginProcessor.h" compile="0" resource="0"
@@ -12,6 +18,7 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="fKHiQ3" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="fGXxlv" name="background.png" compile="1" resource="1" file="Resource/background.png"/>
   </MAINGROUP>
   <EXPORTFORMATS>
     <VS2017 targetFolder="Builds/VisualStudio2017" vst3Folder="..\..\Downloads\VST_SDK\VST3_SDK"
