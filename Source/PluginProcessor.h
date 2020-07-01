@@ -11,6 +11,10 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "AudioBufferWithPos.cpp"
+
+
+
 
 //==============================================================================
 /**
@@ -55,8 +59,17 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+	//==============================================================================
+	const float DELAY_MAX = 2.0; // seconds
+
 private:
-	AudioBuffer<float> mDelayBuffer;
+	AudioBufferWithPos<float> mDelayBuffer;
+
+	//==============================================================================
+
+	void SpacePanAudioProcessor::fillBuffer(int channel, const int delayBufferLength,
+		const int inputBufferLength,
+		const float* bufferData);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpacePanAudioProcessor)
 };

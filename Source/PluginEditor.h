@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "StandardRotary.cpp"
 
 //==============================================================================
 /**
@@ -35,8 +36,19 @@ private:
 	File f = "C:/Users/zac/Documents/SpacePan/Resource/background.png";
 	Image backgroundImage = ImageFileFormat::loadFrom(f);
 	//Image backgroundImage = ImageFileFormat::loadFrom(BinaryData);
-	Slider mRevMixKnob;
+
+
+	// Global controls
 	Slider mPanKnob;
+
+	// Delay controls
+	StandardRotary mDelayFeedbackKnob;
+	
+	// Reverb controls
+	Slider mRevMixKnob;
+
+	// Sidechain controls
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpacePanAudioProcessorEditor)
 };

@@ -33,6 +33,16 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor (SpacePanAudioProcess
 	mPanKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
 	addAndMakeVisible(mPanKnob);
 	mPanKnob.setBounds(getWidth() / 2 - 25, getHeight() / 6, 50, 50);
+
+	mDelayFeedbackKnob.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+	mDelayFeedbackKnob.setRange(0.0f, 0.9f);
+	mDelayFeedbackKnob.setValue(0.5f);
+	mDelayFeedbackKnob.hideTextBox(true);
+	mDelayFeedbackKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+	addAndMakeVisible(mDelayFeedbackKnob);
+	mDelayFeedbackKnob.setBounds(getWidth() / 4 - 25, getHeight() / 6, 50, 50);
+
+	//mDelayFeedbackKnob.init(0.0f, 0.9f, 0.5f, getWidth() / 4 - 25, getHeight() / 6);
 }
 
 SpacePanAudioProcessorEditor::~SpacePanAudioProcessorEditor()

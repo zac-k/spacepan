@@ -98,10 +98,11 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 	
-	const int numChannels = getNumInputChannels();
-	const int delayBufferSize = 2 * sampleRate + 2 * samplesPerBlock;
+	const int numInputChannels = getTotalNumInputChannels();
+	const int delayBufferSize = DELAY_MAX * sampleRate + 2 * samplesPerBlock;
 
-	mDelayBuffer.setSize(numChannels, delayBufferSize);
+	mDelayBuffer.setSize(numInputChannels, delayBufferSize);
+	mDelayBuffer.initWritePosition();
 }
 
 void SpacePanAudioProcessor::releaseResources()
@@ -157,11 +158,29 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     // interleaved by keeping the same state.
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto* channelData = buffer.getWritePointer (channel);
+        //auto* channelData = buffer.getWritePointer (channel);
+		
 
-        // ..do something to the data...
+		const int bufferLength = buffer.getNumSamples();
+		const int delayBufferLength = mDelayBuffer.getNumSamples();
+
+		const float* bufferData = buffer.getReadPointer(channel);
+		const float* delayBufferData = mDelayBuffer.getReadPointer(channel);
+
+		// Copy to delay buffer
+		float mDelayFeedbackGain = 1.0f;
+		/*if (delayBufferLength > bufferLength + mDelayBufferPos)
+		{
+		}*/
+
+		//fillBuffer();
+
+		
+		
     }
 }
+
+
 
 //==============================================================================
 bool SpacePanAudioProcessor::hasEditor() const
