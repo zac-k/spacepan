@@ -20,29 +20,27 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor (SpacePanAudioProcess
     setSize (852, 600);
 
 
-	mRevMixKnob.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-	mRevMixKnob.setRange(0.0f, 1.0f);
-	mRevMixKnob.setValue(0.5f);
+
+	// Initialise knobs
+	mRevMixKnob.init(0.0f, 1.0f, 0.5f, getWidth() / 2, getHeight() / 2, knobImg);
+	mPanKnob.init(-1.0f, 1.0f, 0.0f, getWidth() / 2, getHeight() / 6, knobImg);
+	mDelayFeedbackKnob.init(0.0f, 1.0f, 0.5f, (int)(getWidth() / 4 - 25), (int)(getHeight() / 6), knobImg);
+
+	// Add knobs to GUI
 	addAndMakeVisible(mRevMixKnob);
-	mRevMixKnob.setBounds(getWidth() / 2, getHeight() / 2, 200, 200);
-
-	mPanKnob.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-	mPanKnob.setRange(-1.0f, 1.0f);
-	mPanKnob.setValue(0.0f);
-	mPanKnob.hideTextBox(true);
-	mPanKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
 	addAndMakeVisible(mPanKnob);
-	mPanKnob.setBounds(getWidth() / 2 - 25, getHeight() / 6, 50, 50);
-
-	mDelayFeedbackKnob.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-	mDelayFeedbackKnob.setRange(0.0f, 0.9f);
-	mDelayFeedbackKnob.setValue(0.5f);
-	mDelayFeedbackKnob.hideTextBox(true);
-	mDelayFeedbackKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
 	addAndMakeVisible(mDelayFeedbackKnob);
-	mDelayFeedbackKnob.setBounds(getWidth() / 4 - 25, getHeight() / 6, 50, 50);
 
-	//mDelayFeedbackKnob.init(0.0f, 0.9f, 0.5f, getWidth() / 4 - 25, getHeight() / 6);
+	//StandardRotary mDelayFeedbackKnob(0.0f, 1.0f, 0.5f, (int)(getWidth() / 4 - 25), (int)(getHeight() / 6), knobImg);
+	
+	//Slider mDelayFeedbackKnob;
+	//mDelayFeedbackKnob.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+	//mDelayFeedbackKnob.setRange(0.0f, 0.9f);
+	//mDelayFeedbackKnob.setValue(0.5f);
+	//mDelayFeedbackKnob.hideTextBox(true);
+	//mDelayFeedbackKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+	
+	//mDelayFeedbackKnob.setBounds(getWidth() / 4 - 25, getHeight() / 6, 50, 50);
 }
 
 SpacePanAudioProcessorEditor::~SpacePanAudioProcessorEditor()

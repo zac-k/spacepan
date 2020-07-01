@@ -36,15 +36,22 @@ private:
 	Image backgroundImage = ImageCache::getFromMemory(BinaryData::background_png, 
 													  BinaryData::background_pngSize);
 
+	// Load a knob image for testing
+	Image knobImg = ImageCache::getFromMemory(BinaryData::animation_knob_png,
+											  BinaryData::animation_knob_pngSize);
+
 
 	// Global controls
-	Slider mPanKnob;
+	StandardRotary mPanKnob;
 
 	// Delay controls
 	StandardRotary mDelayFeedbackKnob;
+	//Slider mDelayFeedbackKnob;
+
+	//StandardRotary mDelayFeedbackKnob;
 	
 	// Reverb controls
-	Slider mRevMixKnob;
+	StandardRotary mRevMixKnob;
 
 	// Sidechain controls
 

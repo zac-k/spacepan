@@ -19,6 +19,8 @@
       <FILE id="fKHiQ3" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
     <FILE id="fGXxlv" name="background.png" compile="1" resource="1" file="Resource/background.png"/>
+    <FILE id="mMckzQ" name="animation_knob.png" compile="0" resource="1"
+          file="Resource/animation_knob.png"/>
   </MAINGROUP>
   <EXPORTFORMATS>
     <VS2017 targetFolder="Builds/VisualStudio2017" vst3Folder="..\..\Downloads\VST_SDK\VST3_SDK"
