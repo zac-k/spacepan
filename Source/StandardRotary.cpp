@@ -1,4 +1,4 @@
-
+#include "juceheader.h"
 
 class StandardRotary : public Slider
 {

@@ -140,6 +140,7 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
+	float sampleRate = getSampleRate();
 
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
@@ -168,7 +169,28 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 		const float* delayBufferData = mDelayBuffer.getReadPointer(channel);
 
 		// Copy to delay buffer
+
+		float delay = 0.1f; // seconds
+		int delayInSamples = delay * sampleRate;
 		float mDelayFeedbackGain = 1.0f;
+
+		mDelayBuffer.write(channel, buffer);
+		int start = (mDelayBuffer.getWritePosition(channel) - delayInSamples) % mDelayBuffer.getNumSamples();
+		int numDelSamplesA = std::min(mDelayBuffer.getNumSamples() - start, buffer.getNumSamples());
+		int numDelSamplesB = buffer.getNumSamples() - numDelSamplesA;
+		//buffer.addFrom(channel, 0, mDelayBuffer, channel, 0, buffer.getNumSamples());
+		
+		/*buffer.addFrom(channel, 0, mDelayBuffer, channel, start,  numDelSamplesA, mDelayFeedbackGain);
+		if (numDelSamplesB > 0)
+		{
+			buffer.addFrom(channel, numDelSamplesA, mDelayBuffer, channel, 0, numDelSamplesB, mDelayFeedbackGain);
+		}*/
+
+
+
+
+
+		
 		/*if (delayBufferLength > bufferLength + mDelayBufferPos)
 		{
 		}*/
