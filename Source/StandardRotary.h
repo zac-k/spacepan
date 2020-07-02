@@ -26,10 +26,24 @@ public:
 
 private:
 
-	int width = 50;
-	int height = 50;
+	int width = 65;
+	int height = 65;
 	int xpos;
 	int ypos;
+	Image sprite;
 
+
+};
+
+class CustomLookAndFeel : public LookAndFeel_V4
+{
+public:
+	CustomLookAndFeel(Image spriteImg);
+
+	void drawRotarySlider(Graphics& g, int x, int y, int width, int height, float sliderPos,
+		float rotaryStartAngle, float rotaryEndAngle, Slider& slider) override;
+
+private:
+	Image sprite;
 
 };
