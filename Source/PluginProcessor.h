@@ -36,6 +36,8 @@ public:
 
     void processBlock (AudioBuffer<float>&, MidiBuffer&) override;
 
+	//==============================================================================
+
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;
@@ -62,7 +64,13 @@ public:
 	//==============================================================================
 	const float DELAY_MAX = 2.0; // seconds
 
+	// Parameters
+
+	juce::AudioParameterFloat* mDelayTimeParam;
+
 private:
+
+	// Buffers
 	AudioBufferWithPos<float> mDelayBuffer;
 
 	//==============================================================================

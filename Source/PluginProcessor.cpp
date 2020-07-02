@@ -24,6 +24,8 @@ SpacePanAudioProcessor::SpacePanAudioProcessor()
                        )
 #endif
 {
+	addParameter(mDelayTimeParam = new juce::AudioParameterFloat("delay_time", "Delay Time", 0.0f, 1.0f, 0.5f));
+
 }
 
 SpacePanAudioProcessor::~SpacePanAudioProcessor()
@@ -53,6 +55,8 @@ bool SpacePanAudioProcessor::producesMidi() const
     return false;
    #endif
 }
+
+
 
 bool SpacePanAudioProcessor::isMidiEffect() const
 {

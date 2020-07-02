@@ -19,12 +19,23 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor (SpacePanAudioProcess
 {
     setSize (852, 600);
 
+	// Debug textbox
+	debugText.setBounds(0, 0, 100, 50);
+	addAndMakeVisible(debugText);
+	debugText.setText("test");
+
 
 
 	// Initialise knobs
-	mRevMixKnob.init(0.0f, 1.0f, 0.5f, (int)(getWidth() / 2), (int)(getHeight() / 2), knobImg);
-	mPanKnob.init(-1.0f, 1.0f, 0.0f, (int)(getWidth() / 2), (int)(getHeight() / 6), knobImg);
-	mDelayFeedbackKnob.init(0.0f, 1.0f, 0.5f, (int)(getWidth() / 4 - 25), (int)(getHeight() / 6), knobImg);
+	mRevMixKnob.init( "RevMixKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 2 - 35), (int)(getHeight() / 2), knobImg);
+	mPanKnob.init("PanKnob", -1.0f, 1.0f, 0.0f, (int)(getWidth() / 2 - 35), (int)(getHeight() / 6 - 7), knobImg);
+	mDelayFeedbackKnob.init("DelayFeedbackKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 4 - 25), (int)(getHeight() / 6), knobImg);
+	mDelayTimeKnob.init("DelayTimeKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 6 - 25), (int)(getHeight() / 6), knobImg);
+
+	mRevMixKnob.addListener(this);
+	mPanKnob.addListener(this);
+	mDelayFeedbackKnob.addListener(this);
+	mDelayTimeKnob.addListener(this);
 
 	//CustomLookAndFeel thisLookAndFeel(knobImg);
 	//mPanKnob.setLookAndFeel(&thisLookAndFeel);
@@ -34,6 +45,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor (SpacePanAudioProcess
 	addAndMakeVisible(mRevMixKnob);
 	addAndMakeVisible(mPanKnob);
 	addAndMakeVisible(mDelayFeedbackKnob);
+	addAndMakeVisible(mDelayTimeKnob);
 	//mRevMixKnob.setAlpha(0.0);
 
 
@@ -50,6 +62,8 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor (SpacePanAudioProcess
 	*/
 }
 
+
+
 SpacePanAudioProcessorEditor::~SpacePanAudioProcessorEditor()
 {
 }
@@ -59,6 +73,16 @@ SpacePanAudioProcessorEditor::~SpacePanAudioProcessorEditor()
 //{
 //	T::mouseMove(const MouseEvent &)
 //}
+
+void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
+{
+	
+	debugText.setText(slider->getName());
+	if (slider->getName() == "DelayTimeKnob")
+	{
+		//*SpacePanAudioProcessor::mDelayTimeParam = 0.1;// slider->getValue();
+	}
+}
 
 //==============================================================================
 void SpacePanAudioProcessorEditor::paint (Graphics& g)
@@ -73,6 +97,7 @@ void SpacePanAudioProcessorEditor::paint (Graphics& g)
 	mRevMixKnob.draw(g);
 	mDelayFeedbackKnob.draw(g);
 	mPanKnob.draw(g);
+	mDelayTimeKnob.draw(g);
 }
 
 void SpacePanAudioProcessorEditor::resized()

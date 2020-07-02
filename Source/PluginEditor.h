@@ -17,7 +17,8 @@
 //==============================================================================
 /**
 */
-class SpacePanAudioProcessorEditor  : public AudioProcessorEditor
+class SpacePanAudioProcessorEditor  : public AudioProcessorEditor,
+									  private StandardRotary::Listener
 {
 public:
     SpacePanAudioProcessorEditor (SpacePanAudioProcessor&);
@@ -26,6 +27,11 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
+
+
+	void sliderValueChanged(Slider* slider) override;
+
+	TextEditor debugText;
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -47,6 +53,7 @@ private:
 
 	// Delay controls
 	StandardRotary mDelayFeedbackKnob;
+	StandardRotary mDelayTimeKnob;
 	//Slider mDelayFeedbackKnob;
 	
 	// Reverb controls

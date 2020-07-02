@@ -7,16 +7,20 @@
 //StandardRotary::StandardRotary() {}
 		
 
-void StandardRotary::init(float min, float max, float value, int x, int y, Image spriteImg) 
+void StandardRotary::init(String name, float min, float max, float value, int x, int y, Image spriteImg) 
 {
-			
+		
 
 	this->setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+	//Listener* pListener;
 
 	CustomLookAndFeel thisLookAndFeel(spriteImg);
 	this->setRange(min, max);
 	this->setValue(value);
 	this->setAlpha(0.0);
+	this->setName(name);
+	//this->addListener(pListener);
+
 	this->hideTextBox(true);
 	this->setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
 	//addAndMakeVisible(*this);
