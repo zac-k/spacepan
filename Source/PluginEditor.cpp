@@ -22,8 +22,8 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor (SpacePanAudioProcess
 
 
 	// Initialise knobs
-	mRevMixKnob.init(0.0f, 1.0f, 0.5f, getWidth() / 2, getHeight() / 2, knobImg);
-	mPanKnob.init(-1.0f, 1.0f, 0.0f, getWidth() / 2, getHeight() / 6, knobImg);
+	mRevMixKnob.init(0.0f, 1.0f, 0.5f, (int)(getWidth() / 2), (int)(getHeight() / 2), knobImg);
+	mPanKnob.init(-1.0f, 1.0f, 0.0f, (int)(getWidth() / 2), (int)(getHeight() / 6), knobImg);
 	mDelayFeedbackKnob.init(0.0f, 1.0f, 0.5f, (int)(getWidth() / 4 - 25), (int)(getHeight() / 6), knobImg);
 
 	// Add knobs to GUI
@@ -34,13 +34,14 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor (SpacePanAudioProcess
 	//StandardRotary mDelayFeedbackKnob(0.0f, 1.0f, 0.5f, (int)(getWidth() / 4 - 25), (int)(getHeight() / 6), knobImg);
 	
 	//Slider mDelayFeedbackKnob;
-	//mDelayFeedbackKnob.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-	//mDelayFeedbackKnob.setRange(0.0f, 0.9f);
-	//mDelayFeedbackKnob.setValue(0.5f);
-	//mDelayFeedbackKnob.hideTextBox(true);
-	//mDelayFeedbackKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
-	
-	//mDelayFeedbackKnob.setBounds(getWidth() / 4 - 25, getHeight() / 6, 50, 50);
+	/*mDelayFeedbackKnob.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+	mDelayFeedbackKnob.setRange(0.0f, 0.9f);
+	mDelayFeedbackKnob.setValue(0.5f);
+	mDelayFeedbackKnob.hideTextBox(true);
+	mDelayFeedbackKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+	addAndMakeVisible(mDelayFeedbackKnob);
+	mDelayFeedbackKnob.setBounds(getWidth() / 4 - 25, getHeight() / 6, 50, 50);
+	*/
 }
 
 SpacePanAudioProcessorEditor::~SpacePanAudioProcessorEditor()
@@ -63,6 +64,7 @@ void SpacePanAudioProcessorEditor::paint (Graphics& g)
     //g.setFont (15.0f);
     //g.drawFittedText ("Hello World!", getLocalBounds(), Justification::centred, 1);
 	g.drawImageAt(backgroundImage, 0, 0);
+	//mRevMixKnob.draw(g);
 }
 
 void SpacePanAudioProcessorEditor::resized()

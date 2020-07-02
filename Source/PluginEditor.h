@@ -12,7 +12,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "StandardRotary.cpp"
+#include "StandardRotary.h"
 
 //==============================================================================
 /**
@@ -43,15 +43,15 @@ private:
 
 	// Global controls
 	StandardRotary mPanKnob;
+	//Slider mPanKnob;
 
 	// Delay controls
 	StandardRotary mDelayFeedbackKnob;
 	//Slider mDelayFeedbackKnob;
-
-	//StandardRotary mDelayFeedbackKnob;
 	
 	// Reverb controls
 	StandardRotary mRevMixKnob;
+	//Slider mRevMixKnob;
 
 	// Sidechain controls
 
