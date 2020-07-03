@@ -12,9 +12,11 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-SpacePanAudioProcessor::SpacePanAudioProcessor()
+SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state",
+	{ std::make_unique<AudioParameterFloat>("rev_mix", "Reverb Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+	  std::make_unique<AudioParameterFloat>("delay_feedback", "Delay Feedback", NormalisableRange<float>(0.0f, 1.0f), 0.5f) })
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
+     , AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
                       #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  AudioChannelSet::stereo(), true)
@@ -24,11 +26,23 @@ SpacePanAudioProcessor::SpacePanAudioProcessor()
                        )
 #endif
 {
-	addParameter(mRevMixParam = new juce::AudioParameterFloat("rev_mix", "Reverb Mix", 0.0f, 1.0f, 0.5f));
-	addParameter(mPanParam = new juce::AudioParameterFloat("pan", "Pan", -1.0f, 1.0f, 0.0f));
-	addParameter(mDelayFeedbackParam = new juce::AudioParameterFloat("delay_feedback", "Delay Feedback", 0.0f, 1.0f, 0.5f));
-	addParameter(mDelayTimeParam = new juce::AudioParameterFloat("delay_time", "Delay Time", 0.0f, 1.0f, 0.5f));
+	//addParameter(mRevMixParam = new juce::AudioParameterFloat("rev_mix", "Reverb Mix", 0.0f, 1.0f, 0.5f));
+	//addParameter(mPanParam = new juce::AudioParameterFloat("pan", "Pan", -1.0f, 1.0f, 0.0f));
+	//addParameter(mDelayFeedbackParam = new juce::AudioParameterFloat("delay_feedback", "Delay Feedback", 0.0f, 1.0f, 0.5f));
+	//addParameter(mDelayTimeParam = new juce::AudioParameterFloat("delay_time", "Delay Time", 0.0f, 1.0f, 0.5f));
+	
+	
+	//mState.addParameterListener("rev_mix", this);
+}
 
+void SpacePanAudioProcessor::parameterChanged(const String &parameterID, float newValue)
+{
+	if (parameterID == "rev_mix")
+	{
+
+		//SpacePanAudioProcessorEditor::mRevMixKnob.setValue(mRevMixParam.getValue());
+	}
+	
 }
 
 SpacePanAudioProcessor::~SpacePanAudioProcessor()
@@ -235,6 +249,8 @@ void SpacePanAudioProcessor::setStateInformation (const void* data, int sizeInBy
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 }
+
+
 
 //==============================================================================
 // This creates new instances of the plugin..

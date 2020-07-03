@@ -62,6 +62,7 @@ private:
 	
 	// Reverb controls
 	StandardRotary mRevMixKnob;
+	AudioProcessorValueTreeState::SliderAttachment mRevMixAttachment;
 	//Slider mRevMixKnob;
 
 	// Sidechain controls

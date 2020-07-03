@@ -19,7 +19,8 @@
 //==============================================================================
 /**
 */
-class SpacePanAudioProcessor  : public AudioProcessor
+class SpacePanAudioProcessor  : public AudioProcessor,
+								public AudioProcessorValueTreeState::Listener
 {
 public:
     //==============================================================================
@@ -37,6 +38,10 @@ public:
     void processBlock (AudioBuffer<float>&, MidiBuffer&) override;
 
 	//==============================================================================
+
+
+	void parameterChanged(const String &parameterID, float newValue) override;
+
 
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
@@ -71,7 +76,12 @@ public:
 	juce::AudioParameterFloat* mDelayFeedbackParam;
 	juce::AudioParameterFloat* mDelayTimeParam;
 
+	//==============================================================================
+	AudioProcessorValueTreeState mState;
+
 private:
+
+	
 
 	// Buffers
 	AudioBufferWithPos<float> mDelayBuffer;
@@ -83,4 +93,7 @@ private:
 		const float* bufferData);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpacePanAudioProcessor)
+
+
+	UndoManager mUndoManager;
 };

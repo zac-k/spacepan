@@ -15,7 +15,8 @@
 
 //==============================================================================
 SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor (SpacePanAudioProcessor& p)
-    : AudioProcessorEditor (&p), processor (p)
+    : AudioProcessorEditor (&p), processor (p),
+	mRevMixAttachment(p.mState, "rev_mix", mRevMixKnob)
 {
     setSize (852, 600);
 
@@ -79,7 +80,7 @@ SpacePanAudioProcessorEditor::~SpacePanAudioProcessorEditor()
 
 void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
-	
+	/*
 	debugText.setText(slider->getName());
 
 	
@@ -98,7 +99,7 @@ void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 	else if (slider->getName() == "DelayTimeKnob")
 	{
 		*(processor.mDelayTimeParam) = slider->getValue();
-	}
+	}*/
 }
 
 //==============================================================================
