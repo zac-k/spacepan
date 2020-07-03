@@ -128,8 +128,9 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	//		mDelayBuffer.setSample(channel, i, 0.0f);
 	//	}
 	mDelayBuffer.initWritePosition();
+	mDelayBufferTemp.initWritePosition();
 	//}
-	mDelayBuffer.clear();
+	//mDelayBuffer.clear();
 	//mDelayBufferTemp.setSize(numInputChannels, delayBufferSize);
 
 }
@@ -223,11 +224,13 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 		/* This is for testing*/
 
 		
-
-		fillDelayBuffer(channel, bufferLength, delayBufferLength, bufferData, delayBufferData);
+		mWritePosition = mDelayBufferTemp.getWritePosition(channel);
+		//fillDelayBuffer(channel, bufferLength, delayBufferLength, bufferData, delayBufferData);
+		mDelayBufferTemp.write(channel, buffer);
 		getFromDelayBuffer(buffer, channel, bufferLength, delayBufferLength, bufferData, delayBufferData, delayInSamples);
 
 
+		mDelayBufferTemp.moveWritePosition(channel, bufferLength);
 		//=============================================================================
 
 
@@ -292,9 +295,8 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 		/* This is for testing*/
 
 
-
-	mWritePosition += bufferLength;
-	mWritePosition %= delayBufferLength;
+	//mWritePosition += bufferLength;
+	//mWritePosition %= delayBufferLength;
 
 
 
@@ -307,6 +309,7 @@ void SpacePanAudioProcessor::getFromDelayBuffer(AudioBuffer<float>& buffer, int 
 												const int delayBufferLength, const float* bufferData, const float* delayBufferData,
 												int delaySamples)
 {
+	
 	const int readPosition = static_cast<int> (delayBufferLength + mWritePosition - delaySamples) % delayBufferLength;
 	if (delayBufferLength > bufferLength + readPosition)
 	{
