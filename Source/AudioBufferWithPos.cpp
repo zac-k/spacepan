@@ -16,7 +16,7 @@ void AudioBufferWithPos<T>::initWritePosition()
 template <typename T>
 void AudioBufferWithPos<T>::moveWritePosition(int channel, int steps)
 {
-	writePosition[channel] = (writePosition[channel] + steps) % this->getNumSamples();
+	writePosition[channel] = utils::modulo((writePosition[channel] + steps), this->getNumSamples());
 	return;
 }
 
@@ -35,7 +35,7 @@ void AudioBufferWithPos<T>::write(int channel, const AudioBuffer<T>& inputBuffer
 	int partialCopyLength = std::min(bufferRemaining, inputBuffer.getNumSamples());
 	this->copyFrom(channel, this->getWritePosition(channel), inputBuffer.getReadPointer(channel), 0,
 		partialCopyLength);
-	this->copyFrom(channel, this->getWritePosition(channel), inputBuffer.getReadPointer(channel), partialCopyLength,
+	this->copyFrom(channel, 0, inputBuffer.getReadPointer(channel), partialCopyLength,
 		inputBuffer.getNumSamples() - partialCopyLength);
 	moveWritePosition(channel, inputBuffer.getNumSamples());
 

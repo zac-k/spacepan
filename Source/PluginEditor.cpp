@@ -84,26 +84,7 @@ SpacePanAudioProcessorEditor::~SpacePanAudioProcessorEditor()
 
 void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
-	/*
-	debugText.setText(slider->getName());
-
 	
-	if (slider->getName() == "RevMixKnob")
-	{
-		*(processor.mRevMixParam) = slider->getValue();
-	}
-	else if (slider->getName() == "PanKnob")
-	{
-		*(processor.mPanParam) = slider->getValue();
-	}
-	else if (slider->getName() == "DelayFeedbackKnob")
-	{
-		*(processor.mDelayFeedbackParam) = slider->getValue();
-	}
-	else if (slider->getName() == "DelayTimeKnob")
-	{
-		*(processor.mDelayTimeParam) = slider->getValue();
-	}*/
 }
 
 //==============================================================================

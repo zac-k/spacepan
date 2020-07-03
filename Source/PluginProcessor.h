@@ -37,6 +37,10 @@ public:
 
     void processBlock (AudioBuffer<float>&, MidiBuffer&) override;
 
+	void getFromDelayBuffer(AudioBuffer<float>& buffer, int channel, const int bufferLength,
+		const int delayBufferLength, const float* bufferData, const float* delayBufferData, int delaySamples);
+	void fillDelayBuffer(int channel, const int bufferLength, const int delayBufferLength,
+		const float* bufferData, const float* delayBufferData);
 	//==============================================================================
 
 
@@ -85,6 +89,7 @@ private:
 
 	// Buffers
 	AudioBufferWithPos<float> mDelayBuffer;
+	AudioBufferWithPos<float> mDelayBufferTemp;
 
 	//==============================================================================
 
@@ -92,7 +97,10 @@ private:
 		const int inputBufferLength,
 		const float* bufferData);
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpacePanAudioProcessor)
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpacePanAudioProcessor)
+
+
+		int mWritePosition{ 0 };
 
 
 	UndoManager mUndoManager;
