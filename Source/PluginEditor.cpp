@@ -24,6 +24,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor (SpacePanAudioProcess
 	addAndMakeVisible(debugText);
 	debugText.setText("test");
 
+	
 
 
 	// Initialise knobs
@@ -40,6 +41,8 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor (SpacePanAudioProcess
 	//CustomLookAndFeel thisLookAndFeel(knobImg);
 	//mPanKnob.setLookAndFeel(&thisLookAndFeel);
 	//mRevMixKnob.setLookAndFeel(LookAndFeel_V4* x);
+
+	
 
 	// Add knobs to GUI
 	addAndMakeVisible(mRevMixKnob);
@@ -78,9 +81,23 @@ void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
 	
 	debugText.setText(slider->getName());
-	if (slider->getName() == "DelayTimeKnob")
+
+	
+	if (slider->getName() == "RevMixKnob")
 	{
-		//*SpacePanAudioProcessor::mDelayTimeParam = 0.1;// slider->getValue();
+		*(processor.mRevMixParam) = slider->getValue();
+	}
+	else if (slider->getName() == "PanKnob")
+	{
+		*(processor.mPanParam) = slider->getValue();
+	}
+	else if (slider->getName() == "DelayFeedbackKnob")
+	{
+		*(processor.mDelayFeedbackParam) = slider->getValue();
+	}
+	else if (slider->getName() == "DelayTimeKnob")
+	{
+		*(processor.mDelayTimeParam) = slider->getValue();
 	}
 }
 

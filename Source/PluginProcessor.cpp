@@ -24,6 +24,9 @@ SpacePanAudioProcessor::SpacePanAudioProcessor()
                        )
 #endif
 {
+	addParameter(mRevMixParam = new juce::AudioParameterFloat("rev_mix", "Reverb Mix", 0.0f, 1.0f, 0.5f));
+	addParameter(mPanParam = new juce::AudioParameterFloat("pan", "Pan", -1.0f, 1.0f, 0.0f));
+	addParameter(mDelayFeedbackParam = new juce::AudioParameterFloat("delay_feedback", "Delay Feedback", 0.0f, 1.0f, 0.5f));
 	addParameter(mDelayTimeParam = new juce::AudioParameterFloat("delay_time", "Delay Time", 0.0f, 1.0f, 0.5f));
 
 }

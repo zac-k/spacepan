@@ -66,6 +66,9 @@ public:
 
 	// Parameters
 
+	juce::AudioParameterFloat* mRevMixParam;
+	juce::AudioParameterFloat* mPanParam;
+	juce::AudioParameterFloat* mDelayFeedbackParam;
 	juce::AudioParameterFloat* mDelayTimeParam;
 
 private:
