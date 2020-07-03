@@ -53,11 +53,15 @@ private:
 
 	// Global controls
 	StandardRotary mPanKnob;
+	AudioProcessorValueTreeState::SliderAttachment mPanAttachment;
 	//Slider mPanKnob;
 
 	// Delay controls
 	StandardRotary mDelayFeedbackKnob;
+	AudioProcessorValueTreeState::SliderAttachment mDelayFeedbackAttachment;
+
 	StandardRotary mDelayTimeKnob;
+	AudioProcessorValueTreeState::SliderAttachment mDelayTimeAttachment;
 	//Slider mDelayFeedbackKnob;
 	
 	// Reverb controls

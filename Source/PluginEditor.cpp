@@ -14,9 +14,13 @@
 
 
 //==============================================================================
-SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor (SpacePanAudioProcessor& p)
-    : AudioProcessorEditor (&p), processor (p),
-	mRevMixAttachment(p.mState, "rev_mix", mRevMixKnob)
+SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcessor& p)
+	: AudioProcessorEditor(&p), processor(p),
+	mRevMixAttachment(p.mState, "rev_mix", mRevMixKnob),
+	mPanAttachment(p.mState, "pan", mPanKnob),
+	mDelayFeedbackAttachment(p.mState, "delay_feedback", mDelayFeedbackKnob),
+	mDelayTimeAttachment(p.mState, "delay_time", mDelayTimeKnob)
+	
 {
     setSize (852, 600);
 
