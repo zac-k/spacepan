@@ -192,12 +192,7 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        //auto* channelData = buffer.getWritePointer (channel);
-
-		//const float* bufferData = buffer.getReadPointer(channel);
-		//const float* delayBufferData = mDelayBuffer.getReadPointer(channel);
-
-		// Copy to delay buffer
+        
 
 		float delaySeconds = mState.getParameter("delay_time")->getValue();
 		int delayInSamples = (int) (delaySeconds * sampleRate);
@@ -207,11 +202,16 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 
 
 
+		float delayOffsets[] = { 0, 0 };
+		delay(buffer, mDelayBuffer, channel, buffer.getNumSamples(), 
+											delayInSamples, delayOffsets, mDelayFeedbackGain, sampleRate, 0, true);
 
 
-
-
-
+		mBufferPosArr[channel] += buffer.getNumSamples();
+		while (delayInSamples && mBufferPosArr[channel] >= delayInSamples)
+		{
+			mBufferPosArr[channel] -= delayInSamples;
+		}
 
 		//=============================================================================
 
@@ -222,13 +222,13 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 		//fillDelayBuffer(channel, bufferLength, delayBufferLength, bufferData, delayBufferData);
 
 
-		float rampGain;
-		float newReadPosition = utils::modulo(mDelayBuffer.getWritePosition(channel) - delayInSamples, delayBufferLength);
-		rampGain = (mDelayBuffer.getReadPosition(channel) == newReadPosition) ? 1.0f : 0.0f;
-		// Read position must be set before .write() is called
-		mDelayBuffer.setReadPosition(channel,  newReadPosition);
-		mDelayBuffer.write(channel, buffer); // This also updates the write position
-		mDelayBuffer.read(channel, buffer, rampGain);
+		//float rampGain;
+		//float newReadPosition = utils::modulo(mDelayBuffer.getWritePosition(channel) - delayInSamples, delayBufferLength);
+		//rampGain = (mDelayBuffer.getReadPosition(channel) == newReadPosition) ? 1.0f : 0.0f;
+		//// Read position must be set before .write() is called
+		//mDelayBuffer.setReadPosition(channel,  newReadPosition);
+		//mDelayBuffer.write(channel, buffer); // This also updates the write position
+		//mDelayBuffer.read(channel, buffer, rampGain);
 
 
 		/* Old function to copy data from delay buffer */
@@ -246,6 +246,76 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     }
 
 }
+
+void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, AudioBuffer<float> &buffer, int channel, int numSamples,
+	int32 delayInSamples, float* delayOffsets, float decay,
+	float sampleRate, int32 comb, bool fb)
+{
+
+	
+    int32 delayOffsetInSamples = (int32)(delayOffsets[channel] * sampleRate);
+	int32 tempDelayInSamples = std::max<int32>(1, delayInSamples + delayOffsetInSamples);
+	/*float* arr;
+	arr = (float*)malloc(sizeof(float)*numSamples);
+
+	memcpy(arr, samples.getWritePointer(channel), sizeof(float)*numSamples);*/
+	AudioBuffer<float> arr = AudioBuffer<float>::AudioBuffer(samples);
+	//float* arr_temp;
+	int32 tempBufferPos = mBufferPosArr[channel];
+
+	// Use wet signal for feedback, or dry signal for feedforward delay
+	//arr_temp = fb ? arr : samples.getReadPointer(channel);
+
+	for (int32 i = 0; i < numSamples; i++)
+	{
+		arr.getWritePointer(channel)[i] += (buffer.getReadPointer(channel)[tempBufferPos] * decay);
+		buffer.getWritePointer(channel)[tempBufferPos] = arr.getReadPointer(channel)[i];
+		buffer.getWritePointer(channel)[tempBufferPos + tempDelayInSamples] = arr.getReadPointer(channel)[i];
+		tempBufferPos++;
+		if (tempBufferPos >= tempDelayInSamples)
+		{
+			tempBufferPos = 0;
+		}
+
+	}
+	samples.copyFrom(channel,0, arr.getReadPointer(channel), numSamples);
+}
+
+float* SpacePanAudioProcessor::combFilter(float* samples, float** buffer, int channel, int numSamples,
+	int32 delayInSamples, float** delayOffsets, float decay,
+	float sampleRate, int32 comb, bool fb)
+{
+
+	//int32 offsetInSamples = (int32)(delayOffset * sampleRate);
+	int32 delayOffsetInSamples = (int32)(delayOffsets[channel][comb] * sampleRate);
+	int32 tempDelayInSamples = std::max<int32>(1, delayInSamples + delayOffsetInSamples);
+	float* arr;
+	arr = (float*)malloc(sizeof(float)*numSamples);
+
+	memcpy(arr, samples, sizeof(float)*numSamples);
+
+	float* arr_temp;
+	int32 tempBufferPos = mBufferPosArr[channel];
+
+	// Use wet signal for feedback, or dry signal for feedforward delay
+	arr_temp = fb ? arr : samples;
+
+	for (int32 i = 0; i < numSamples; i++)
+	{
+		arr[i] += (buffer[channel][tempBufferPos] * decay);
+		buffer[channel][tempBufferPos] = arr_temp[i];
+		buffer[channel][tempBufferPos + tempDelayInSamples] = arr_temp[i];
+		tempBufferPos++;
+		if (tempBufferPos >= tempDelayInSamples)
+		{
+			tempBufferPos = 0;
+		}
+
+	}
+
+	return arr;
+}
+
 
 
 

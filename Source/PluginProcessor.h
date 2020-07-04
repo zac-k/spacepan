@@ -39,6 +39,14 @@ public:
 
 	void getFromDelayBuffer(AudioBuffer<float>& buffer, int channel, const int bufferLength,
 		const int delayBufferLength, const float* bufferData, const float* delayBufferData, int delaySamples, int readPosition);
+
+	void delay(AudioBuffer<float> &samples, AudioBuffer<float> &buffer, int channel, int numSamples,
+		int32 delayInSamples, float* delayOffsets, float decay,
+		float sampleRate, int32 comb, bool fb);
+
+	float* combFilter(float* samples, float** buffer, int channel, int numSamples,
+		int32 delayInSamples, float** delayOffsets, float decay,
+		float sampleRate, int32 comb, bool fb);
 	/*void fillDelayBuffer(int channel, const int bufferLength, const int delayBufferLength,
 		const float* bufferData, const float* delayBufferData);*/
 	//==============================================================================
@@ -71,7 +79,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 	//==============================================================================
-	const float DELAY_MAX = 1.0; // seconds
+	const float DELAY_MAX = 2.0; // seconds
 
 	// Parameters
 
@@ -85,7 +93,7 @@ public:
 
 private:
 
-	
+	int mBufferPosArr[2] = { 0, 0 };
 
 	// Buffers
 	AudioBufferWithPos<float> mDelayBuffer;
