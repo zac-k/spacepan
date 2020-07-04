@@ -9,11 +9,16 @@ class AudioBufferWithPos : public AudioBuffer<T>
 
 public:
 	void initWritePosition();
+	void initReadPosition();
 	void moveWritePosition(int channel, int steps);
 	int getWritePosition(int channel);
+	int getReadPosition(int channel);
+	void setReadPosition(int channel, int val);
 	void write(int channel, const AudioBuffer<T>& inputBuffer);
+	void read(int channel, AudioBuffer<T>& outputBuffer);
 private:
 	std::vector<int> writePosition;
+	std::vector<int> readPosition;
 
 
 };

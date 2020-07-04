@@ -12,7 +12,6 @@
 #include "PluginEditor.h"
 
 
-
 //==============================================================================
 SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcessor& p)
 	: AudioProcessorEditor(&p), processor(p),
@@ -28,6 +27,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	debugText.setBounds(0, 0, 100, 50);
 	addAndMakeVisible(debugText);
 	debugText.setText("test");
+	//debugText.setText((String)(utils::modulo(-5, 7)));
 
 	
 

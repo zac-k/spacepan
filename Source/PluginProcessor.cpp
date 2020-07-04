@@ -117,21 +117,14 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     // initialisation that you need..
 	
 	const int numInputChannels = getTotalNumInputChannels();
-	const int delayBufferSize = DELAY_MAX * sampleRate + 2 * samplesPerBlock;
+	const int delayBufferSize = static_cast<int>(DELAY_MAX * sampleRate + 2 * samplesPerBlock);
 
 	mDelayBuffer.setSize(numInputChannels, delayBufferSize);
-	mDelayBufferTemp.setSize(numInputChannels, delayBufferSize);
-	//for (int channel = 0; channel < numInputChannels; channel++)
-	//{
-	//	for (int i = 0; i < delayBufferSize; i++)
-	//	{
-	//		mDelayBuffer.setSample(channel, i, 0.0f);
-	//	}
+	mDelayBuffer.clear();
 	mDelayBuffer.initWritePosition();
-	mDelayBufferTemp.initWritePosition();
+	mDelayBuffer.initReadPosition();
 	//}
-	//mDelayBuffer.clear();
-	//mDelayBufferTemp.setSize(numInputChannels, delayBufferSize);
+	
 
 }
 
@@ -191,9 +184,9 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 
 	//=============================================================================
 
-		/* This is for testing*/
+		
 	const int bufferLength = buffer.getNumSamples();
-	const int delayBufferLength = mDelayBufferTemp.getNumSamples();
+	const int delayBufferLength = mDelayBuffer.getNumSamples();
 	//=============================================================================
 
 
@@ -202,12 +195,12 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
         //auto* channelData = buffer.getWritePointer (channel);
 
 		const float* bufferData = buffer.getReadPointer(channel);
-		const float* delayBufferData = mDelayBufferTemp.getReadPointer(channel);
+		const float* delayBufferData = mDelayBuffer.getReadPointer(channel);
 
 		// Copy to delay buffer
 
-		float delay = mState.getParameter("delay_time")->getValue(); // seconds
-		int delayInSamples = delay * sampleRate;
+		float delaySeconds = mState.getParameter("delay_time")->getValue();
+		int delayInSamples = (int) (delaySeconds * sampleRate);
 		float mDelayFeedbackGain = mState.getParameter("delay_feedback")->getValue();
 
 
@@ -221,128 +214,71 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 
 		//=============================================================================
 
-		/* This is for testing*/
+		
 
 		
-		mWritePosition = mDelayBufferTemp.getWritePosition(channel);
+		//mWritePosition = mDelayBuffer.getWritePosition(channel);
 		//fillDelayBuffer(channel, bufferLength, delayBufferLength, bufferData, delayBufferData);
-		mDelayBufferTemp.write(channel, buffer);
-		getFromDelayBuffer(buffer, channel, bufferLength, delayBufferLength, bufferData, delayBufferData, delayInSamples);
+
+		// Read position must be set before .write() is called
+		mDelayBuffer.setReadPosition(channel, static_cast<int> (delayBufferLength + mDelayBuffer.getWritePosition(channel) - delayInSamples) % delayBufferLength);
+		mDelayBuffer.write(channel, buffer); // This also updates the write position
+		mDelayBuffer.read(channel, buffer);
+		//getFromDelayBuffer(buffer, channel, bufferLength, delayBufferLength, bufferData, delayBufferData, delayInSamples,
+		//	mDelayBuffer.getReadPosition(channel));
 
 
-		mDelayBufferTemp.moveWritePosition(channel, bufferLength);
+		
 		//=============================================================================
 
 
-
-
-
-
-
-
-
-
-
-		//
-		//int start = utils::modulo((mDelayBuffer.getWritePosition(channel) - delayInSamples), mDelayBuffer.getNumSamples());
-		//int numDelSamplesA = std::min(mDelayBuffer.getNumSamples() - start, buffer.getNumSamples());
-		//int numDelSamplesB = buffer.getNumSamples() - numDelSamplesA;
-
-
-
-
-		////int readPos = roundToInt(m);
-		////mDelayBufferTemp
-
-		//
-		//buffer.addFromWithRamp(channel, 0, mDelayBuffer.getReadPointer(channel), numDelSamplesA, 1.0, 1.0);
-		////buffer.addFrom(channel, 0, mDelayBuffer, channel, start, numDelSamplesA, mDelayFeedbackGain);
-		////buffer.copyFrom(channel, 0, mDelayBuffer, channel, start, numDelSamplesA);
-		//if (numDelSamplesB > 0)
-		//{
-		//	buffer.addFromWithRamp(channel, numDelSamplesA, mDelayBuffer.getReadPointer(channel), numDelSamplesB, 1.0, 1.0);
-		//	//buffer.addFrom(channel, numDelSamplesA, mDelayBuffer, channel, 0, numDelSamplesB, mDelayFeedbackGain);
-		//	//buffer.copyFrom(channel, numDelSamplesA, mDelayBuffer, channel, 0, numDelSamplesB);
-		//}
-
-
-
-
-
-
-
-
-
-
-
-
-		//mDelayBuffer.write(channel, buffer);
-
-
-		//
-		///*if (delayBufferLength > bufferLength + mDelayBufferPos)
-		//{
-		//}*/
-
-		////fillBuffer();
 
 		
 		
     }
 
-	//=============================================================================
-
-		/* This is for testing*/
-
-
-	//mWritePosition += bufferLength;
-	//mWritePosition %= delayBufferLength;
-
-
-
-	//=============================================================================
 }
 
 
 
 void SpacePanAudioProcessor::getFromDelayBuffer(AudioBuffer<float>& buffer, int channel, const int bufferLength, 
 												const int delayBufferLength, const float* bufferData, const float* delayBufferData,
-												int delaySamples)
+												int delaySamples, int readPosition)
 {
 	
-	const int readPosition = static_cast<int> (delayBufferLength + mWritePosition - delaySamples) % delayBufferLength;
+	
 	if (delayBufferLength > bufferLength + readPosition)
 	{
-		buffer.addFrom(channel, 0, delayBufferData + readPosition, bufferLength);
+		buffer.addFromWithRamp(channel, 0, delayBufferData + readPosition, bufferLength, 1.0, 1.0);
 	}
 	else
 	{
 		const int bufferRemaining = delayBufferLength - readPosition;
-		buffer.addFrom(channel, 0, delayBufferData + readPosition, bufferRemaining);
-		buffer.addFrom(channel, bufferRemaining, delayBufferData, delayBufferLength - bufferRemaining);
+		buffer.addFromWithRamp(channel, 0, delayBufferData + readPosition, bufferRemaining, 1.0, 1.0);
+		buffer.addFromWithRamp(channel, bufferRemaining, delayBufferData, delayBufferLength - bufferRemaining, 1.0, 1.0);
 
 	}
 
 
 }
 
-void SpacePanAudioProcessor::fillDelayBuffer(int channel, const int bufferLength, const int delayBufferLength,
-											 const float* bufferData, const float* delayBufferData)
-{
-
-	if (delayBufferLength > bufferLength + mWritePosition)
-	{
-		mDelayBufferTemp.copyFromWithRamp(channel, mWritePosition, bufferData, bufferLength, 1.0, 1.0);
-	}
-	else
-	{
-		const int bufferRemaining = delayBufferLength - mWritePosition;
-		mDelayBufferTemp.copyFromWithRamp(channel, mWritePosition, bufferData, bufferRemaining, 1.0, 1.0);
-
-		mDelayBufferTemp.copyFromWithRamp(channel, 0, bufferData, bufferLength - bufferRemaining, 1.0, 1.0);
-	}
-
-}
+//void SpacePanAudioProcessor::fillDelayBuffer(int channel, const int bufferLength, const int delayBufferLength,
+//											 const float* bufferData, const float* delayBufferData)
+//{
+//
+//	if (delayBufferLength > bufferLength + mWritePosition)
+//	{
+//		mDelayBuffer.copyFromWithRamp(channel, mWritePosition, bufferData, bufferLength, 1.0, 1.0);
+//	}
+//	else
+//	{
+//		const int bufferRemaining = delayBufferLength - mWritePosition;
+//		mDelayBuffer.copyFromWithRamp(channel, mWritePosition, bufferData, bufferRemaining, 1.0, 1.0);
+//
+//		mDelayBuffer.copyFromWithRamp(channel, 0, bufferData, bufferLength - bufferRemaining, 1.0, 1.0);
+//	}
+//
+//}
 
 
 

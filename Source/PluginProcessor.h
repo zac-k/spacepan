@@ -38,9 +38,9 @@ public:
     void processBlock (AudioBuffer<float>&, MidiBuffer&) override;
 
 	void getFromDelayBuffer(AudioBuffer<float>& buffer, int channel, const int bufferLength,
-		const int delayBufferLength, const float* bufferData, const float* delayBufferData, int delaySamples);
-	void fillDelayBuffer(int channel, const int bufferLength, const int delayBufferLength,
-		const float* bufferData, const float* delayBufferData);
+		const int delayBufferLength, const float* bufferData, const float* delayBufferData, int delaySamples, int readPosition);
+	/*void fillDelayBuffer(int channel, const int bufferLength, const int delayBufferLength,
+		const float* bufferData, const float* delayBufferData);*/
 	//==============================================================================
 
 
@@ -71,7 +71,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 	//==============================================================================
-	const float DELAY_MAX = 2.0; // seconds
+	const float DELAY_MAX = 1.0; // seconds
 
 	// Parameters
 
@@ -89,18 +89,17 @@ private:
 
 	// Buffers
 	AudioBufferWithPos<float> mDelayBuffer;
-	AudioBufferWithPos<float> mDelayBufferTemp;
 
 	//==============================================================================
 
-	void SpacePanAudioProcessor::fillBuffer(int channel, const int delayBufferLength,
+	/*void SpacePanAudioProcessor::fillBuffer(int channel, const int delayBufferLength,
 		const int inputBufferLength,
-		const float* bufferData);
+		const float* bufferData);*/
     //==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SpacePanAudioProcessor)
 
 
-		int mWritePosition{ 0 };
+		//int mWritePosition{ 0 };
 
 
 	UndoManager mUndoManager;

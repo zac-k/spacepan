@@ -17,7 +17,7 @@ namespace utils
 	int modulo(int val1, int val2)
 	{
 		int mod = val1 % val2;
-		if (mod < 0)
+		while (mod < 0)
 		{
 			mod += val2;
 		}
