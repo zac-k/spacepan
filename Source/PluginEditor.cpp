@@ -18,7 +18,8 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mRevMixAttachment(p.mState, "rev_mix", mRevMixKnob),
 	mPanAttachment(p.mState, "pan", mPanKnob),
 	mDelayFeedbackAttachment(p.mState, "delay_feedback", mDelayFeedbackKnob),
-	mDelayTimeAttachment(p.mState, "delay_time", mDelayTimeKnob)
+	mDelayTimeAttachment(p.mState, "delay_time", mDelayTimeKnob),
+	mDelayMixAttachment(p.mState, "delay_mix", mDelayMixKnob)
 	
 {
     setSize (852, 600);
@@ -35,13 +36,15 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	// Initialise knobs
 	mRevMixKnob.init( "RevMixKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 2 - 35), (int)(getHeight() / 2), knobImg);
 	mPanKnob.init("PanKnob", -1.0f, 1.0f, 0.0f, (int)(getWidth() / 2 - 35), (int)(getHeight() / 6 - 7), knobImg);
-	mDelayFeedbackKnob.init("DelayFeedbackKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 4 - 25), (int)(getHeight() / 6), knobImg);
-	mDelayTimeKnob.init("DelayTimeKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 6 - 25), (int)(getHeight() / 6), knobImg);
+	mDelayFeedbackKnob.init("DelayFeedbackKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 4 - 25), (int)(getHeight() / 2), knobImg);
+	mDelayTimeKnob.init("DelayTimeKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 6 - 25), (int)(getHeight() / 2), knobImg);
+	mDelayMixKnob.init("DelayMixKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 9 - 25), (int)(getHeight() / 2.5), knobImg);
 
 	mRevMixKnob.addListener(this);
 	mPanKnob.addListener(this);
 	mDelayFeedbackKnob.addListener(this);
 	mDelayTimeKnob.addListener(this);
+	mDelayMixKnob.addListener(this);
 
 	//CustomLookAndFeel thisLookAndFeel(knobImg);
 	//mPanKnob.setLookAndFeel(&thisLookAndFeel);
@@ -54,6 +57,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addAndMakeVisible(mPanKnob);
 	addAndMakeVisible(mDelayFeedbackKnob);
 	addAndMakeVisible(mDelayTimeKnob);
+	addAndMakeVisible(mDelayMixKnob);
 	//mRevMixKnob.setAlpha(0.0);
 
 
@@ -101,6 +105,7 @@ void SpacePanAudioProcessorEditor::paint (Graphics& g)
 	mDelayFeedbackKnob.draw(g);
 	mPanKnob.draw(g);
 	mDelayTimeKnob.draw(g);
+	mDelayMixKnob.draw(g);
 }
 
 void SpacePanAudioProcessorEditor::resized()

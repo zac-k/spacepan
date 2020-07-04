@@ -17,7 +17,8 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	{ std::make_unique<AudioParameterFloat>("rev_mix", "Reverb Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("pan", "Pan", NormalisableRange<float>(-1.0f, 1.0f), 0.0f),
 	  std::make_unique<AudioParameterFloat>("delay_feedback", "Delay Feedback", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-	  std::make_unique<AudioParameterFloat>("delay_time", "Delay Time", NormalisableRange<float>(0.0f, 1.0f), 0.5f) })
+	  std::make_unique<AudioParameterFloat>("delay_time", "Delay Time", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+	  std::make_unique<AudioParameterFloat>("delay_mix", "Delay Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f) })
 #ifndef JucePlugin_PreferredChannelConfigurations
      , AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -195,8 +196,7 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
         
 
 		float delaySeconds = mState.getParameter("delay_time")->getValue();
-		int delayInSamples = (int) (delaySeconds * sampleRate);
-		//delayInSamples = 22050; // remove this
+		int delayInSamples = std::max<int>(1, delaySeconds * sampleRate); // minimum 1 sample delay
 		float mDelayFeedbackGain = mState.getParameter("delay_feedback")->getValue();
 		
 
@@ -205,13 +205,9 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 		float delayOffsets[] = { 0, 0 };
 		delay(buffer, mDelayBuffer, channel, buffer.getNumSamples(), 
 											delayInSamples, delayOffsets, mDelayFeedbackGain, sampleRate, 0, true);
+		mDelayBuffer.moveWritePosition(channel, buffer.getNumSamples(), delayInSamples);
 
-
-		mBufferPosArr[channel] += buffer.getNumSamples();
-		while (delayInSamples && mBufferPosArr[channel] >= delayInSamples)
-		{
-			mBufferPosArr[channel] -= delayInSamples;
-		}
+		
 
 		//=============================================================================
 
@@ -247,7 +243,7 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 
 }
 
-void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, AudioBuffer<float> &buffer, int channel, int numSamples,
+void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuffer<float> &delayBuffer, int channel, int numSamples,
 	int32 delayInSamples, float* delayOffsets, float decay,
 	float sampleRate, int32 comb, bool fb)
 {
@@ -261,16 +257,16 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, AudioBuffer<floa
 	memcpy(arr, samples.getWritePointer(channel), sizeof(float)*numSamples);*/
 	AudioBuffer<float> arr = AudioBuffer<float>::AudioBuffer(samples);
 	//float* arr_temp;
-	int32 tempBufferPos = mBufferPosArr[channel];
+	int32 tempBufferPos = delayBuffer.getWritePosition(channel);// mBufferPosArr[channel];
 
 	// Use wet signal for feedback, or dry signal for feedforward delay
 	//arr_temp = fb ? arr : samples.getReadPointer(channel);
 
 	for (int32 i = 0; i < numSamples; i++)
 	{
-		arr.getWritePointer(channel)[i] += (buffer.getReadPointer(channel)[tempBufferPos] * decay);
-		buffer.getWritePointer(channel)[tempBufferPos] = arr.getReadPointer(channel)[i];
-		buffer.getWritePointer(channel)[tempBufferPos + tempDelayInSamples] = arr.getReadPointer(channel)[i];
+		arr.getWritePointer(channel)[i] += (delayBuffer.getReadPointer(channel)[tempBufferPos] * decay);
+		delayBuffer.getWritePointer(channel)[tempBufferPos] = arr.getReadPointer(channel)[i];
+		//buffer.getWritePointer(channel)[tempBufferPos + tempDelayInSamples] = arr.getReadPointer(channel)[i];
 		tempBufferPos++;
 		if (tempBufferPos >= tempDelayInSamples)
 		{

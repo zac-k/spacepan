@@ -3,7 +3,7 @@
 #include "AudioBufferWithPos.h"
 
 template <typename T>
-void AudioBufferWithPos<T>::initWritePosition()
+void CircularAudioBuffer<T>::initWritePosition()
 {
 	mWritePosition.clear();
 	for (int i = 0; i < this->getNumChannels(); i++)
@@ -14,7 +14,7 @@ void AudioBufferWithPos<T>::initWritePosition()
 }
 
 template <typename T>
-void AudioBufferWithPos<T>::initReadPosition()
+void CircularAudioBuffer<T>::initReadPosition()
 {
 	mReadPosition.clear();
 	for (int i = 0; i < this->getNumChannels(); i++)
@@ -25,39 +25,59 @@ void AudioBufferWithPos<T>::initReadPosition()
 }
 
 template <typename T>
-void AudioBufferWithPos<T>::moveWritePosition(int channel, int steps)
+void CircularAudioBuffer<T>::moveWritePosition(int channel, int steps)
 {
 	mWritePosition[channel] = utils::modulo((mWritePosition[channel] + steps), this->getNumSamples());
+
 	return;
 }
 
 template <typename T>
-void AudioBufferWithPos<T>::moveReadPosition(int channel, int steps)
+void CircularAudioBuffer<T>::moveWritePosition(int channel, int steps, int loopSize)
+{
+
+	mWritePosition[channel] += steps;
+	while (loopSize && mWritePosition[channel] >= loopSize)
+	{
+		mWritePosition[channel] -= loopSize;
+	}
+
+	return;
+}
+
+template <typename T>
+void CircularAudioBuffer<T>::moveReadPosition(int channel, int steps)
 {
 	mReadPosition[channel] = utils::modulo((mReadPosition[channel] + steps), this->getNumSamples());
 	return;
 }
 
 template <typename T>
-int AudioBufferWithPos<T>::getWritePosition(int channel)
+int CircularAudioBuffer<T>::getWritePosition(int channel)
 {
 	return mWritePosition[channel];
 }
 
 template <typename T>
-int AudioBufferWithPos<T>::getReadPosition(int channel)
+int CircularAudioBuffer<T>::getReadPosition(int channel)
 {
 	return mReadPosition[channel];
 }
 
 template <typename T>
-void AudioBufferWithPos<T>::setReadPosition(int channel, int val)
+void CircularAudioBuffer<T>::setReadPosition(int channel, int val)
 {
 	mReadPosition[channel] = val;
 }
 
 template <typename T>
-void AudioBufferWithPos<T>::write(int channel, const AudioBuffer<T>& inputBuffer)
+void CircularAudioBuffer<T>::setWritePosition(int channel, int val)
+{
+	mWritePosition[channel] = val;
+}
+
+template <typename T>
+void CircularAudioBuffer<T>::write(int channel, const AudioBuffer<T>& inputBuffer)
 {
 	/* Write data into the circular buffer and update write position*/
 
@@ -78,7 +98,7 @@ void AudioBufferWithPos<T>::write(int channel, const AudioBuffer<T>& inputBuffer
 }
 
 template <typename T>
-void AudioBufferWithPos<T>::read(int channel, AudioBuffer<T>& outputBuffer, float rampGain)
+void CircularAudioBuffer<T>::read(int channel, AudioBuffer<T>& outputBuffer, float rampGain)
 {
 	
 

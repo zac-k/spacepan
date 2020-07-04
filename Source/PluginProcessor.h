@@ -40,7 +40,7 @@ public:
 	void getFromDelayBuffer(AudioBuffer<float>& buffer, int channel, const int bufferLength,
 		const int delayBufferLength, const float* bufferData, const float* delayBufferData, int delaySamples, int readPosition);
 
-	void delay(AudioBuffer<float> &samples, AudioBuffer<float> &buffer, int channel, int numSamples,
+	void delay(AudioBuffer<float> &samples, CircularAudioBuffer<float> &buffer, int channel, int numSamples,
 		int32 delayInSamples, float* delayOffsets, float decay,
 		float sampleRate, int32 comb, bool fb);
 
@@ -96,7 +96,7 @@ private:
 	int mBufferPosArr[2] = { 0, 0 };
 
 	// Buffers
-	AudioBufferWithPos<float> mDelayBuffer;
+	CircularAudioBuffer<float> mDelayBuffer;
 
 	//==============================================================================
 
