@@ -163,7 +163,7 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
-	float sampleRate = getSampleRate();
+	double sampleRate = getSampleRate();
 
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
@@ -194,15 +194,16 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     {
         //auto* channelData = buffer.getWritePointer (channel);
 
-		const float* bufferData = buffer.getReadPointer(channel);
-		const float* delayBufferData = mDelayBuffer.getReadPointer(channel);
+		//const float* bufferData = buffer.getReadPointer(channel);
+		//const float* delayBufferData = mDelayBuffer.getReadPointer(channel);
 
 		// Copy to delay buffer
 
 		float delaySeconds = mState.getParameter("delay_time")->getValue();
 		int delayInSamples = (int) (delaySeconds * sampleRate);
+		//delayInSamples = 22050; // remove this
 		float mDelayFeedbackGain = mState.getParameter("delay_feedback")->getValue();
-
+		
 
 
 
@@ -220,10 +221,17 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 		//mWritePosition = mDelayBuffer.getWritePosition(channel);
 		//fillDelayBuffer(channel, bufferLength, delayBufferLength, bufferData, delayBufferData);
 
+
+		float rampGain;
+		float newReadPosition = utils::modulo(mDelayBuffer.getWritePosition(channel) - delayInSamples, delayBufferLength);
+		rampGain = (mDelayBuffer.getReadPosition(channel) == newReadPosition) ? 1.0f : 0.0f;
 		// Read position must be set before .write() is called
-		mDelayBuffer.setReadPosition(channel, static_cast<int> (delayBufferLength + mDelayBuffer.getWritePosition(channel) - delayInSamples) % delayBufferLength);
+		mDelayBuffer.setReadPosition(channel,  newReadPosition);
 		mDelayBuffer.write(channel, buffer); // This also updates the write position
-		mDelayBuffer.read(channel, buffer);
+		mDelayBuffer.read(channel, buffer, rampGain);
+
+
+		/* Old function to copy data from delay buffer */
 		//getFromDelayBuffer(buffer, channel, bufferLength, delayBufferLength, bufferData, delayBufferData, delayInSamples,
 		//	mDelayBuffer.getReadPosition(channel));
 

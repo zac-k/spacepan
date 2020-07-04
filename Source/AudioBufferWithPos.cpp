@@ -5,10 +5,10 @@
 template <typename T>
 void AudioBufferWithPos<T>::initWritePosition()
 {
-	writePosition.clear();
+	mWritePosition.clear();
 	for (int i = 0; i < this->getNumChannels(); i++)
 	{
-		writePosition.push_back(0);
+		mWritePosition.push_back(0);
 	}
 	return;
 }
@@ -16,10 +16,10 @@ void AudioBufferWithPos<T>::initWritePosition()
 template <typename T>
 void AudioBufferWithPos<T>::initReadPosition()
 {
-	readPosition.clear();
+	mReadPosition.clear();
 	for (int i = 0; i < this->getNumChannels(); i++)
 	{
-		readPosition.push_back(0);
+		mReadPosition.push_back(0);
 	}
 	return;
 }
@@ -27,26 +27,33 @@ void AudioBufferWithPos<T>::initReadPosition()
 template <typename T>
 void AudioBufferWithPos<T>::moveWritePosition(int channel, int steps)
 {
-	writePosition[channel] = utils::modulo((writePosition[channel] + steps), this->getNumSamples());
+	mWritePosition[channel] = utils::modulo((mWritePosition[channel] + steps), this->getNumSamples());
+	return;
+}
+
+template <typename T>
+void AudioBufferWithPos<T>::moveReadPosition(int channel, int steps)
+{
+	mReadPosition[channel] = utils::modulo((mReadPosition[channel] + steps), this->getNumSamples());
 	return;
 }
 
 template <typename T>
 int AudioBufferWithPos<T>::getWritePosition(int channel)
 {
-	return writePosition[channel];
+	return mWritePosition[channel];
 }
 
 template <typename T>
 int AudioBufferWithPos<T>::getReadPosition(int channel)
 {
-	return readPosition[channel];
+	return mReadPosition[channel];
 }
 
 template <typename T>
 void AudioBufferWithPos<T>::setReadPosition(int channel, int val)
 {
-	readPosition[channel] = val;
+	mReadPosition[channel] = val;
 }
 
 template <typename T>
@@ -54,25 +61,15 @@ void AudioBufferWithPos<T>::write(int channel, const AudioBuffer<T>& inputBuffer
 {
 	/* Write data into the circular buffer and update write position*/
 
-	/*int bufferRemaining = this->getNumSamples() - this->getWritePosition(channel);
-	int partialCopyLength = std::min(bufferRemaining, inputBuffer.getNumSamples());
-	this->copyFrom(channel, this->getWritePosition(channel), inputBuffer.getReadPointer(channel), 0,
-		partialCopyLength);
-	if (partialCopyLength < inputBuffer.getNumSamples)
-	{
-		this->copyFrom(channel, 0, inputBuffer.getReadPointer(channel), partialCopyLength,
-			inputBuffer.getNumSamples() - partialCopyLength);
-	}*/
-	//
 
-	if (this->getNumSamples() > inputBuffer.getNumSamples() + this->getWritePosition(channel))
+	if (this->getNumSamples() > inputBuffer.getNumSamples() + mWritePosition[channel])
 	{
 		this->copyFromWithRamp(channel, this->getWritePosition(channel), inputBuffer.getReadPointer(channel), inputBuffer.getNumSamples(), 1.0, 1.0);
 	}
 	else
 	{
 		const int bufferRemaining = this->getNumSamples() - this->getWritePosition(channel);
-		this->copyFromWithRamp(channel, this->getWritePosition(channel), inputBuffer.getReadPointer(channel), bufferRemaining, 1.0, 1.0);
+		this->copyFromWithRamp(channel, mWritePosition[channel], inputBuffer.getReadPointer(channel), bufferRemaining, 1.0, 1.0);
 
 		this->copyFromWithRamp(channel, 0, inputBuffer.getReadPointer(channel), inputBuffer.getNumSamples() - bufferRemaining, 1.0, 1.0);
 	}
@@ -81,23 +78,21 @@ void AudioBufferWithPos<T>::write(int channel, const AudioBuffer<T>& inputBuffer
 }
 
 template <typename T>
-void AudioBufferWithPos<T>::read(int channel, AudioBuffer<T>& outputBuffer)
+void AudioBufferWithPos<T>::read(int channel, AudioBuffer<T>& outputBuffer, float rampGain)
 {
-	const float* outputBufferData = outputBuffer.getReadPointer(channel);
-	const float* thisBufferData = this->getReadPointer(channel);
-	const int readPosition = this->getReadPosition(channel);
+	
 
-	if (this->getNumSamples() > outputBuffer.getNumSamples() + this->getReadPosition(channel))
+	if (this->getNumSamples() > outputBuffer.getNumSamples() + mReadPosition[channel])
 	{
-		outputBuffer.addFromWithRamp(channel, 0, thisBufferData + this->getReadPosition(channel), outputBuffer.getNumSamples(), 1.0, 1.0);
+		outputBuffer.addFromWithRamp(channel, 0, this->getReadPointer(channel, mReadPosition[channel]), outputBuffer.getNumSamples(), rampGain, 1.0);
 	}
 	else
 	{
 		const int bufferRemaining = this->getNumSamples() - this->getReadPosition(channel);
-		outputBuffer.addFromWithRamp(channel, 0, thisBufferData + readPosition, bufferRemaining, 1.0, 1.0);
-		outputBuffer.addFromWithRamp(channel, bufferRemaining, thisBufferData, this->getNumSamples() - bufferRemaining, 1.0, 1.0);
+		outputBuffer.addFromWithRamp(channel, 0, this->getReadPointer(channel, mReadPosition[channel]), bufferRemaining, rampGain, 1.0);
+		outputBuffer.addFromWithRamp(channel, bufferRemaining, this->getReadPointer(channel), this->getNumSamples() - bufferRemaining, rampGain, 1.0);
 
 	}
 
-
+	moveReadPosition(channel, outputBuffer.getNumSamples());
 }
