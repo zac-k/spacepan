@@ -33,6 +33,8 @@ public:
 
 	TextEditor debugText;
 
+	TooltipWindow mToolTipWindow;
+
 	// Parameters
 
 	

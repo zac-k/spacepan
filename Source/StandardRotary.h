@@ -24,7 +24,6 @@ public:
 
 	// Public methods
 	void init(String name, float min, float max, float value, int x, int y, Image spriteImg);
-	void draw(Graphics& g);
 
 private:
 

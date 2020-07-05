@@ -42,6 +42,14 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelayMixKnob.init("DelayMixKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 9 - 25), (int)(getHeight() / 2.5), knobImg);
 	mDelayWidthKnob.init("DelayWidthKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 6 - 25), (int)(getHeight() / 1.5), knobImg);
 
+	// Set tooltips
+	mRevMixKnob.setTooltip("Mix");
+	mPanKnob.setTooltip("Pan");
+	mDelayFeedbackKnob.setTooltip("Feedback amount");
+	mDelayTimeKnob.setTooltip("Delay time");
+	mDelayMixKnob.setTooltip("Mix");
+	mDelayWidthKnob.setTooltip("Stereo width");
+
 	mRevMixKnob.addListener(this);
 	mPanKnob.addListener(this);
 	mDelayFeedbackKnob.addListener(this);
@@ -107,12 +115,6 @@ void SpacePanAudioProcessorEditor::paint (Graphics& g)
     //g.setFont (15.0f);
     //g.drawFittedText ("Hello World!", getLocalBounds(), Justification::centred, 1);
 	g.drawImageAt(backgroundImage, 0, 0);
-	/*mRevMixKnob.draw(g);
-	mDelayFeedbackKnob.draw(g);
-	mPanKnob.draw(g);
-	mDelayTimeKnob.draw(g);
-	mDelayMixKnob.draw(g);
-	mDelayWidthKnob.draw(g);*/
 }
 
 void SpacePanAudioProcessorEditor::resized()
