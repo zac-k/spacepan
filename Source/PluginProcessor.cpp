@@ -12,13 +12,16 @@
 #include "PluginEditor.h"
 #include "utils.h"
 
+const float PI = 3.1415926535897932384626;
+
 //==============================================================================
 SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state",
 	{ std::make_unique<AudioParameterFloat>("rev_mix", "Reverb Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("pan", "Pan", NormalisableRange<float>(-1.0f, 1.0f), 0.0f),
 	  std::make_unique<AudioParameterFloat>("delay_feedback", "Delay Feedback", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_time", "Delay Time", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-	  std::make_unique<AudioParameterFloat>("delay_mix", "Delay Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f) })
+	  std::make_unique<AudioParameterFloat>("delay_mix", "Delay Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+	  std::make_unique<AudioParameterFloat>("delay_width", "Delay Width", NormalisableRange<float>(0.0f, 1.0f), 0.5f) })
 #ifndef JucePlugin_PreferredChannelConfigurations
      , AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -192,13 +195,13 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 
 	AudioBuffer<float> delayDry;
 	delayDry.makeCopyOf(buffer);
-
+	float delaySeconds = mState.getParameter("delay_time")->getValue();
+	int delayInSamples = std::max<int>(1, delaySeconds * sampleRate); // minimum 1 sample delay
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         
 
-		float delaySeconds = mState.getParameter("delay_time")->getValue();
-		int delayInSamples = std::max<int>(1, delaySeconds * sampleRate); // minimum 1 sample delay
+		
 		float mDelayFeedbackGain = mState.getParameter("delay_feedback")->getValue();
 		
 
@@ -245,6 +248,7 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 		
     }
 
+	float delayWidth = mState.getParameter("delay_width")->getValue();
 	AudioBuffer<float> delayWet;
 	delayWet.makeCopyOf(buffer);
 
@@ -252,6 +256,9 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 	{
 
 		FloatVectorOperations::subtract(delayWet.getWritePointer(channel), delayDry.getReadPointer(channel), bufferLength);
+
+		
+
 		// Mix wet and dry signals
 		mixer(delayDry, delayWet, mState.getParameter("delay_mix")->getValue(), channel, 1.0f);
 
@@ -267,7 +274,7 @@ void SpacePanAudioProcessor::mixer(AudioBuffer<float> &dry, AudioBuffer<float> &
 
 
 	
-	// This would probably be faster using FloatVectorOperations!
+	// This might be faster using FloatVectorOperations!
 	for (int i = 0; i < dry.getNumSamples(); i++)
 	{
 		wet.getWritePointer(channel)[i] = (1 - mix) *dry.getReadPointer(channel)[i] + mix * wet.getReadPointer(channel)[i];

@@ -11,6 +11,8 @@
 #pragma once
 
 #include "juceheader.h"
+#include "CustomLookAndFeel.h"
+
 
 class StandardRotary : public Slider
 {
@@ -31,19 +33,8 @@ private:
 	int xpos;
 	int ypos;
 	Image sprite;
-
-
-};
-
-class CustomLookAndFeel : public LookAndFeel_V4
-{
-public:
-	CustomLookAndFeel(Image spriteImg);
-
-	void drawRotarySlider(Graphics& g, int x, int y, int width, int height, float sliderPos,
-		float rotaryStartAngle, float rotaryEndAngle, Slider& slider) override;
-
-private:
-	Image sprite;
+	CustomLookAndFeel mLookAndFeel;
 
 };
+
+

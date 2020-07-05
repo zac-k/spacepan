@@ -59,12 +59,13 @@ private:
 	// Delay controls
 	StandardRotary mDelayFeedbackKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayFeedbackAttachment;
-
 	StandardRotary mDelayTimeKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayTimeAttachment;
-
 	StandardRotary mDelayMixKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayMixAttachment;
+	StandardRotary mDelayWidthKnob;
+	AudioProcessorValueTreeState::SliderAttachment mDelayWidthAttachment;
+
 	//Slider mDelayFeedbackKnob;
 	
 	// Reverb controls

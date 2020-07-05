@@ -19,7 +19,8 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mPanAttachment(p.mState, "pan", mPanKnob),
 	mDelayFeedbackAttachment(p.mState, "delay_feedback", mDelayFeedbackKnob),
 	mDelayTimeAttachment(p.mState, "delay_time", mDelayTimeKnob),
-	mDelayMixAttachment(p.mState, "delay_mix", mDelayMixKnob)
+	mDelayMixAttachment(p.mState, "delay_mix", mDelayMixKnob),
+	mDelayWidthAttachment(p.mState, "delay_width", mDelayWidthKnob)
 	
 {
     setSize (852, 600);
@@ -39,12 +40,14 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelayFeedbackKnob.init("DelayFeedbackKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 4 - 25), (int)(getHeight() / 2), knobImg);
 	mDelayTimeKnob.init("DelayTimeKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 6 - 25), (int)(getHeight() / 2), knobImg);
 	mDelayMixKnob.init("DelayMixKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 9 - 25), (int)(getHeight() / 2.5), knobImg);
+	mDelayWidthKnob.init("DelayWidthKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 6 - 25), (int)(getHeight() / 1.5), knobImg);
 
 	mRevMixKnob.addListener(this);
 	mPanKnob.addListener(this);
 	mDelayFeedbackKnob.addListener(this);
 	mDelayTimeKnob.addListener(this);
 	mDelayMixKnob.addListener(this);
+	mDelayWidthKnob.addListener(this);
 
 	//CustomLookAndFeel thisLookAndFeel(knobImg);
 	//mPanKnob.setLookAndFeel(&thisLookAndFeel);
@@ -58,7 +61,10 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addAndMakeVisible(mDelayFeedbackKnob);
 	addAndMakeVisible(mDelayTimeKnob);
 	addAndMakeVisible(mDelayMixKnob);
+	addAndMakeVisible(mDelayWidthKnob);
 	//mRevMixKnob.setAlpha(0.0);
+
+
 
 
 	//StandardRotary mDelayFeedbackKnob(0.0f, 1.0f, 0.5f, (int)(getWidth() / 4 - 25), (int)(getHeight() / 6), knobImg);
@@ -101,11 +107,12 @@ void SpacePanAudioProcessorEditor::paint (Graphics& g)
     //g.setFont (15.0f);
     //g.drawFittedText ("Hello World!", getLocalBounds(), Justification::centred, 1);
 	g.drawImageAt(backgroundImage, 0, 0);
-	mRevMixKnob.draw(g);
+	/*mRevMixKnob.draw(g);
 	mDelayFeedbackKnob.draw(g);
 	mPanKnob.draw(g);
 	mDelayTimeKnob.draw(g);
 	mDelayMixKnob.draw(g);
+	mDelayWidthKnob.draw(g);*/
 }
 
 void SpacePanAudioProcessorEditor::resized()
