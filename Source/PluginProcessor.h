@@ -47,6 +47,8 @@ public:
 	float* combFilter(float* samples, float** buffer, int channel, int numSamples,
 		int32 delayInSamples, float** delayOffsets, float decay,
 		float sampleRate, int32 comb, bool fb);
+
+	void mixer(AudioBuffer<float> &dry, AudioBuffer<float> &wet, float mix, int channel, float vol);
 	/*void fillDelayBuffer(int channel, const int bufferLength, const int delayBufferLength,
 		const float* bufferData, const float* delayBufferData);*/
 	//==============================================================================

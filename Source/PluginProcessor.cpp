@@ -190,6 +190,8 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 	const int delayBufferLength = mDelayBuffer.getNumSamples();
 	//=============================================================================
 
+	AudioBuffer<float> delayDry;
+	delayDry.makeCopyOf(buffer);
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
@@ -206,6 +208,8 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 		delay(buffer, mDelayBuffer, channel, buffer.getNumSamples(), 
 											delayInSamples, delayOffsets, mDelayFeedbackGain, sampleRate, 0, true);
 		mDelayBuffer.moveWritePosition(channel, buffer.getNumSamples(), delayInSamples);
+
+		
 
 		
 
@@ -241,6 +245,36 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 		
     }
 
+	AudioBuffer<float> delayWet;
+	delayWet.makeCopyOf(buffer);
+
+	for (int channel = 0; channel < totalNumInputChannels; ++channel)
+	{
+
+		FloatVectorOperations::subtract(delayWet.getWritePointer(channel), delayDry.getReadPointer(channel), bufferLength);
+		// Mix wet and dry signals
+		mixer(delayDry, delayWet, mState.getParameter("delay_mix")->getValue(), channel, 1.0f);
+
+	}
+
+
+	buffer.makeCopyOf(delayWet); // This might not be best way.
+
+}
+
+void SpacePanAudioProcessor::mixer(AudioBuffer<float> &dry, AudioBuffer<float> &wet, float mix, int channel, float vol)
+{
+
+
+	
+	// This would probably be faster using FloatVectorOperations!
+	for (int i = 0; i < dry.getNumSamples(); i++)
+	{
+		wet.getWritePointer(channel)[i] = (1 - mix) *dry.getReadPointer(channel)[i] + mix * wet.getReadPointer(channel)[i];
+		wet.getWritePointer(channel)[i] *= vol;
+	}
+
+	return;
 }
 
 void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuffer<float> &delayBuffer, int channel, int numSamples,
