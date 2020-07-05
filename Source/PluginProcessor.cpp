@@ -197,12 +197,13 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 	delayDry.makeCopyOf(buffer);
 	float delaySeconds = mState.getParameter("delay_time")->getValue();
 	int delayInSamples = std::max<int>(1, delaySeconds * sampleRate); // minimum 1 sample delay
+	float mDelayFeedbackGain = mState.getParameter("delay_feedback")->getValue();
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
         
 
 		
-		float mDelayFeedbackGain = mState.getParameter("delay_feedback")->getValue();
+		
 		
 
 
@@ -254,8 +255,11 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 
 	for (int channel = 0; channel < totalNumInputChannels; ++channel)
 	{
-
+		// Extract pure wet signal from delay buffer
 		FloatVectorOperations::subtract(delayWet.getWritePointer(channel), delayDry.getReadPointer(channel), bufferLength);
+
+		// Compensate for gain drop on first echo
+		delayWet.applyGain(channel, 0, bufferLength, 1.0f / mDelayFeedbackGain);
 
 		
 

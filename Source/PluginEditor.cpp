@@ -26,9 +26,9 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
     setSize (852, 600);
 
 	// Debug textbox
-	debugText.setBounds(0, 0, 100, 50);
+	/*debugText.setBounds(0, 0, 100, 50);
 	addAndMakeVisible(debugText);
-	debugText.setText("test");
+	debugText.setText("test");*/
 	//debugText.setText((String)(utils::modulo(-5, 7)));
 
 	
@@ -36,11 +36,20 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 
 	// Initialise knobs
 	mRevMixKnob.init( "RevMixKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 2 - 35), (int)(getHeight() / 2), knobImg);
-	mPanKnob.init("PanKnob", -1.0f, 1.0f, 0.0f, (int)(getWidth() / 2 - 35), (int)(getHeight() / 6 - 7), knobImg);
+	mPanKnob.init("PanKnob", -1.0f, 1.0f, 0.0f, (int)(getWidth() / 2 - 35), (int)(getHeight() / 6 - 7), knobImgPan);
 	mDelayFeedbackKnob.init("DelayFeedbackKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 4 - 25), (int)(getHeight() / 2), knobImg);
 	mDelayTimeKnob.init("DelayTimeKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 6 - 25), (int)(getHeight() / 2), knobImg);
+	mDelayTimeText.setBounds(0, 0, 80, 20);
+	//mDelayTimeKnob.hideTextBox(false);
+	//mDelayTimeKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxAbove, true, 100, 20);
 	mDelayMixKnob.init("DelayMixKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 9 - 25), (int)(getHeight() / 2.5), knobImg);
 	mDelayWidthKnob.init("DelayWidthKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 6 - 25), (int)(getHeight() / 1.5), knobImg);
+
+
+	// Buttons
+	//mDelayOnButton.setBounds(100, 100, 20, 80);
+	//mDelayOnButton.setImages(false, false, true,);
+	//addAndMakeVisible(mDelayOnButton);
 
 	// Set tooltips
 	mRevMixKnob.setTooltip("Mix");
@@ -68,6 +77,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addAndMakeVisible(mPanKnob);
 	addAndMakeVisible(mDelayFeedbackKnob);
 	addAndMakeVisible(mDelayTimeKnob);
+	addAndMakeVisible(mDelayTimeText);
 	addAndMakeVisible(mDelayMixKnob);
 	addAndMakeVisible(mDelayWidthKnob);
 	//mRevMixKnob.setAlpha(0.0);

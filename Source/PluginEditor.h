@@ -31,13 +31,14 @@ public:
 
 	void sliderValueChanged(Slider* slider) override;
 
-	TextEditor debugText;
+	//TextEditor debugText;
+	//
 
 	TooltipWindow mToolTipWindow;
 
 	// Parameters
 
-	
+	Label mDelayTimeText;
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -51,6 +52,15 @@ private:
 	// Load a knob image for testing
 	Image knobImg = ImageCache::getFromMemory(BinaryData::animation_knob_png,
 											  BinaryData::animation_knob_pngSize);
+	Image knobImgPan = ImageCache::getFromMemory(BinaryData::animation_knob2_png,
+		BinaryData::animation_knob2_pngSize);
+
+	// Load a switch image for testing
+
+	Image delayOnButtonOnImg = ImageCache::getFromMemory(BinaryData::delayOnButtonOn_png,
+		BinaryData::delayOnButtonOn_pngSize);
+	Image delayOnButtonOffImg = ImageCache::getFromMemory(BinaryData::delayOnButtonOff_png,
+		BinaryData::delayOnButtonOff_pngSize);
 
 
 	// Global controls
@@ -59,6 +69,7 @@ private:
 	//Slider mPanKnob;
 
 	// Delay controls
+	//ImageButton mDelayOnButton;
 	StandardRotary mDelayFeedbackKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayFeedbackAttachment;
 	StandardRotary mDelayTimeKnob;
@@ -68,6 +79,7 @@ private:
 	StandardRotary mDelayWidthKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayWidthAttachment;
 
+	
 	//Slider mDelayFeedbackKnob;
 	
 	// Reverb controls
