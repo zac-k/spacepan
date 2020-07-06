@@ -99,6 +99,9 @@ private:
 
 	IIRFilter lowPassFilterL;
 	IIRFilter lowPassFilterR;
+	double mPanFcR{ 0 };
+	double mPanFcL{ 0 };
+
 
 	int mBufferPosArr[2] = { 0, 0 };
 

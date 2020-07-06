@@ -127,6 +127,9 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	mDelayBuffer.clear();
 	mDelayBuffer.initWritePosition();
 	mDelayBuffer.initReadPosition();
+
+	lowPassFilterL.reset();
+	lowPassFilterR.reset();
 	//}
 	
 
@@ -288,10 +291,47 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 
 void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
 {
-	double fcL = 200;
-	double fcR = 200;
+
+	double nyquist = getSampleRate() / 2;
+	double fmax = 30.0e3;
+	double rangeMin = 0;
+	double fmin = 1000;
+	double regParam = 0.1;
+	//double fcL = std::min(fmax - (fmax-fmin)*(std::sqrt(std::abs(panVal) + regParam) - std::sqrt(regParam)), nyquist);// 30.0e3;// -29.5e3*abs(panVal) + 30.0e3;
+	//double fcR = std::min(fmax - (fmax-fmin)*(std::sqrt(std::abs(panVal) + regParam) - std::sqrt(regParam)), nyquist);// 30.0e3;// -29.5e3*abs(panVal) + 30.0e3;
+	double fcL = std::max(fmax - (fmax - rangeMin)*log2(std::abs(panVal) + 1), fmin);
+	double fcR = std::max(fmax - (fmax - rangeMin)*log2(std::abs(panVal) + 1), fmin);
+	if (panVal <= 0)
+	{
+		fcL = fmax;
+	}
+
+	if (panVal >= 0)
+	{
+		fcR = fmax;
+	}
+
+
+	fcL = std::min(fcL, nyquist);
+	fcR = std::min(fcR, nyquist);
+
+
 	IIRCoefficients coeffsL = IIRCoefficients::makeLowPass(getSampleRate(), fcL);
+	if (fcR != mPanFcR)
+	{
+
+		lowPassFilterL.reset();
+	}
+
 	IIRCoefficients coeffsR = IIRCoefficients::makeLowPass(getSampleRate(), fcR);
+	if (fcR != mPanFcR)
+	{
+		
+		lowPassFilterR.reset();
+	}
+	
+	
+	
 	SpacePanAudioProcessor::lowPassFilterL.setCoefficients(coeffsL);
 	SpacePanAudioProcessor::lowPassFilterR.setCoefficients(coeffsR);
 	int bufferLength = buffer.getNumSamples();
@@ -299,7 +339,7 @@ void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
 	//{
 
 		// TODO: This is only a test for filtering
-	if (panVal > 0)
+/*	if (panVal > 0)
 	{
 
 		lowPassFilterL.processSamples(buffer.getWritePointer(0), bufferLength);
@@ -308,7 +348,12 @@ void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
 	{
 		lowPassFilterR.processSamples(buffer.getWritePointer(1), bufferLength);
 	}
-			
+		*/	
+
+	mPanFcL = fcL;
+	mPanFcR = fcR;
+	lowPassFilterL.processSamples(buffer.getWritePointer(0), bufferLength);
+	lowPassFilterR.processSamples(buffer.getWritePointer(1), bufferLength);
 
 		
 	//}
