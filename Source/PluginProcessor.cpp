@@ -128,6 +128,13 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	mDelayBuffer.initWritePosition();
 	mDelayBuffer.initReadPosition();
 
+
+	dsp::ProcessSpec spec;
+	spec.sampleRate = sampleRate;
+	spec.maximumBlockSize = samplesPerBlock;
+	spec.numChannels = getTotalNumOutputChannels();
+	lowPassFilterL.prepare(spec);
+	lowPassFilterR.prepare(spec);
 	lowPassFilterL.reset();
 	lowPassFilterR.reset();
 	//}
@@ -167,6 +174,7 @@ bool SpacePanAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 
 void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
+	
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -291,14 +299,14 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 
 void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
 {
-
+	dsp::AudioBlock<float> block(buffer);
+	dsp::AudioBlock<float> blockL = block.getSingleChannelBlock(0);
+	dsp::AudioBlock<float> blockR = block.getSingleChannelBlock(1);
 	double nyquist = getSampleRate() / 2;
-	double fmax = 30.0e3;
+	double fmax = 20.0e3;
 	double rangeMin = 0;
-	double fmin = 1000;
+	double fmin = 2000;
 	double regParam = 0.1;
-	//double fcL = std::min(fmax - (fmax-fmin)*(std::sqrt(std::abs(panVal) + regParam) - std::sqrt(regParam)), nyquist);// 30.0e3;// -29.5e3*abs(panVal) + 30.0e3;
-	//double fcR = std::min(fmax - (fmax-fmin)*(std::sqrt(std::abs(panVal) + regParam) - std::sqrt(regParam)), nyquist);// 30.0e3;// -29.5e3*abs(panVal) + 30.0e3;
 	double fcL = std::max(fmax - (fmax - rangeMin)*log2(std::abs(panVal) + 1), fmin);
 	double fcR = std::max(fmax - (fmax - rangeMin)*log2(std::abs(panVal) + 1), fmin);
 	if (panVal <= 0)
@@ -316,44 +324,15 @@ void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
 	fcR = std::min(fcR, nyquist);
 
 
-	IIRCoefficients coeffsL = IIRCoefficients::makeLowPass(getSampleRate(), fcL);
-	if (fcR != mPanFcR)
-	{
-
-		lowPassFilterL.reset();
-	}
-
-	IIRCoefficients coeffsR = IIRCoefficients::makeLowPass(getSampleRate(), fcR);
-	if (fcR != mPanFcR)
-	{
-		
-		lowPassFilterR.reset();
-	}
+	*lowPassFilterL.coefficients = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), fcL);
+	*lowPassFilterR.coefficients = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), fcR);
 	
-	
-	
-	SpacePanAudioProcessor::lowPassFilterL.setCoefficients(coeffsL);
-	SpacePanAudioProcessor::lowPassFilterR.setCoefficients(coeffsR);
 	int bufferLength = buffer.getNumSamples();
-	//for (int channel = 0; channel < getTotalNumInputChannels(); ++channel)
-	//{
-
-		// TODO: This is only a test for filtering
-/*	if (panVal > 0)
-	{
-
-		lowPassFilterL.processSamples(buffer.getWritePointer(0), bufferLength);
-	}			
-	else if (panVal < 0)
-	{
-		lowPassFilterR.processSamples(buffer.getWritePointer(1), bufferLength);
-	}
-		*/	
 
 	mPanFcL = fcL;
 	mPanFcR = fcR;
-	lowPassFilterL.processSamples(buffer.getWritePointer(0), bufferLength);
-	lowPassFilterR.processSamples(buffer.getWritePointer(1), bufferLength);
+	lowPassFilterL.process(dsp::ProcessContextReplacing<float>(blockL));
+	lowPassFilterR.process(dsp::ProcessContextReplacing<float>(blockR));
 
 		
 	//}

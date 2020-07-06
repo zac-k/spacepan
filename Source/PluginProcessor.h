@@ -97,8 +97,9 @@ public:
 
 private:
 
-	IIRFilter lowPassFilterL;
-	IIRFilter lowPassFilterR;
+	dsp::IIR::Filter<float> lowPassFilterL;
+	dsp::IIR::Filter<float> lowPassFilterR;
+
 	double mPanFcR{ 0 };
 	double mPanFcL{ 0 };
 
