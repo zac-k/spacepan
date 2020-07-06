@@ -297,8 +297,27 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 
 }
 
+void SpacePanAudioProcessor::truePan(AudioBuffer<float> &buffer, float panVal, float maxPan)
+{
+	// TODO: This is faux pan placeholder. Change to true pan algorithm
+	panVal *= maxPan;
+	AudioBuffer<float> bufferTemp;
+	bufferTemp.makeCopyOf(buffer);
+	int bufferLength = buffer.getNumSamples();
+	for (int i = 0; i < bufferLength; i++)
+	{
+		buffer.getWritePointer(0)[i] = (1 - panVal)*buffer.getReadPointer(0)[i];
+		buffer.getWritePointer(1)[i] = (1 + panVal)*buffer.getReadPointer(1)[i];
+	}
+	
+	
+
+}
+
 void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
 {
+
+	truePan(buffer, panVal, 0.8);
 	dsp::AudioBlock<float> block(buffer);
 	dsp::AudioBlock<float> blockL = block.getSingleChannelBlock(0);
 	dsp::AudioBlock<float> blockR = block.getSingleChannelBlock(1);
