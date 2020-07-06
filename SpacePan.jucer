@@ -26,8 +26,14 @@
       <FILE id="fKHiQ3" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
     <FILE id="fGXxlv" name="background.png" compile="1" resource="1" file="Resource/background.png"/>
+    <FILE id="NGWbbE" name="delayOnButtonOff.png" compile="0" resource="1"
+          file="Resource/delayOnButtonOff.png"/>
+    <FILE id="hE1Dkj" name="delayOnButtonOn.png" compile="0" resource="1"
+          file="Resource/delayOnButtonOn.png"/>
     <FILE id="mMckzQ" name="animation_knob.png" compile="0" resource="1"
           file="Resource/animation_knob.png"/>
+    <FILE id="dMfTaV" name="animation_knob2.png" compile="0" resource="1"
+          file="Resource/animation_knob2.png"/>
   </MAINGROUP>
   <EXPORTFORMATS>
     <VS2017 targetFolder="Builds/VisualStudio2017" vst3Folder="..\..\Downloads\VST_SDK\VST3_SDK"
@@ -51,6 +57,7 @@
         <MODULEPATH id="juce_gui_basics" path="D:/programs/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="D:/programs/JUCE/modules"/>
         <MODULEPATH id="juce_opengl" path="D:/programs/JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="D:/programs/JUCE/modules"/>
       </MODULEPATHS>
     </VS2017>
   </EXPORTFORMATS>
@@ -65,6 +72,7 @@
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
