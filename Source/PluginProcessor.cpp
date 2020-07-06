@@ -193,19 +193,32 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 	const int delayBufferLength = mDelayBuffer.getNumSamples();
 	//=============================================================================
 
+
+
+
+	pan(buffer, *mState.getRawParameterValue("pan"));
+
+
 	AudioBuffer<float> delayDry;
 	delayDry.makeCopyOf(buffer);
-	float delaySeconds = mState.getParameter("delay_time")->getValue();
+	float delaySeconds = *mState.getRawParameterValue("delay_time");
 	int delayInSamples = std::max<int>(1, delaySeconds * sampleRate); // minimum 1 sample delay
-	float mDelayFeedbackGain = mState.getParameter("delay_feedback")->getValue();
+	float mDelayFeedbackGain = *mState.getRawParameterValue("delay_feedback");
+
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
+		
         
 
-		
-		
-		
+		// TODO: This should be controlled via GUI!
+		String delayStereoType = "ping_pong";
 
+		// TODO: For ping pong delay, input pan should be modulated, and the modulated input passed to delay. Extraction of
+		// the wet signal requires the modulated input, and the mixer should mix the unmodulated signal with the delay ouput.
+		// Use the global pan algorithm for input modulation.
+		
+		
+		//
 
 
 		float delayOffsets[] = { 0, 0 };
@@ -249,7 +262,7 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 		
     }
 
-	float delayWidth = mState.getParameter("delay_width")->getValue();
+	float delayWidth = *mState.getRawParameterValue("delay_width");
 	AudioBuffer<float> delayWet;
 	delayWet.makeCopyOf(buffer);
 
@@ -264,12 +277,41 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 		
 
 		// Mix wet and dry signals
-		mixer(delayDry, delayWet, mState.getParameter("delay_mix")->getValue(), channel, 1.0f);
+		mixer(delayDry, delayWet, *mState.getRawParameterValue("delay_mix"), channel, 1.0f);
 
 	}
 
 
 	buffer.makeCopyOf(delayWet); // This might not be best way.
+
+}
+
+void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
+{
+	double fcL = 200;
+	double fcR = 200;
+	IIRCoefficients coeffsL = IIRCoefficients::makeLowPass(getSampleRate(), fcL);
+	IIRCoefficients coeffsR = IIRCoefficients::makeLowPass(getSampleRate(), fcR);
+	SpacePanAudioProcessor::lowPassFilterL.setCoefficients(coeffsL);
+	SpacePanAudioProcessor::lowPassFilterR.setCoefficients(coeffsR);
+	int bufferLength = buffer.getNumSamples();
+	//for (int channel = 0; channel < getTotalNumInputChannels(); ++channel)
+	//{
+
+		// TODO: This is only a test for filtering
+	if (panVal > 0)
+	{
+
+		lowPassFilterL.processSamples(buffer.getWritePointer(0), bufferLength);
+	}			
+	else if (panVal < 0)
+	{
+		lowPassFilterR.processSamples(buffer.getWritePointer(1), bufferLength);
+	}
+			
+
+		
+	//}
 
 }
 
@@ -292,6 +334,7 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	int32 delayInSamples, float* delayOffsets, float decay,
 	float sampleRate, int32 comb, bool fb)
 {
+	
 
 	
     int32 delayOffsetInSamples = (int32)(delayOffsets[channel] * sampleRate);

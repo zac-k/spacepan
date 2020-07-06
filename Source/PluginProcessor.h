@@ -40,6 +40,8 @@ public:
 	void getFromDelayBuffer(AudioBuffer<float>& buffer, int channel, const int bufferLength,
 		const int delayBufferLength, const float* bufferData, const float* delayBufferData, int delaySamples, int readPosition);
 
+	void pan(AudioBuffer<float> &buffer, float pan);
+
 	void delay(AudioBuffer<float> &samples, CircularAudioBuffer<float> &buffer, int channel, int numSamples,
 		int32 delayInSamples, float* delayOffsets, float decay,
 		float sampleRate, int32 comb, bool fb);
@@ -94,6 +96,9 @@ public:
 	AudioProcessorValueTreeState mState;
 
 private:
+
+	IIRFilter lowPassFilterL;
+	IIRFilter lowPassFilterR;
 
 	int mBufferPosArr[2] = { 0, 0 };
 
