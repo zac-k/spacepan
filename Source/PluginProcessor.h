@@ -50,6 +50,7 @@ public:
 		int32 delayInSamples, float** delayOffsets, float decay,
 		float sampleRate, int32 comb, bool fb);
 	void truePan(AudioBuffer<float> &buffer, float panVal, float maxPan);
+	void atmoPan(AudioBuffer<float> &buffer, float panVal, float maxPan);
 
 	void mixer(AudioBuffer<float> &dry, AudioBuffer<float> &wet, float mix, int channel, float vol);
 	/*void fillDelayBuffer(int channel, const int bufferLength, const int delayBufferLength,
@@ -90,6 +91,7 @@ public:
 
 	juce::AudioParameterFloat* mRevMixParam;
 	juce::AudioParameterFloat* mPanParam;
+	juce::AudioParameterFloat* mHeadWidthParam;
 	juce::AudioParameterFloat* mDelayFeedbackParam;
 	juce::AudioParameterFloat* mDelayTimeParam;
 
@@ -97,6 +99,10 @@ public:
 	AudioProcessorValueTreeState mState;
 
 private:
+
+
+	//float mHeadWidth{ 2 }; // metres
+
 
 	dsp::IIR::Filter<float> lowPassFilterL;
 	dsp::IIR::Filter<float> lowPassFilterR;
@@ -109,6 +115,7 @@ private:
 
 	// Buffers
 	CircularAudioBuffer<float> mDelayBuffer;
+	CircularAudioBuffer<float> mPanBuffer;
 
 	//==============================================================================
 

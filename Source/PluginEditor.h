@@ -66,7 +66,9 @@ private:
 	// Global controls
 	StandardRotary mPanKnob;
 	AudioProcessorValueTreeState::SliderAttachment mPanAttachment;
-	//Slider mPanKnob;
+	// TODO: Change the head width slider to a linear one
+	StandardRotary mHeadWidthSlider;
+	AudioProcessorValueTreeState::SliderAttachment mHeadWidthAttachment;
 
 	// Delay controls
 	//ImageButton mDelayOnButton;

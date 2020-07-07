@@ -13,11 +13,13 @@
 #include "utils.h"
 
 const float PI = 3.1415926535897932384626;
-
+const float HEAD_WIDTH_MAX = 10; //metres
+const float SOUND_SPEED = 343.0; // m/s
 //==============================================================================
 SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state",
 	{ std::make_unique<AudioParameterFloat>("rev_mix", "Reverb Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("pan", "Pan", NormalisableRange<float>(-1.0f, 1.0f), 0.0f),
+	  std::make_unique<AudioParameterFloat>("head_width", "Head Width", NormalisableRange<float>(0.0f, 10.0f), 0.15f),
 	  std::make_unique<AudioParameterFloat>("delay_feedback", "Delay Feedback", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_time", "Delay Time", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_mix", "Delay Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
@@ -127,6 +129,12 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	mDelayBuffer.clear();
 	mDelayBuffer.initWritePosition();
 	mDelayBuffer.initReadPosition();
+
+	const int panBufferSize = static_cast<int>(HEAD_WIDTH_MAX / SOUND_SPEED * sampleRate + 2 * samplesPerBlock);
+	mPanBuffer.setSize(numInputChannels, panBufferSize);
+	mPanBuffer.clear();
+	mPanBuffer.initWritePosition();
+	mPanBuffer.initReadPosition();
 
 
 	dsp::ProcessSpec spec;
@@ -314,10 +322,38 @@ void SpacePanAudioProcessor::truePan(AudioBuffer<float> &buffer, float panVal, f
 
 }
 
+void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, float maxPan)
+{
+	truePan(buffer, panVal, maxPan);
+	float headWidth = *mState.getRawParameterValue("head_width");
+	int phaseShiftMaxInSamples = (headWidth / SOUND_SPEED) * getSampleRate();
+	// TODO: Put a phase shift in here
+	for (int channel = 0; channel < buffer.getNumChannels(); channel++)
+	{
+		mPanBuffer.write(channel, buffer);
+	}
+	if (panVal < 0)
+	{
+
+		// Copy from mPanBuffer (the + is because panVal is negative)
+		mPanBuffer.setReadPosition(1, mPanBuffer.getWritePosition(1) + phaseShiftMaxInSamples * panVal);
+		mPanBuffer.write(1, buffer);
+	}
+	else if (panVal > 0)
+	{
+
+		// Copy from mPanBuffer
+		mPanBuffer.setReadPosition(0, mPanBuffer.getWritePosition(0) - phaseShiftMaxInSamples * panVal);
+		mPanBuffer.write(0, buffer);
+	}
+	
+}
+
 void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
 {
+	
 
-	truePan(buffer, panVal, 0.8);
+	atmoPan(buffer, panVal, 0.8);
 	dsp::AudioBlock<float> block(buffer);
 	dsp::AudioBlock<float> blockL = block.getSingleChannelBlock(0);
 	dsp::AudioBlock<float> blockR = block.getSingleChannelBlock(1);

@@ -73,7 +73,7 @@ void CircularAudioBuffer<T>::setReadPosition(int channel, int val)
 template <typename T>
 void CircularAudioBuffer<T>::setWritePosition(int channel, int val)
 {
-	mWritePosition[channel] = val;
+	mWritePosition[channel] = utils::modulo(val, this->getNumSamples);
 }
 
 template <typename T>
@@ -98,7 +98,7 @@ void CircularAudioBuffer<T>::write(int channel, const AudioBuffer<T>& inputBuffe
 }
 
 template <typename T>
-void CircularAudioBuffer<T>::read(int channel, AudioBuffer<T>& outputBuffer, float rampGain)
+void CircularAudioBuffer<T>::read(int channel, AudioBuffer<T>& outputBuffer, float rampGain = 1.0f)
 {
 	
 

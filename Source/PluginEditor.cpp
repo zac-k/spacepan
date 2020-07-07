@@ -17,6 +17,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	: AudioProcessorEditor(&p), processor(p),
 	mRevMixAttachment(p.mState, "rev_mix", mRevMixKnob),
 	mPanAttachment(p.mState, "pan", mPanKnob),
+	mHeadWidthAttachment(p.mState, "head_width", mHeadWidthSlider),
 	mDelayFeedbackAttachment(p.mState, "delay_feedback", mDelayFeedbackKnob),
 	mDelayTimeAttachment(p.mState, "delay_time", mDelayTimeKnob),
 	mDelayMixAttachment(p.mState, "delay_mix", mDelayMixKnob),
@@ -31,12 +32,17 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	debugText.setText("test");*/
 	//debugText.setText((String)(utils::modulo(-5, 7)));
 
+	/*mHeadWidthSlider.setRange(0.0, 10.0);
+	mHeadWidthSlider.setValue(0.15);
+	mHeadWidthSlider.setBounds(600, 200, 20, 100);
+	//mHeadWidthSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);*/
 	
 
 
 	// Initialise knobs
 	mRevMixKnob.init( "RevMixKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 2 - 35), (int)(getHeight() / 2), knobImg);
 	mPanKnob.init("PanKnob", -1.0f, 1.0f, 0.0f, (int)(getWidth() / 2 - 35), (int)(getHeight() / 6 - 7), knobImgPan);
+	mHeadWidthSlider.init("HeadWidthKnob", 0.0f, 10.0f, 0.15f, (int)(getWidth() / 1.5 - 35), (int)(getHeight() / 6 - 7), knobImgPan);
 	mDelayFeedbackKnob.init("DelayFeedbackKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 4 - 25), (int)(getHeight() / 2), knobImg);
 	mDelayTimeKnob.init("DelayTimeKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 6 - 25), (int)(getHeight() / 2), knobImg);
 	mDelayTimeText.setBounds(0, 0, 80, 20);
@@ -75,6 +81,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	// Add knobs to GUI
 	addAndMakeVisible(mRevMixKnob);
 	addAndMakeVisible(mPanKnob);
+	addAndMakeVisible(mHeadWidthSlider);
 	addAndMakeVisible(mDelayFeedbackKnob);
 	addAndMakeVisible(mDelayTimeKnob);
 	addAndMakeVisible(mDelayTimeText);
