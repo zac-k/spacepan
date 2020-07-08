@@ -92,8 +92,10 @@ public:
 	juce::AudioParameterFloat* mRevMixParam;
 	juce::AudioParameterFloat* mPanParam;
 	juce::AudioParameterFloat* mHeadWidthParam;
+
 	juce::AudioParameterFloat* mDelayFeedbackParam;
 	juce::AudioParameterFloat* mDelayTimeParam;
+	juce::AudioParameterFloat* mDelayLowPassParam;
 
 	//==============================================================================
 	AudioProcessorValueTreeState mState;
@@ -108,7 +110,6 @@ private:
 	dsp::IIR::Filter<float> lowPassFilterR;
 
 	dsp::ProcessorDuplicator< dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float> > delayLowPassFilter;
-	dsp::IIR::Filter<float> delayLowPassFilterL;
 
 
 	double mPanFcR{ 0 };

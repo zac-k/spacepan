@@ -20,6 +20,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mHeadWidthAttachment(p.mState, "head_width", mHeadWidthSlider),
 	mDelayFeedbackAttachment(p.mState, "delay_feedback", mDelayFeedbackKnob),
 	mDelayTimeAttachment(p.mState, "delay_time", mDelayTimeKnob),
+	mDelayLowPassAttachment(p.mState, "delay_lowpass", mDelayLowPassKnob),
 	mDelayMixAttachment(p.mState, "delay_mix", mDelayMixKnob),
 	mDelayWidthAttachment(p.mState, "delay_width", mDelayWidthKnob)
 	
@@ -45,6 +46,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mHeadWidthSlider.init("HeadWidthKnob", 0.0f, 10.0f, 0.15f, (int)(getWidth() / 1.5 - 35), (int)(getHeight() / 6 - 7), knobImgPan);
 	mDelayFeedbackKnob.init("DelayFeedbackKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 4 - 25), (int)(getHeight() / 2), knobImg);
 	mDelayTimeKnob.init("DelayTimeKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 6 - 25), (int)(getHeight() / 2), knobImg);
+	mDelayLowPassKnob.init("DelayLowPassKnob", 100.0f, 2.0e4f, 2.0e3f, (int)(getWidth() / 3 - 25), (int)(getHeight() / 2), knobImg);
 	mDelayTimeText.setBounds(0, 0, 80, 20);
 	//mDelayTimeKnob.hideTextBox(false);
 	//mDelayTimeKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxAbove, true, 100, 20);
@@ -84,9 +86,11 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addAndMakeVisible(mHeadWidthSlider);
 	addAndMakeVisible(mDelayFeedbackKnob);
 	addAndMakeVisible(mDelayTimeKnob);
-	addAndMakeVisible(mDelayTimeText);
+	addAndMakeVisible(mDelayLowPassKnob);
 	addAndMakeVisible(mDelayMixKnob);
 	addAndMakeVisible(mDelayWidthKnob);
+
+	addAndMakeVisible(mDelayTimeText);
 	//mRevMixKnob.setAlpha(0.0);
 
 
