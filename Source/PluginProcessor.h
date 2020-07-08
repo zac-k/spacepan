@@ -87,16 +87,6 @@ public:
 	//==============================================================================
 	const float DELAY_MAX = 2.0; // seconds
 
-	// Parameters
-
-	/*juce::AudioParameterFloat* mRevMixParam;
-	juce::AudioParameterFloat* mPanParam;
-	juce::AudioParameterFloat* mHeadWidthParam;
-
-	juce::AudioParameterFloat* mDelayFeedbackParam;
-	juce::AudioParameterFloat* mDelayTimeParam;
-	juce::AudioParameterFloat* mDelayLowPassParam;
-	juce::AudioParameterFloat* mDelayLowPassQParam;*/
 
 	//==============================================================================
 	AudioProcessorValueTreeState mState;

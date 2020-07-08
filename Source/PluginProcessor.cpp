@@ -131,8 +131,9 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	mDelayBuffer.clear();
 	mDelayBuffer.initWritePosition();
 	mDelayBuffer.initReadPosition();
-
-	const int panBufferSize = static_cast<int>(HEAD_WIDTH_MAX / SOUND_SPEED * sampleRate + 2 * samplesPerBlock);
+	// TODO: the factor of 100 here is to reduce the number of glitches from the buffer wraparound.
+	// Remove it when the circular buffer methods are fixed.
+	const int panBufferSize = static_cast<int>(HEAD_WIDTH_MAX / SOUND_SPEED * sampleRate + 2 * samplesPerBlock)*100;
 	mPanBuffer.setSize(numInputChannels, panBufferSize);
 	mPanBuffer.clear();
 	mPanBuffer.initWritePosition();
