@@ -103,9 +103,13 @@ private:
 
 	//float mHeadWidth{ 2 }; // metres
 
-
+	// Low pass filters for atmopan
 	dsp::IIR::Filter<float> lowPassFilterL;
 	dsp::IIR::Filter<float> lowPassFilterR;
+
+	dsp::ProcessorDuplicator< dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float> > delayLowPassFilter;
+	dsp::IIR::Filter<float> delayLowPassFilterL;
+
 
 	double mPanFcR{ 0 };
 	double mPanFcL{ 0 };

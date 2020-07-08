@@ -28,7 +28,7 @@ template <typename T>
 void CircularAudioBuffer<T>::moveWritePosition(int channel, int steps)
 {
 	mWritePosition[channel] = utils::modulo((mWritePosition[channel] + steps), this->getNumSamples());
-
+	
 	return;
 }
 
@@ -67,52 +67,53 @@ int CircularAudioBuffer<T>::getReadPosition(int channel)
 template <typename T>
 void CircularAudioBuffer<T>::setReadPosition(int channel, int val)
 {
-	mReadPosition[channel] = val;
+	mReadPosition[channel] = utils::modulo(val, this->getNumSamples());
 }
 
 template <typename T>
 void CircularAudioBuffer<T>::setWritePosition(int channel, int val)
 {
-	mWritePosition[channel] = utils::modulo(val, this->getNumSamples);
+	mWritePosition[channel] = utils::modulo(val, this->getNumSamples());
 }
 
 template <typename T>
 void CircularAudioBuffer<T>::write(int channel, const AudioBuffer<T>& inputBuffer)
 {
-	/* Write data into the circular buffer and update write position*/
+	/* Write data into the circular buffer and update write position */
 
+	int inputBufferLength = inputBuffer.getNumSamples();
+	int thisBufferLength = this->getNumSamples();
+	int thisBufferRemaining = thisBufferLength - mWritePosition[channel];
+	thisBufferRemaining = std::min(thisBufferRemaining, inputBufferLength);
+	const float* inputData = inputBuffer.getReadPointer(channel);
+	int inputBufferRemaining = std::max(inputBufferLength - thisBufferRemaining, 0);
 
-	if (this->getNumSamples() > inputBuffer.getNumSamples() + mWritePosition[channel])
-	{
-		this->copyFromWithRamp(channel, this->getWritePosition(channel), inputBuffer.getReadPointer(channel), inputBuffer.getNumSamples(), 1.0, 1.0);
-	}
-	else
-	{
-		const int bufferRemaining = this->getNumSamples() - this->getWritePosition(channel);
-		this->copyFromWithRamp(channel, mWritePosition[channel], inputBuffer.getReadPointer(channel), bufferRemaining, 1.0, 1.0);
+	
+	this->copyFromWithRamp(channel, mWritePosition[channel], inputData, thisBufferRemaining, 1.0, 1.0);
+	this->copyFromWithRamp(channel, 0, inputData, inputBufferRemaining, 1.0, 1.0);
 
-		this->copyFromWithRamp(channel, 0, inputBuffer.getReadPointer(channel), inputBuffer.getNumSamples() - bufferRemaining, 1.0, 1.0);
-	}
-
-	moveWritePosition(channel, inputBuffer.getNumSamples());
+	moveWritePosition(channel, inputBufferLength);
 }
 
 template <typename T>
 void CircularAudioBuffer<T>::read(int channel, AudioBuffer<T>& outputBuffer, float rampGain = 1.0f)
 {
+	/* Read data from the circular buffer and update read position */
+	// TODO: Either this method or the read method does not work and needs to be fixed.
+
+
+	int outputBufferLength = outputBuffer.getNumSamples();
+	int thisBufferLength = this->getNumSamples();
+	int thisBufferRemaining = thisBufferLength - mReadPosition[channel];
+	thisBufferRemaining = std::min(thisBufferRemaining, outputBufferLength);
+	int outputBufferRemaining = std::max(outputBufferLength - thisBufferRemaining, 0);
+	const float* thisData = this->getReadPointer(channel);
+	//const float* thisDataFromReadPos = this->getReadPointer(channel, mReadPosition[channel]);
+
 	
 
-	if (this->getNumSamples() > outputBuffer.getNumSamples() + mReadPosition[channel])
-	{
-		outputBuffer.addFromWithRamp(channel, 0, this->getReadPointer(channel, mReadPosition[channel]), outputBuffer.getNumSamples(), rampGain, 1.0);
-	}
-	else
-	{
-		const int bufferRemaining = this->getNumSamples() - this->getReadPosition(channel);
-		outputBuffer.addFromWithRamp(channel, 0, this->getReadPointer(channel, mReadPosition[channel]), bufferRemaining, rampGain, 1.0);
-		outputBuffer.addFromWithRamp(channel, bufferRemaining, this->getReadPointer(channel), this->getNumSamples() - bufferRemaining, rampGain, 1.0);
+	outputBuffer.copyFromWithRamp(channel, 0, thisData + mReadPosition[channel], thisBufferRemaining, rampGain, 1.0);
+	outputBuffer.copyFromWithRamp(channel, thisBufferRemaining, thisData, outputBufferRemaining, rampGain, 1.0);
 
-	}
-
-	moveReadPosition(channel, outputBuffer.getNumSamples());
+	moveReadPosition(channel, outputBufferLength);
 }

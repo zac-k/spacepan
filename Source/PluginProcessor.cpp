@@ -143,6 +143,10 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	spec.numChannels = getTotalNumOutputChannels();
 	lowPassFilterL.prepare(spec);
 	lowPassFilterR.prepare(spec);
+
+	delayLowPassFilterL.prepare(spec);
+	delayLowPassFilter.prepare(spec);
+	delayLowPassFilter.reset();
 	lowPassFilterL.reset();
 	lowPassFilterR.reset();
 	//}
@@ -285,16 +289,30 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 	AudioBuffer<float> delayWet;
 	delayWet.makeCopyOf(buffer);
 
+	
+	
+	// TODO: make a knob for delay cutoff (and add Q?)
+	float delayLPf = 1000.0;
+	*delayLowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), delayLPf);
+	*delayLowPassFilterL.coefficients = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), delayLPf);
+
 	for (int channel = 0; channel < totalNumInputChannels; ++channel)
 	{
 		// Extract pure wet signal from delay buffer
 		FloatVectorOperations::subtract(delayWet.getWritePointer(channel), delayDry.getReadPointer(channel), bufferLength);
 
+
+		// TODO: Set minimum feedback gain to above zero or regularise this equation
 		// Compensate for gain drop on first echo
 		delayWet.applyGain(channel, 0, bufferLength, 1.0f / mDelayFeedbackGain);
+	}
+		// TODO: This isn't working. Can comment out process() to disable
+		dsp::AudioBlock<float> delayBlock(delayWet);
+		delayLowPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
 
-		
 
+	for (int channel = 0; channel < totalNumInputChannels; ++channel)
+	{
 		// Mix wet and dry signals
 		mixer(delayDry, delayWet, *mState.getRawParameterValue("delay_mix"), channel, 1.0f);
 
@@ -325,28 +343,30 @@ void SpacePanAudioProcessor::truePan(AudioBuffer<float> &buffer, float panVal, f
 void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, float maxPan)
 {
 	truePan(buffer, panVal, maxPan);
+	
 	float headWidth = *mState.getRawParameterValue("head_width");
+
 	int phaseShiftMaxInSamples = (headWidth / SOUND_SPEED) * getSampleRate();
-	// TODO: Put a phase shift in here
+	// TODO: The writing loop should be outside this function so the buffer is always written to, or
+	// there should be a delay before the atmoPan 'kicks in' to allow the buffer to be filled
+
 	for (int channel = 0; channel < buffer.getNumChannels(); channel++)
 	{
+		// Read position is set before writing because .write() updates writePosition
+		mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel) - phaseShiftMaxInSamples * abs(panVal));
 		mPanBuffer.write(channel, buffer);
 	}
-	if (panVal < 0)
-	{
 
-		// Copy from mPanBuffer (the + is because panVal is negative)
-		mPanBuffer.setReadPosition(1, mPanBuffer.getWritePosition(1) + phaseShiftMaxInSamples * panVal);
-		mPanBuffer.write(1, buffer);
-	}
-	else if (panVal > 0)
-	{
 
-		// Copy from mPanBuffer
-		mPanBuffer.setReadPosition(0, mPanBuffer.getWritePosition(0) - phaseShiftMaxInSamples * panVal);
-		mPanBuffer.write(0, buffer);
+	// Delay right channel if panned left and vice versa
+	int channel = (panVal < 0) ? 1 : 0;
+
+	if (panVal != 0)
+	{
+		mPanBuffer.read(channel, buffer);
 	}
 	
+	return;
 }
 
 void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
@@ -386,6 +406,8 @@ void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
 
 	mPanFcL = fcL;
 	mPanFcR = fcR;
+
+	// TODO: might be able to get rid of the processcontextreplacing
 	lowPassFilterL.process(dsp::ProcessContextReplacing<float>(blockL));
 	lowPassFilterR.process(dsp::ProcessContextReplacing<float>(blockR));
 
@@ -486,20 +508,11 @@ void SpacePanAudioProcessor::getFromDelayBuffer(AudioBuffer<float>& buffer, int 
 												const int delayBufferLength, const float* bufferData, const float* delayBufferData,
 												int delaySamples, int readPosition)
 {
+	const int bufferRemaining = delayBufferLength - readPosition;
+	buffer.addFromWithRamp(channel, 0, delayBufferData + readPosition, std::min(bufferLength, bufferRemaining), 1.0, 1.0);
+	buffer.addFromWithRamp(channel, bufferRemaining, delayBufferData, std::max(0, delayBufferLength - bufferRemaining), 1.0, 1.0);
 	
 	
-	if (delayBufferLength > bufferLength + readPosition)
-	{
-		buffer.addFromWithRamp(channel, 0, delayBufferData + readPosition, bufferLength, 1.0, 1.0);
-	}
-	else
-	{
-		const int bufferRemaining = delayBufferLength - readPosition;
-		buffer.addFromWithRamp(channel, 0, delayBufferData + readPosition, bufferRemaining, 1.0, 1.0);
-		buffer.addFromWithRamp(channel, bufferRemaining, delayBufferData, delayBufferLength - bufferRemaining, 1.0, 1.0);
-
-	}
-
 
 }
 

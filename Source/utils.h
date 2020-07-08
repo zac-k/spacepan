@@ -16,11 +16,15 @@ namespace utils
 
 	int modulo(int val1, int val2)
 	{
+		while (val1 < 0)
+		{
+			val1 += val1;
+		}
 		int mod = val1 % val2;
-		while (mod < 0)
+		/*while (mod < 0)
 		{
 			mod += val2;
-		}
+		}*/
 		return mod;
 	}
 
