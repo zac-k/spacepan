@@ -24,6 +24,8 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	  std::make_unique<AudioParameterFloat>("delay_time", "Delay Time", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_lowpass", "Delay High Cut", NormalisableRange<float>(100.0f, 2.0e4f), 2.0e3f),
 	  std::make_unique<AudioParameterFloat>("delay_lowpass_Q", "Delay High Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
+	  std::make_unique<AudioParameterFloat>("delay_highpass", "Delay Low Cut", NormalisableRange<float>(100.0f, 2.0e4f), 2.0e2f),
+	  std::make_unique<AudioParameterFloat>("delay_highpass_Q", "Delay Low Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("delay_mix", "Delay Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_width", "Delay Width", NormalisableRange<float>(0.0f, 1.0f), 0.5f) })
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -148,6 +150,8 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	lowPassFilterR.prepare(spec);
 
 	
+	delayLowPassFilter.prepare(spec);
+	delayLowPassFilter.reset();
 	delayLowPassFilter.prepare(spec);
 	delayLowPassFilter.reset();
 	lowPassFilterL.reset();
@@ -297,7 +301,11 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 	// Add Q?
 	float delayLPf = *mState.getRawParameterValue("delay_lowpass");
 	float delayLPQ = *mState.getRawParameterValue("delay_lowpass_Q");
+	float delayHPf = *mState.getRawParameterValue("delay_highpass");
+	float delayHPQ = *mState.getRawParameterValue("delay_highpass_Q");
+	
 	*delayLowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), delayLPf, delayLPQ);
+	*delayHighPassFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), delayHPf, delayHPQ);
 
 	for (int channel = 0; channel < totalNumInputChannels; ++channel)
 	{
@@ -314,6 +322,7 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 	// Apply low pass filter to wet delay signal
 	dsp::AudioBlock<float> delayBlock(delayWet);
 	delayLowPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
+	//delayHighPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
 
 
 	for (int channel = 0; channel < totalNumInputChannels; ++channel)

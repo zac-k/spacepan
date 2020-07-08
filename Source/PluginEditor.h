@@ -80,6 +80,10 @@ private:
 	AudioProcessorValueTreeState::SliderAttachment mDelayLowPassAttachment;
 	StandardRotary mDelayLowPassQKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayLowPassQAttachment;
+	StandardRotary mDelayHighPassKnob;
+	AudioProcessorValueTreeState::SliderAttachment mDelayHighPassAttachment;
+	StandardRotary mDelayHighPassQKnob;
+	AudioProcessorValueTreeState::SliderAttachment mDelayHighPassQAttachment;
 	StandardRotary mDelayMixKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayMixAttachment;
 	StandardRotary mDelayWidthKnob;
