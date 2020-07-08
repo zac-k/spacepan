@@ -24,11 +24,12 @@ public:
 
 	// Public methods
 	void init(String name, float min, float max, float value, int x, int y, Image spriteImg);
+	void setDim(int width, int height);
 
 private:
 
-	int width = 65;
-	int height = 65;
+	int width = 64;
+	int height = 64;
 	int xpos;
 	int ypos;
 	Image sprite;

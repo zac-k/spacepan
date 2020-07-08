@@ -89,13 +89,14 @@ public:
 
 	// Parameters
 
-	juce::AudioParameterFloat* mRevMixParam;
+	/*juce::AudioParameterFloat* mRevMixParam;
 	juce::AudioParameterFloat* mPanParam;
 	juce::AudioParameterFloat* mHeadWidthParam;
 
 	juce::AudioParameterFloat* mDelayFeedbackParam;
 	juce::AudioParameterFloat* mDelayTimeParam;
 	juce::AudioParameterFloat* mDelayLowPassParam;
+	juce::AudioParameterFloat* mDelayLowPassQParam;*/
 
 	//==============================================================================
 	AudioProcessorValueTreeState mState;

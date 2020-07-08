@@ -36,7 +36,11 @@ void StandardRotary::init(String name, float min, float max, float value, int x,
 	return;
 }
 
-
+void StandardRotary::setDim(int width, int height)
+{
+	this->width = width;
+	this->height = height;
+}
 
 
 

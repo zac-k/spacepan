@@ -96,7 +96,7 @@ void CircularAudioBuffer<T>::write(int channel, const AudioBuffer<T>& inputBuffe
 }
 
 template <typename T>
-void CircularAudioBuffer<T>::read(int channel, AudioBuffer<T>& outputBuffer, float rampGain = 1.0f)
+void CircularAudioBuffer<T>::read(int channel, AudioBuffer<T>& outputBuffer, float rampGain)
 {
 	/* Read data from the circular buffer and update read position */
 	// TODO: Either this method or the read method does not work and needs to be fixed.
