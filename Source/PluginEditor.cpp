@@ -42,21 +42,21 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 
 
 	// Initialise knobs
-	mRevMixKnob.init( "RevMixKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 2 - 35), (int)(getHeight() / 2), knobImg);
-	mPanKnob.init("PanKnob", -1.0f, 1.0f, 0.0f, (int)(getWidth() / 2 - 35), (int)(getHeight() / 6 - 7), knobImgPan);
-	mHeadWidthSlider.init("HeadWidthKnob", 0.0f, 10.0f, 0.15f, (int)(getWidth() / 1.5 - 35), (int)(getHeight() / 6 - 7), knobImgPan);
-	mDelayFeedbackKnob.init("DelayFeedbackKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 4 - 25), (int)(getHeight() / 2), knobImg);
-	mDelayTimeKnob.init("DelayTimeKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 6 - 25), (int)(getHeight() / 2), knobImg);
-	mDelayLowPassKnob.init("DelayLowPassKnob", 100.0f, 2.0e4f, 2.0e3f, (int)(getWidth() / 3 - 32), (int)(getHeight() / 2 - 32), knobImgPan);
+	mRevMixKnob.init( "RevMixKnob", 0.0f, 1.0f, 0.5f, getBounds(), 0.5, 0.5, knobImg);
+	mPanKnob.init("PanKnob", -1.0f, 1.0f, 0.0f, getBounds(), 0.5, 0.15, knobImgPan);
+	mHeadWidthSlider.init("HeadWidthKnob", 0.0f, 10.0f, 0.15f, getBounds(), 0.6, 0.15, knobImgPan);
+	mDelayFeedbackKnob.init("DelayFeedbackKnob", 0.0f, 1.0f, 0.5f, getBounds(), 0.25, 0.5, knobImg);
+	mDelayTimeKnob.init("DelayTimeKnob", 0.0f, 1.0f, 0.5f, getBounds(), 0.15, 0.5, knobImg);
 
+	mDelayLowPassKnob.init("DelayLowPassKnob", 100.0f, 2.0e4f, 2.0e3f, getBounds(), 0.33, 0.5, knobImgPan);
 	mDelayLowPassQKnob.setDim(32, 32);
-	mDelayLowPassQKnob.init("DelayLowPassQKnob", 1.0f, 5.0f, 1.0f, (int)(getWidth() / 3 - 16), (int)(getHeight() / 2 - 16), knobImg);
+	mDelayLowPassQKnob.init("DelayLowPassQKnob", 1.0f, 5.0f, 1.0f, getBounds(), 0.33, 0.5, knobImg);
 	
 	mDelayTimeText.setBounds(0, 0, 80, 20);
 	//mDelayTimeKnob.hideTextBox(false);
 	//mDelayTimeKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxAbove, true, 100, 20);
-	mDelayMixKnob.init("DelayMixKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 9 - 25), (int)(getHeight() / 2.5), knobImg);
-	mDelayWidthKnob.init("DelayWidthKnob", 0.0f, 1.0f, 0.5f, (int)(getWidth() / 6 - 25), (int)(getHeight() / 1.5), knobImg);
+	mDelayMixKnob.init("DelayMixKnob", 0.0f, 1.0f, 0.5f, getBounds(), 0.11, 0.4, knobImg);
+	mDelayWidthKnob.init("DelayWidthKnob", 0.0f, 1.0f, 0.5f, getBounds(), 0.15, 0.6, knobImg);
 
 
 	// Buttons
