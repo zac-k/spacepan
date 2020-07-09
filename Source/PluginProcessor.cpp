@@ -162,10 +162,8 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	lowPassFilterL.reset();
 	lowPassFilterR.reset();
 
-	preverbL.prepare(spec);
-	preverbR.prepare(spec);
-	preverbL.reset();
-	preverbR.reset();
+	preverb.prepare(spec);
+	preverb.reset();
 	//}
 	
 
@@ -297,6 +295,16 @@ void SpacePanAudioProcessor::truePan(AudioBuffer<float> &buffer, float panVal, f
 
 void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, float maxPan)
 {
+	dsp::Reverb::Parameters preverbParams;
+	preverbParams.roomSize = *mState.getRawParameterValue("room_size") * 0.8;
+	preverbParams.damping = 0.5f;
+	// TODO: set this to 100% wet and add in later
+	preverbParams.wetLevel = 1.0f;
+	preverbParams.dryLevel = 0.0f;
+	preverbParams.width = *mState.getRawParameterValue("room_size");
+	preverbParams.freezeMode = 0.0f;
+	preverb.setParameters(preverbParams);
+
 	truePan(buffer, panVal, maxPan);
 	
 	float headWidth = *mState.getRawParameterValue("head_width");
@@ -321,14 +329,35 @@ void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, f
 		mPanBuffer.read(channel, buffer);
 	}
 
-	dsp::AudioBlock<float> block(buffer);
-	dsp::AudioBlock<float> blockL = block.getSingleChannelBlock(0);
-	dsp::AudioBlock<float> blockR = block.getSingleChannelBlock(1);
-	preverbL.process(dsp::ProcessContextReplacing<float>(blockL));
-	preverbR.process(dsp::ProcessContextReplacing<float>(blockR));
+	// TODO: should this be moved to before phase shift?
+	AudioBuffer<float> preverbWet;
+	preverbWet.makeCopyOf(buffer);
+	// TODO: process the signal before adding preverb
+
+	
+	// Make mono
+	preverbWet.addFrom(0, 0, preverbWet.getReadPointer(1), preverbWet.getNumSamples());
+	preverbWet.copyFrom(1, 0, preverbWet.getReadPointer(0), preverbWet.getNumSamples());
+	preverbWet.applyGain(0.5);
+
+	
+
+	dsp::AudioBlock<float> block(preverbWet);
+	//dsp::AudioBlock<float> blockL = block.getSingleChannelBlock(0);
+	//dsp::AudioBlock<float> blockR = block.getSingleChannelBlock(1);
+	preverb.process(dsp::ProcessContextReplacing<float>(block));
+	//preverbR.process(dsp::ProcessContextReplacing<float>(blockR));
 
 
+	float preverbMix = 0.25;
+	for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
+	{
+		// Mix wet and dry signals
+		mixer(buffer, preverbWet, preverbMix, channel, 1.0f);
 
+	}
+
+	buffer = preverbWet;
 
 	
 	return;
@@ -372,7 +401,7 @@ void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
 	mPanFcL = fcL;
 	mPanFcR = fcR;
 
-	// TODO: might be able to get rid of the processcontextreplacing
+	
 	lowPassFilterL.process(dsp::ProcessContextReplacing<float>(blockL));
 	lowPassFilterR.process(dsp::ProcessContextReplacing<float>(blockR));
 
