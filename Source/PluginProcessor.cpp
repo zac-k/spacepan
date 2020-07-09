@@ -20,6 +20,7 @@ const float FILTER_SKEW = 0.25f;
 SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state",
 	{ std::make_unique<AudioParameterFloat>("rev_mix", "Reverb Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("pan", "Pan", NormalisableRange<float>(-1.0f, 1.0f), 0.0f),
+	  std::make_unique<AudioParameterFloat>("room_size", "Room Size", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("head_width", "Head Width", NormalisableRange<float>(0.0f, 10.0f), 0.15f),
 	  std::make_unique<AudioParameterFloat>("delay_feedback", "Delay Feedback", NormalisableRange<float>(0.005f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_time", "Delay Time", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
@@ -160,6 +161,11 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	delayAllPassFilter.reset();
 	lowPassFilterL.reset();
 	lowPassFilterR.reset();
+
+	preverbL.prepare(spec);
+	preverbR.prepare(spec);
+	preverbL.reset();
+	preverbR.reset();
 	//}
 	
 
@@ -275,12 +281,14 @@ void SpacePanAudioProcessor::truePan(AudioBuffer<float> &buffer, float panVal, f
 	AudioBuffer<float> bufferTemp;
 	bufferTemp.makeCopyOf(buffer);
 	int bufferLength = buffer.getNumSamples();
-	float distanceFactor = 0.8;
-	float attenuationFactor = 1 - distanceFactor * std::pow(panVal, 4);
+	float distanceFactor = *mState.getRawParameterValue("room_size");
+	float attenuationFactor = 1 - distanceFactor * std::pow(panVal, 2);
+	float attenuationFactorL = panVal < 0 ? attenuationFactor : 1;
+	float attenuationFactorR = panVal > 0 ? attenuationFactor : 1;
 	for (int i = 0; i < bufferLength; i++)
 	{
-		buffer.getWritePointer(0)[i] = (1 - panVal)*buffer.getReadPointer(0)[i] * attenuationFactor;
-		buffer.getWritePointer(1)[i] = (1 + panVal)*buffer.getReadPointer(1)[i] * attenuationFactor;
+		buffer.getWritePointer(0)[i] = (1 - panVal)*buffer.getReadPointer(0)[i] * attenuationFactorL;
+		buffer.getWritePointer(1)[i] = (1 + panVal)*buffer.getReadPointer(1)[i] * attenuationFactorR;
 	}
 	
 	
@@ -312,6 +320,16 @@ void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, f
 	{
 		mPanBuffer.read(channel, buffer);
 	}
+
+	dsp::AudioBlock<float> block(buffer);
+	dsp::AudioBlock<float> blockL = block.getSingleChannelBlock(0);
+	dsp::AudioBlock<float> blockR = block.getSingleChannelBlock(1);
+	preverbL.process(dsp::ProcessContextReplacing<float>(blockL));
+	preverbR.process(dsp::ProcessContextReplacing<float>(blockR));
+
+
+
+
 	
 	return;
 }
@@ -326,8 +344,8 @@ void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
 	dsp::AudioBlock<float> blockR = block.getSingleChannelBlock(1);
 	double nyquist = getSampleRate() / 2;
 	double fmax = 20.0e3;
-	double rangeMin = 0;
-	double fmin = 2000;
+	double rangeMin = 2000;
+	double fmin = 4000;
 	double regParam = 0.1;
 	double fcL = std::max(fmax - (fmax - rangeMin)*log2(std::abs(panVal) + 1), fmin);
 	double fcR = std::max(fmax - (fmax - rangeMin)*log2(std::abs(panVal) + 1), fmin);
@@ -346,8 +364,8 @@ void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
 	fcR = std::min(fcR, nyquist);
 
 
-	*lowPassFilterL.coefficients = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), fcL);
-	*lowPassFilterR.coefficients = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), fcR);
+	*lowPassFilterL.coefficients = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), fcL, 0.5);
+	*lowPassFilterR.coefficients = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), fcR, 0.5);
 	
 	int bufferLength = buffer.getNumSamples();
 

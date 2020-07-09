@@ -104,6 +104,9 @@ private:
 	dsp::ProcessorDuplicator< dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float> > delayHighPassFilter;
 	dsp::ProcessorDuplicator< dsp::FIR::Filter<float>, dsp::FIR::Coefficients<float> > delayAllPassFilter;
 
+	dsp::Reverb preverbL;
+	dsp::Reverb preverbR;
+
 
 	double mPanFcR{ 0 };
 	double mPanFcL{ 0 };
