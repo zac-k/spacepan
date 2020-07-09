@@ -23,7 +23,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	  std::make_unique<AudioParameterFloat>("head_width", "Head Width", NormalisableRange<float>(0.0f, 10.0f), 0.15f),
 	  std::make_unique<AudioParameterFloat>("delay_feedback", "Delay Feedback", NormalisableRange<float>(0.005f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_time", "Delay Time", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-	  std::make_unique<AudioParameterFloat>("delay_lowpass", "Delay High Cut", NormalisableRange<float>(100.0f, 2.0e4f), 2.0e3f),
+	  std::make_unique<AudioParameterFloat>("delay_lowpass", "Delay High Cut", utils::frequencyRange(100.0f, 2.0e4f), 2.0e3f),
 	  std::make_unique<AudioParameterFloat>("delay_lowpass_Q", "Delay High Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("delay_highpass", "Delay Low Cut", utils::frequencyRange<float>(100.0f, 2.0e4f), 2.0e2f),
 	  std::make_unique<AudioParameterFloat>("delay_highpass_Q", "Delay Low Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
@@ -226,46 +226,16 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 	const int bufferLength = buffer.getNumSamples();
 	const int delayBufferLength = mDelayBuffer.getNumSamples();
 	//=============================================================================
-
-
-
-
 	pan(buffer, *mState.getRawParameterValue("pan"));
+	//=============================================================================
 
 
-	AudioBuffer<float> delayDry;
-	delayDry.makeCopyOf(buffer);
-	float delaySeconds = *mState.getRawParameterValue("delay_time");
-	int delayInSamples = std::max<int>(1, delaySeconds * sampleRate); // minimum 1 sample delay
-	float mDelayFeedbackGain = *mState.getRawParameterValue("delay_feedback");
-
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-		
-        
-
-		// TODO: This should be controlled via GUI!
-		String delayStereoType = "ping_pong";
-
-		// TODO: For ping pong delay, input pan should be modulated, and the modulated input passed to delay. Extraction of
-		// the wet signal requires the modulated input, and the mixer should mix the unmodulated signal with the delay ouput.
-		// Use the global pan algorithm for input modulation.
-		
-		
-		//
-
-
-		float delayOffsets[] = { 0, 0 };
-		delay(buffer, mDelayBuffer, channel, buffer.getNumSamples(), 
-											delayInSamples, delayOffsets, mDelayFeedbackGain, sampleRate, 0, true);
-		mDelayBuffer.moveWritePosition(channel, buffer.getNumSamples(), delayInSamples);
-
-		
-
-		
+	// TODO: Control this via GUI and put inside delay function
+	float delayOffsets[] = { 0, 0 };
+	delay(buffer, mDelayBuffer, buffer.getNumSamples(), delayOffsets, sampleRate, 0, true);		
 
 		//=============================================================================
-
+		/*
 		
 
 		
@@ -282,7 +252,7 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 		//mDelayBuffer.read(channel, buffer, rampGain);
 
 
-		/* Old function to copy data from delay buffer */
+		// Old function to copy data from delay buffer 
 		//getFromDelayBuffer(buffer, channel, bufferLength, delayBufferLength, bufferData, delayBufferData, delayInSamples,
 		//	mDelayBuffer.getReadPosition(channel));
 
@@ -290,57 +260,11 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 		
 		//=============================================================================
 
-
+		*/
 
 		
 		
-    }
-
-	float delayWidth = *mState.getRawParameterValue("delay_width");
-	AudioBuffer<float> delayWet;
-	delayWet.makeCopyOf(buffer);
-
-	
-	
-	// Add Q?
-	float delayLPf = *mState.getRawParameterValue("delay_lowpass");
-	float delayLPQ = *mState.getRawParameterValue("delay_lowpass_Q");
-	float delayHPf = *mState.getRawParameterValue("delay_highpass");
-	float delayHPQ = *mState.getRawParameterValue("delay_highpass_Q");
-	float delayAPf = *mState.getRawParameterValue("delay_allpass");
-	
-	*delayLowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), delayLPf, delayLPQ);
-	*delayHighPassFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), delayHPf, delayHPQ);
-	//*delayAllPassFilter.state = *dsp::IIR::Coefficients<float>::makeAllPass(getSampleRate(), delayAPf, 40.0);
-
-	for (int channel = 0; channel < totalNumInputChannels; ++channel)
-	{
-		// Extract pure wet signal from delay buffer
-		FloatVectorOperations::subtract(delayWet.getWritePointer(channel), delayDry.getReadPointer(channel), bufferLength);
-
-
-		// TODO: Set minimum feedback gain to above zero or regularise this equation
-		// Compensate for gain drop on first echo
-		delayWet.applyGain(channel, 0, bufferLength, 1.0f / mDelayFeedbackGain);
-	}
-		
-
-	// Apply filters to wet delay signal
-	dsp::AudioBlock<float> delayBlock(delayWet);
-	delayLowPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
-	delayHighPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
-	//delayAllPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
-
-
-	for (int channel = 0; channel < totalNumInputChannels; ++channel)
-	{
-		// Mix wet and dry signals
-		mixer(delayDry, delayWet, *mState.getRawParameterValue("delay_mix"), channel, 1.0f);
-
-	}
-
-
-	buffer.makeCopyOf(delayWet); // This might not be best way.
+   
 
 }
 
@@ -452,39 +376,114 @@ void SpacePanAudioProcessor::mixer(AudioBuffer<float> &dry, AudioBuffer<float> &
 	return;
 }
 
-void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuffer<float> &delayBuffer, int channel, int numSamples,
-	int32 delayInSamples, float* delayOffsets, float decay,
-	float sampleRate, int32 comb, bool fb)
+void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuffer<float> &delayBuffer, int numSamples,
+	float* delayOffsets, float sampleRate, int32 comb, bool fb)
 {
-	
 
-	
-    int32 delayOffsetInSamples = (int32)(delayOffsets[channel] * sampleRate);
-	int32 tempDelayInSamples = std::max<int32>(1, delayInSamples + delayOffsetInSamples);
-	/*float* arr;
-	arr = (float*)malloc(sizeof(float)*numSamples);
+	AudioBuffer<float> delayDry;
+	delayDry.makeCopyOf(samples);
+	float delaySeconds = *mState.getRawParameterValue("delay_time");
+	int delayInSamples = std::max<int>(1, delaySeconds * sampleRate); // minimum 1 sample delay
+	float mDelayFeedbackGain = *mState.getRawParameterValue("delay_feedback");
+	// TODO: This should be controlled via GUI!
+	String delayStereoType = "ping_pong";
 
-	memcpy(arr, samples.getWritePointer(channel), sizeof(float)*numSamples);*/
-	AudioBuffer<float> arr = AudioBuffer<float>::AudioBuffer(samples);
-	//float* arr_temp;
-	int32 tempBufferPos = delayBuffer.getWritePosition(channel);// mBufferPosArr[channel];
-
-	// Use wet signal for feedback, or dry signal for feedforward delay
-	//arr_temp = fb ? arr : samples.getReadPointer(channel);
-
-	for (int32 i = 0; i < numSamples; i++)
+	for (int channel = 0; channel < samples.getNumChannels(); ++channel)
 	{
-		arr.getWritePointer(channel)[i] += (delayBuffer.getReadPointer(channel)[tempBufferPos] * decay);
-		delayBuffer.getWritePointer(channel)[tempBufferPos] = arr.getReadPointer(channel)[i];
-		//buffer.getWritePointer(channel)[tempBufferPos + tempDelayInSamples] = arr.getReadPointer(channel)[i];
-		tempBufferPos++;
-		if (tempBufferPos >= tempDelayInSamples)
+
+
+
+
+
+		// TODO: For ping pong delay, input pan should be modulated, and the modulated input passed to delay. Extraction of
+		// the wet signal requires the modulated input, and the mixer should mix the unmodulated signal with the delay ouput.
+		// Use the global pan algorithm for input modulation.
+
+
+		//
+
+
+
+		int32 delayOffsetInSamples = (int32)(delayOffsets[channel] * sampleRate);
+		int32 tempDelayInSamples = std::max<int32>(1, delayInSamples + delayOffsetInSamples);
+		/*float* arr;
+		arr = (float*)malloc(sizeof(float)*numSamples);
+
+		memcpy(arr, samples.getWritePointer(channel), sizeof(float)*numSamples);*/
+		AudioBuffer<float> arr = AudioBuffer<float>::AudioBuffer(samples);
+		//float* arr_temp;
+		int32 tempBufferPos = delayBuffer.getWritePosition(channel);// mBufferPosArr[channel];
+
+		// Use wet signal for feedback, or dry signal for feedforward delay
+		//arr_temp = fb ? arr : samples.getReadPointer(channel);
+
+		for (int32 i = 0; i < numSamples; i++)
 		{
-			tempBufferPos = 0;
+			arr.getWritePointer(channel)[i] += (delayBuffer.getReadPointer(channel)[tempBufferPos] * mDelayFeedbackGain);
+			delayBuffer.getWritePointer(channel)[tempBufferPos] = arr.getReadPointer(channel)[i];
+			//buffer.getWritePointer(channel)[tempBufferPos + tempDelayInSamples] = arr.getReadPointer(channel)[i];
+			tempBufferPos++;
+			if (tempBufferPos >= tempDelayInSamples)
+			{
+				tempBufferPos = 0;
+			}
+
 		}
+		samples.copyFrom(channel, 0, arr.getReadPointer(channel), numSamples);
+
+		mDelayBuffer.moveWritePosition(channel, numSamples, delayInSamples);
+	}
+
+
+	float delayWidth = *mState.getRawParameterValue("delay_width");
+	AudioBuffer<float> delayWet;
+	delayWet.makeCopyOf(samples);
+
+
+
+
+	float delayLPf = *mState.getRawParameterValue("delay_lowpass");
+	float delayLPQ = *mState.getRawParameterValue("delay_lowpass_Q");
+	float delayHPf = *mState.getRawParameterValue("delay_highpass");
+	float delayHPQ = *mState.getRawParameterValue("delay_highpass_Q");
+	float delayAPf = *mState.getRawParameterValue("delay_allpass");
+
+	// TODO: filtering needs to be done on signal added to delay buffer - maybe as separate option?
+
+	*delayLowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), delayLPf, delayLPQ);
+	*delayHighPassFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), delayHPf, delayHPQ);
+	//*delayAllPassFilter.state = *dsp::IIR::Coefficients<float>::makeAllPass(getSampleRate(), delayAPf, 40.0);
+
+	for (int channel = 0; channel < samples.getNumChannels(); ++channel)
+	{
+		// Extract pure wet signal from delay buffer
+		FloatVectorOperations::subtract(delayWet.getWritePointer(channel), delayDry.getReadPointer(channel), samples.getNumSamples());
+
+
+		// TODO: Set minimum feedback gain to above zero or regularise this equation
+		// Compensate for gain drop on first echo
+		delayWet.applyGain(channel, 0, samples.getNumSamples(), 1.0f / mDelayFeedbackGain);
+	}
+
+
+	// Apply filters to wet delay signal
+	dsp::AudioBlock<float> delayBlock(delayWet);
+	delayLowPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
+	delayHighPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
+	//delayAllPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
+
+
+
+	for (int channel = 0; channel < samples.getNumChannels(); ++channel)
+	{
+		// Mix wet and dry signals
+		mixer(delayDry, delayWet, *mState.getRawParameterValue("delay_mix"), channel, 1.0f);
 
 	}
-	samples.copyFrom(channel,0, arr.getReadPointer(channel), numSamples);
+
+
+	samples.makeCopyOf(delayWet); // This might not be best way.
+
 }
 
 float* SpacePanAudioProcessor::combFilter(float* samples, float** buffer, int channel, int numSamples,

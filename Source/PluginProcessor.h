@@ -43,9 +43,8 @@ public:
 
 	void pan(AudioBuffer<float> &buffer, float pan);
 
-	void delay(AudioBuffer<float> &samples, CircularAudioBuffer<float> &buffer, int channel, int numSamples,
-		int32 delayInSamples, float* delayOffsets, float decay,
-		float sampleRate, int32 comb, bool fb);
+	void delay(AudioBuffer<float> &samples, CircularAudioBuffer<float> &buffer, int numSamples,
+		float* delayOffsets, float sampleRate, int32 comb, bool fb);
 
 	float* combFilter(float* samples, float** buffer, int channel, int numSamples,
 		int32 delayInSamples, float** delayOffsets, float decay,
