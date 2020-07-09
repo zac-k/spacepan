@@ -152,8 +152,8 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	
 	delayLowPassFilter.prepare(spec);
 	delayLowPassFilter.reset();
-	delayLowPassFilter.prepare(spec);
-	delayLowPassFilter.reset();
+	delayHighPassFilter.prepare(spec);
+	delayHighPassFilter.reset();
 	lowPassFilterL.reset();
 	lowPassFilterR.reset();
 	//}
@@ -319,10 +319,10 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 	}
 		
 
-	// Apply low pass filter to wet delay signal
+	// Apply filters to wet delay signal
 	dsp::AudioBlock<float> delayBlock(delayWet);
 	delayLowPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
-	//delayHighPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
+	delayHighPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
 
 
 	for (int channel = 0; channel < totalNumInputChannels; ++channel)
