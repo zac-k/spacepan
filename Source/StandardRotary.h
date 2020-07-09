@@ -24,7 +24,6 @@ public:
 
 	// Public methods
 	void init(String name, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg);
-	void init(String name, NormalisableRange<double> range, float value, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg);
 	void setDim(int width, int height);
 
 private:

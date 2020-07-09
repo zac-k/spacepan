@@ -34,10 +34,11 @@ void CustomLookAndFeel::drawRotarySlider(Graphics& g,
 
 	if (sprite.isValid())
 	{
-		const double rotation = (slider.getValue()
+		const double rotation = std::pow((slider.getValue()
 			- slider.getMinimum())
 			/ (slider.getMaximum()
-				- slider.getMinimum());
+				- slider.getMinimum()), slider.getSkewFactor());
+
 
 		const int frames = sprite.getHeight() / sprite.getWidth();
 		const int frameId = (int)ceil(rotation * ((double)frames - 1.0));

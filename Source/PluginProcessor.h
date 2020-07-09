@@ -103,6 +103,7 @@ private:
 
 	dsp::ProcessorDuplicator< dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float> > delayLowPassFilter;
 	dsp::ProcessorDuplicator< dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float> > delayHighPassFilter;
+	dsp::ProcessorDuplicator< dsp::FIR::Filter<float>, dsp::FIR::Coefficients<float> > delayAllPassFilter;
 
 
 	double mPanFcR{ 0 };
