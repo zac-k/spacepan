@@ -275,10 +275,12 @@ void SpacePanAudioProcessor::truePan(AudioBuffer<float> &buffer, float panVal, f
 	AudioBuffer<float> bufferTemp;
 	bufferTemp.makeCopyOf(buffer);
 	int bufferLength = buffer.getNumSamples();
+	float distanceFactor = 0.8;
+	float attenuationFactor = 1 - distanceFactor * std::pow(panVal, 4);
 	for (int i = 0; i < bufferLength; i++)
 	{
-		buffer.getWritePointer(0)[i] = (1 - panVal)*buffer.getReadPointer(0)[i];
-		buffer.getWritePointer(1)[i] = (1 + panVal)*buffer.getReadPointer(1)[i];
+		buffer.getWritePointer(0)[i] = (1 - panVal)*buffer.getReadPointer(0)[i] * attenuationFactor;
+		buffer.getWritePointer(1)[i] = (1 + panVal)*buffer.getReadPointer(1)[i] * attenuationFactor;
 	}
 	
 	
