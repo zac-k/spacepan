@@ -7,15 +7,15 @@
 //StandardRotary::StandardRotary() {}
 		
 
-void StandardRotary::init(String name, float min, float max, float value, int x, int y, Image spriteImg) 
+void StandardRotary::init(String name, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg) 
 {
 		
 
 	this->setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
 	//Listener* pListener;
 	mLookAndFeel.addSprite(spriteImg);
-	this->setRange(min, max);
-	this->setValue(value);
+	//this->setRange(min, max);
+	//this->setValue(value);
 	//this->setAlpha(0.0); // This is what hides the default knob.
 	this->setName(name);
 	//this->addListener(pListener);
@@ -23,9 +23,10 @@ void StandardRotary::init(String name, float min, float max, float value, int x,
 	this->hideTextBox(true);
 	this->setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
 	//addAndMakeVisible(*this);
-	this->setBounds(x, y, this->width, this->height);
-	this->xpos = x;
-	this->ypos = y;
+
+	this->xpos = (int)parentBounds.getWidth()*relX - this->width / 2;
+	this->ypos = (int)parentBounds.getHeight()*relY - this->height / 2;
+	this->setBounds(this->xpos, this->ypos, this->width, this->height);
 	this->sprite = spriteImg;
 	//this->setLookAndFeel(&thisLookAndFeel);
 /*
@@ -36,13 +37,13 @@ void StandardRotary::init(String name, float min, float max, float value, int x,
 	return;
 }
 
-void StandardRotary::init(String name, float min, float max, float value, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg)
+void StandardRotary::init(String name, NormalisableRange<double> range, float value, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg)
 {
 
 
 	this->setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
 	mLookAndFeel.addSprite(spriteImg);
-	this->setRange(min, max);
+	this->setNormalisableRange(range);
 	this->setValue(value);
 	this->setName(name);
 	this->setLookAndFeel(&mLookAndFeel);

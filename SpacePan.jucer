@@ -8,6 +8,7 @@
             file="Source/CustomLookAndFeel.cpp"/>
       <FILE id="eUxWC5" name="CustomLookAndFeel.h" compile="0" resource="0"
             file="Source/CustomLookAndFeel.h"/>
+      <FILE id="dKA19n" name="utils.cpp" compile="1" resource="0" file="Source/utils.cpp"/>
       <FILE id="YpSZG2" name="utils.h" compile="0" resource="0" file="Source/utils.h"/>
       <FILE id="T1Q0nB" name="StandardRotary.cpp" compile="1" resource="0"
             file="Source/StandardRotary.cpp"/>

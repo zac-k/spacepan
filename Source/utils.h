@@ -9,23 +9,18 @@
 */
 
 #pragma once
-
+#include "JuceHeader.h"
 
 namespace utils
 {
 
-	int modulo(int val1, int val2)
-	{
-		while (val1 < 0)
-		{
-			val1 += val1;
-		}
-		int mod = val1 % val2;
-		/*while (mod < 0)
-		{
-			mod += val2;
-		}*/
-		return mod;
-	}
+	int modulo(int val1, int val2);
 
-}
+
+	template <typename T>
+	T frequencySkew(T min, T max, T interval = 0.0);
+
+	template <typename T>
+	NormalisableRange<T> frequencyRange(T min, T max, T interval = 0.0);
+
+};

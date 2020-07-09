@@ -9,7 +9,9 @@
 */
 
 #include "PluginProcessor.h"
+//#include "PluginProcessor.cpp"
 #include "PluginEditor.h"
+//#include "utils.h"
 
 
 //==============================================================================
@@ -44,25 +46,26 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 
 
 	// Initialise knobs
-	mRevMixKnob.init( "RevMixKnob", 0.0f, 1.0f, 0.5f, getBounds(), 0.5, 0.5, knobImg);
-	mPanKnob.init("PanKnob", -1.0f, 1.0f, 0.0f, getBounds(), 0.5, 0.15, knobImgPan);
-	mHeadWidthSlider.init("HeadWidthKnob", 0.0f, 10.0f, 0.15f, getBounds(), 0.6, 0.15, knobImgPan);
-	mDelayFeedbackKnob.init("DelayFeedbackKnob", 0.0f, 1.0f, 0.5f, getBounds(), 0.25, 0.5, knobImg);
-	mDelayTimeKnob.init("DelayTimeKnob", 0.0f, 1.0f, 0.5f, getBounds(), 0.15, 0.5, knobImg);
+	mRevMixKnob.init( "RevMixKnob", getBounds(), 0.5, 0.5, knobImg);
+	mPanKnob.init("PanKnob", getBounds(), 0.5, 0.15, knobImgPan);
+	mHeadWidthSlider.init("HeadWidthKnob", getBounds(), 0.6, 0.15, knobImgPan);
+	mDelayFeedbackKnob.init("DelayFeedbackKnob", getBounds(), 0.25, 0.5, knobImg);
+	mDelayTimeKnob.init("DelayTimeKnob", getBounds(), 0.15, 0.5, knobImg);
 
-	mDelayLowPassKnob.init("DelayLowPassKnob", 100.0f, 2.0e4f, 2.0e3f, getBounds(), 0.33, 0.5, knobImgPan);
+	mDelayLowPassKnob.init("DelayLowPassKnob", getBounds(), 0.33, 0.5, knobImgPan);
 	mDelayLowPassQKnob.setDim(32, 32);
-	mDelayLowPassQKnob.init("DelayLowPassQKnob", 1.0f, 5.0f, 1.0f, getBounds(), 0.33, 0.5, knobImg);
+	mDelayLowPassQKnob.init("DelayLowPassQKnob", getBounds(), 0.33, 0.5, knobImg);
 
-	mDelayHighPassKnob.init("DelayHighPassKnob", 100.0f, 2.0e4f, 2.0e2f, getBounds(), 0.4, 0.5, knobImgPan);
+	// TODO: frequencyRange<double> isn't working. Figure out why
+	mDelayHighPassKnob.init("DelayHighPassKnob", getBounds(), 0.4, 0.5, knobImgPan);
 	mDelayHighPassQKnob.setDim(32, 32);
-	mDelayHighPassQKnob.init("DelayHighPassQKnob", 1.0f, 5.0f, 1.0f, getBounds(), 0.4, 0.5, knobImg);
+	mDelayHighPassQKnob.init("DelayHighPassQKnob", getBounds(), 0.4, 0.5, knobImg);
 	
 	mDelayTimeText.setBounds(0, 0, 80, 20);
 	//mDelayTimeKnob.hideTextBox(false);
 	//mDelayTimeKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxAbove, true, 100, 20);
-	mDelayMixKnob.init("DelayMixKnob", 0.0f, 1.0f, 0.5f, getBounds(), 0.11, 0.4, knobImg);
-	mDelayWidthKnob.init("DelayWidthKnob", 0.0f, 1.0f, 0.5f, getBounds(), 0.15, 0.6, knobImg);
+	mDelayMixKnob.init("DelayMixKnob", getBounds(), 0.11, 0.4, knobImg);
+	mDelayWidthKnob.init("DelayWidthKnob", getBounds(), 0.15, 0.6, knobImg);
 
 
 	// Buttons

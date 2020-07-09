@@ -10,11 +10,12 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-#include "utils.h"
+#include "utils.cpp"
 
 const float PI = 3.1415926535897932384626;
 const float HEAD_WIDTH_MAX = 10; //metres
 const float SOUND_SPEED = 343.0; // m/s
+const float FILTER_SKEW = 0.25f;
 //==============================================================================
 SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state",
 	{ std::make_unique<AudioParameterFloat>("rev_mix", "Reverb Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
@@ -24,7 +25,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	  std::make_unique<AudioParameterFloat>("delay_time", "Delay Time", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_lowpass", "Delay High Cut", NormalisableRange<float>(100.0f, 2.0e4f), 2.0e3f),
 	  std::make_unique<AudioParameterFloat>("delay_lowpass_Q", "Delay High Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
-	  std::make_unique<AudioParameterFloat>("delay_highpass", "Delay Low Cut", NormalisableRange<float>(100.0f, 2.0e4f), 2.0e2f),
+	  std::make_unique<AudioParameterFloat>("delay_highpass", "Delay Low Cut", utils::frequencyRange<float>(100.0f, 2.0e4f), 2.0e2f),
 	  std::make_unique<AudioParameterFloat>("delay_highpass_Q", "Delay Low Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("delay_mix", "Delay Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_width", "Delay Width", NormalisableRange<float>(0.0f, 1.0f), 0.5f) })

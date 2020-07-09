@@ -23,8 +23,8 @@ class StandardRotary : public Slider
 public:
 
 	// Public methods
-	void init(String name, float min, float max, float value, int x, int y, Image spriteImg);
-	void init(String name, float min, float max, float value, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg);
+	void init(String name, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg);
+	void init(String name, NormalisableRange<double> range, float value, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg);
 	void setDim(int width, int height);
 
 private:
