@@ -90,7 +90,7 @@ void CircularAudioBuffer<T>::write(int channel, const AudioBuffer<T>& inputBuffe
 
 	
 	this->copyFromWithRamp(channel, mWritePosition[channel], inputData, thisBufferRemaining, 1.0, 1.0);
-	this->copyFromWithRamp(channel, 0, inputData, inputBufferRemaining, 1.0, 1.0);
+	this->copyFromWithRamp(channel, 0, inputData + thisBufferRemaining, inputBufferRemaining, 1.0, 1.0); // this buffer remaining might need to be clamped at inputBufferLength
 
 	moveWritePosition(channel, inputBufferLength);
 }

@@ -137,17 +137,14 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	mDelayBuffer.clear();
 	mDelayBuffer.initWritePosition();
 	mDelayBuffer.initReadPosition();
-	// TODO: the factor of 100 here is to reduce the number of glitches from the buffer wraparound.
-	// Remove it when the circular buffer methods are fixed.
-	const int panBufferSize = static_cast<int>(HEAD_WIDTH_MAX / SOUND_SPEED * sampleRate + 2 * samplesPerBlock)*100;
+
+	const int panBufferSize = static_cast<int>(HEAD_WIDTH_MAX / SOUND_SPEED * sampleRate + 2 * samplesPerBlock);
 	mPanBuffer.setSize(numInputChannels, panBufferSize);
 	mPanBuffer.clear();
 	mPanBuffer.initWritePosition();
 	mPanBuffer.initReadPosition();
 
-	// TODO: the factor of 100 here is to reduce the number of glitches from the buffer wraparound.
-	// Remove it when the circular buffer methods are fixed.
-	const int preverbBufferSize = static_cast<int>(ROOM_SIZE_MAX / SOUND_SPEED * sampleRate + 2 * samplesPerBlock) * 100;
+	const int preverbBufferSize = static_cast<int>(ROOM_SIZE_MAX / SOUND_SPEED * sampleRate + 2 * samplesPerBlock);
 	mPreverbBuffer.setSize(numInputChannels, preverbBufferSize);
 	mPreverbBuffer.clear();
 	mPreverbBuffer.initWritePosition();
