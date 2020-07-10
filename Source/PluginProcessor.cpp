@@ -309,6 +309,26 @@ void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, f
 	
 	float headWidth = *mState.getRawParameterValue("head_width");
 
+	
+	AudioBuffer<float> preverbWet;
+	preverbWet.makeCopyOf(buffer);
+	// TODO: process the signal before adding preverb
+
+
+	// Make mono
+	preverbWet.addFrom(0, 0, preverbWet.getReadPointer(1), preverbWet.getNumSamples());
+	preverbWet.copyFrom(1, 0, preverbWet.getReadPointer(0), preverbWet.getNumSamples());
+	preverbWet.applyGain(0.5);
+
+
+
+	dsp::AudioBlock<float> block(preverbWet);
+	//dsp::AudioBlock<float> blockL = block.getSingleChannelBlock(0);
+	//dsp::AudioBlock<float> blockR = block.getSingleChannelBlock(1);
+	preverb.process(dsp::ProcessContextReplacing<float>(block));
+	//preverbR.process(dsp::ProcessContextReplacing<float>(blockR));
+
+
 	int phaseShiftMaxInSamples = (headWidth / SOUND_SPEED) * getSampleRate();
 	// TODO: The writing loop should be outside this function so the buffer is always written to, or
 	// there should be a delay before the atmoPan 'kicks in' to allow the buffer to be filled
@@ -329,24 +349,7 @@ void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, f
 		mPanBuffer.read(channel, buffer);
 	}
 
-	// TODO: should this be moved to before phase shift?
-	AudioBuffer<float> preverbWet;
-	preverbWet.makeCopyOf(buffer);
-	// TODO: process the signal before adding preverb
-
 	
-	// Make mono
-	preverbWet.addFrom(0, 0, preverbWet.getReadPointer(1), preverbWet.getNumSamples());
-	preverbWet.copyFrom(1, 0, preverbWet.getReadPointer(0), preverbWet.getNumSamples());
-	preverbWet.applyGain(0.5);
-
-	
-
-	dsp::AudioBlock<float> block(preverbWet);
-	//dsp::AudioBlock<float> blockL = block.getSingleChannelBlock(0);
-	//dsp::AudioBlock<float> blockR = block.getSingleChannelBlock(1);
-	preverb.process(dsp::ProcessContextReplacing<float>(block));
-	//preverbR.process(dsp::ProcessContextReplacing<float>(blockR));
 
 
 	float preverbMix = 0.25;
