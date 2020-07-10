@@ -14,6 +14,7 @@
 
 const float PI = 3.1415926535897932384626;
 const float HEAD_WIDTH_MAX = 10; //metres
+const float ROOM_SIZE_MAX = 100; //metres
 const float SOUND_SPEED = 343.0; // m/s
 const float FILTER_SKEW = 0.25f;
 //==============================================================================
@@ -143,6 +144,14 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	mPanBuffer.clear();
 	mPanBuffer.initWritePosition();
 	mPanBuffer.initReadPosition();
+
+	// TODO: the factor of 100 here is to reduce the number of glitches from the buffer wraparound.
+	// Remove it when the circular buffer methods are fixed.
+	const int preverbBufferSize = static_cast<int>(ROOM_SIZE_MAX / SOUND_SPEED * sampleRate + 2 * samplesPerBlock) * 100;
+	mPreverbBuffer.setSize(numInputChannels, preverbBufferSize);
+	mPreverbBuffer.clear();
+	mPreverbBuffer.initWritePosition();
+	mPreverbBuffer.initReadPosition();
 
 
 	dsp::ProcessSpec spec;
@@ -298,7 +307,7 @@ void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, f
 	dsp::Reverb::Parameters preverbParams;
 	preverbParams.roomSize = *mState.getRawParameterValue("room_size") * 0.8;
 	preverbParams.damping = 0.5f;
-	// TODO: set this to 100% wet and add in later
+	
 	preverbParams.wetLevel = 1.0f;
 	preverbParams.dryLevel = 0.0f;
 	preverbParams.width = *mState.getRawParameterValue("room_size");
@@ -309,13 +318,9 @@ void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, f
 	
 	float headWidth = *mState.getRawParameterValue("head_width");
 
-	
-	AudioBuffer<float> preverbWet;
-	preverbWet.makeCopyOf(buffer);
-	// TODO: process the signal before adding preverb
-
-
 	// Make mono
+	AudioBuffer<float> preverbWet;
+	preverbWet.makeCopyOf(buffer);	
 	preverbWet.addFrom(0, 0, preverbWet.getReadPointer(1), preverbWet.getNumSamples());
 	preverbWet.copyFrom(1, 0, preverbWet.getReadPointer(0), preverbWet.getNumSamples());
 	preverbWet.applyGain(0.5);
@@ -332,22 +337,32 @@ void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, f
 	int phaseShiftMaxInSamples = (headWidth / SOUND_SPEED) * getSampleRate();
 	// TODO: The writing loop should be outside this function so the buffer is always written to, or
 	// there should be a delay before the atmoPan 'kicks in' to allow the buffer to be filled
+	float ppdFactor = std::pow(ROOM_SIZE_MAX, *mState.getRawParameterValue("room_size")) / SOUND_SPEED;
+	int ppdFactorInSamples = (int)ppdFactor * getSampleRate();
+	int preverbPredalay[] = { (int)ppdFactorInSamples * (1 + panVal), (int)ppdFactorInSamples * (1 - panVal) };
 
 	for (int channel = 0; channel < buffer.getNumChannels(); channel++)
 	{
 		// Read position is set before writing because .write() updates writePosition
 		mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel) - phaseShiftMaxInSamples * abs(panVal));
 		mPanBuffer.write(channel, buffer);
+
+		mPreverbBuffer.setReadPosition(channel, mPreverbBuffer.getWritePosition(channel) - preverbPredalay[channel]);
+		mPreverbBuffer.write(channel, preverbWet);
 	}
 
 
 	// Delay right channel if panned left and vice versa
-	int channel = (panVal < 0) ? 1 : 0;
+	
 
 	if (panVal != 0)
 	{
+		int channel = (panVal < 0) ? 1 : 0;
 		mPanBuffer.read(channel, buffer);
 	}
+
+	
+
 
 	
 
@@ -355,6 +370,7 @@ void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, f
 	float preverbMix = 0.25;
 	for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
 	{
+		mPreverbBuffer.read(channel, preverbWet);
 		// Mix wet and dry signals
 		mixer(buffer, preverbWet, preverbMix, channel, 1.0f);
 

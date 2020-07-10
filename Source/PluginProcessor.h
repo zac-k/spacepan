@@ -117,6 +117,7 @@ private:
 	// Buffers
 	CircularAudioBuffer<float> mDelayBuffer;
 	CircularAudioBuffer<float> mPanBuffer;
+	CircularAudioBuffer<float> mPreverbBuffer;
 
 	//==============================================================================
 
