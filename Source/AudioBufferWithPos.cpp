@@ -17,9 +17,11 @@ template <typename T>
 void CircularAudioBuffer<T>::initReadPosition()
 {
 	mReadPosition.clear();
+	mExpectedReadPosition.clear();
 	for (int i = 0; i < this->getNumChannels(); i++)
 	{
 		mReadPosition.push_back(0);
+		mExpectedReadPosition.push_back(0);
 	}
 	return;
 }
@@ -90,30 +92,43 @@ void CircularAudioBuffer<T>::write(int channel, const AudioBuffer<T>& inputBuffe
 
 	
 	this->copyFromWithRamp(channel, mWritePosition[channel], inputData, thisBufferRemaining, 1.0, 1.0);
-	this->copyFromWithRamp(channel, 0, inputData + thisBufferRemaining, inputBufferRemaining, 1.0, 1.0); // this buffer remaining might need to be clamped at inputBufferLength
+	this->copyFromWithRamp(channel, 0, inputData + thisBufferRemaining, inputBufferRemaining, 1.0, 1.0); 
 
 	moveWritePosition(channel, inputBufferLength);
 }
 
 template <typename T>
-void CircularAudioBuffer<T>::read(int channel, AudioBuffer<T>& outputBuffer, float rampGain)
+void CircularAudioBuffer<T>::read(int channel, AudioBuffer<T>& outputBuffer)
 {
+	
 	/* Read data from the circular buffer and update read position */
-	// TODO: Either this method or the read method does not work and needs to be fixed.
 
 
 	int outputBufferLength = outputBuffer.getNumSamples();
 	int thisBufferLength = this->getNumSamples();
-	int thisBufferRemaining = thisBufferLength - mReadPosition[channel];
+	int thisBufferRemaining = thisBufferLength - mExpectedReadPosition[channel];
 	thisBufferRemaining = std::min(thisBufferRemaining, outputBufferLength);
 	int outputBufferRemaining = std::max(outputBufferLength - thisBufferRemaining, 0);
 	const float* thisData = this->getReadPointer(channel);
 	//const float* thisDataFromReadPos = this->getReadPointer(channel, mReadPosition[channel]);
 
+	outputBuffer.copyFromWithRamp(channel, 0, thisData + mExpectedReadPosition[channel], thisBufferRemaining, 1.0, 1.0);
+	outputBuffer.copyFromWithRamp(channel, thisBufferRemaining, thisData, outputBufferRemaining, 1.0, 1.0);
+	if (mExpectedReadPosition[channel] != mReadPosition[channel])
+	{
+		outputBuffer.applyGainRamp(channel, 0, outputBufferLength, 1.0f, 0.0f);
+		thisBufferRemaining = thisBufferLength - mReadPosition[channel];
+		thisBufferRemaining = std::min(thisBufferRemaining, outputBufferLength);
+		outputBufferRemaining = std::max(outputBufferLength - thisBufferRemaining, 0);
+
+		float midGain = (float)thisBufferRemaining / outputBufferLength;
+
+		outputBuffer.addFromWithRamp(channel, 0, thisData + mReadPosition[channel], thisBufferRemaining, 0.0f, midGain);
+		outputBuffer.addFromWithRamp(channel, thisBufferRemaining, thisData, outputBufferRemaining, midGain, 1.0);
+		
+	}
 	
 
-	outputBuffer.copyFromWithRamp(channel, 0, thisData + mReadPosition[channel], thisBufferRemaining, rampGain, 1.0);
-	outputBuffer.copyFromWithRamp(channel, thisBufferRemaining, thisData, outputBufferRemaining, rampGain, 1.0);
-
 	moveReadPosition(channel, outputBufferLength);
+	mExpectedReadPosition[channel] = mReadPosition[channel];
 }

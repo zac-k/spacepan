@@ -18,10 +18,11 @@ public:
 	void setWritePosition(int channel, int val);
 	void setReadPosition(int channel, int val);
 	void write(int channel, const AudioBuffer<T>& inputBuffer);
-	void read(int channel, AudioBuffer<T>& outputBuffer, float rampGain = 1.0f);
+	void read(int channel, AudioBuffer<T>& outputBuffer);
 private:
 	std::vector<int> mWritePosition;
 	std::vector<int> mReadPosition;
+	std::vector<int> mExpectedReadPosition;
 
 
 };

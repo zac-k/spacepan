@@ -340,8 +340,16 @@ void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, f
 
 	for (int channel = 0; channel < buffer.getNumChannels(); channel++)
 	{
+		int delayedChannel = (panVal < 0) ? 1 : 0;
 		// Read position is set before writing because .write() updates writePosition
-		mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel) - phaseShiftMaxInSamples * abs(panVal));
+		if (channel == delayedChannel)
+		{
+			mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel) - phaseShiftMaxInSamples * abs(panVal));
+		}
+		else
+		{
+			mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel));
+		}
 		mPanBuffer.write(channel, buffer);
 
 		mPreverbBuffer.setReadPosition(channel, mPreverbBuffer.getWritePosition(channel) - preverbPredalay[channel]);
@@ -354,8 +362,7 @@ void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, f
 
 	if (panVal != 0)
 	{
-		int channel = (panVal < 0) ? 1 : 0;
-		mPanBuffer.read(channel, buffer);
+		
 	}
 
 	
@@ -364,9 +371,10 @@ void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, f
 	
 
 
-	float preverbMix = 0.25;
+	float preverbMix = *mState.getRawParameterValue("rev_mix");
 	for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
 	{
+		mPanBuffer.read(channel, buffer);
 		mPreverbBuffer.read(channel, preverbWet);
 		// Mix wet and dry signals
 		mixer(buffer, preverbWet, preverbMix, channel, 1.0f);
