@@ -50,6 +50,7 @@ public:
 		int32 delayInSamples, float** delayOffsets, float decay,
 		float sampleRate, int32 comb, bool fb);
 	void truePan(AudioBuffer<float> &buffer, float panVal, float maxPan);
+	void reverb(AudioBuffer<float> &buffer, float panVal);
 	void atmoPan(AudioBuffer<float> &buffer, float panVal, float maxPan);
 
 	void mixer(AudioBuffer<float> &dry, AudioBuffer<float> &wet, float mix, int channel, float vol);
@@ -108,6 +109,7 @@ private:
 
 	dsp::Reverb preverb;
 	dsp::Reverb delayverb;
+	dsp::Reverb mReverb;
 	//dsp::Reverb preverbR;
 
 
@@ -121,6 +123,7 @@ private:
 	CircularAudioBuffer<float> mDelayBuffer;
 	CircularAudioBuffer<float> mPanBuffer;
 	CircularAudioBuffer<float> mPreverbBuffer;
+	CircularAudioBuffer<float> mReverbBuffer;
 
 	//==============================================================================
 

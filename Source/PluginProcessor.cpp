@@ -151,6 +151,12 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	mPreverbBuffer.initWritePosition();
 	mPreverbBuffer.initReadPosition();
 
+	const int reverbBufferSize = static_cast<int>(ROOM_SIZE_MAX / SOUND_SPEED * sampleRate + 2 * samplesPerBlock);
+	mReverbBuffer.setSize(numInputChannels, reverbBufferSize);
+	mReverbBuffer.clear();
+	mReverbBuffer.initWritePosition();
+	mReverbBuffer.initReadPosition();
+
 
 	dsp::ProcessSpec spec;
 	spec.sampleRate = sampleRate;
@@ -171,6 +177,9 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 
 	preverb.prepare(spec);
 	preverb.reset();
+
+	mReverb.prepare(spec);
+	mReverb.reset();
 
 	delayverb.prepare(spec);
 	delayverb.reset();
@@ -248,6 +257,8 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 	float delayOffsets[] = { 0, 0 };
 	delay(buffer, mDelayBuffer, buffer.getNumSamples(), delayOffsets, sampleRate, 0, true);		
 
+	reverb(buffer, *mState.getRawParameterValue("pan"));
+
 		//=============================================================================
 		/*
 		
@@ -301,6 +312,80 @@ void SpacePanAudioProcessor::truePan(AudioBuffer<float> &buffer, float panVal, f
 	
 	
 
+}
+
+void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
+{
+	dsp::Reverb::Parameters reverbParams;
+	reverbParams.roomSize = *mState.getRawParameterValue("room_size") * 0.8;
+	reverbParams.damping = 0.5f;
+
+	reverbParams.wetLevel = 1.0f;
+	reverbParams.dryLevel = 0.0f;
+	reverbParams.width = *mState.getRawParameterValue("room_size");
+	reverbParams.freezeMode = 0.0f;
+	mReverb.setParameters(reverbParams);
+
+	//truePan(buffer, panVal, maxPan);
+
+	float headWidth = *mState.getRawParameterValue("head_width");
+
+	// Make mono
+	AudioBuffer<float> reverbWet;
+	reverbWet.makeCopyOf(buffer);
+	reverbWet.addFrom(0, 0, reverbWet.getReadPointer(1), reverbWet.getNumSamples());
+	reverbWet.copyFrom(1, 0, reverbWet.getReadPointer(0), reverbWet.getNumSamples());
+	reverbWet.applyGain(0.5);
+
+
+
+	dsp::AudioBlock<float> block(reverbWet);
+	//dsp::AudioBlock<float> blockL = block.getSingleChannelBlock(0);
+	//dsp::AudioBlock<float> blockR = block.getSingleChannelBlock(1);
+	mReverb.process(dsp::ProcessContextReplacing<float>(block));
+	//preverbR.process(dsp::ProcessContextReplacing<float>(blockR));
+
+
+	int phaseShiftMaxInSamples = (headWidth / SOUND_SPEED) * getSampleRate();
+	// TODO: The writing loop should be outside this function so the buffer is always written to, or
+	// there should be a delay before the atmoPan 'kicks in' to allow the buffer to be filled
+	float ppdFactor = std::pow(ROOM_SIZE_MAX, *mState.getRawParameterValue("room_size")) / SOUND_SPEED;
+	int ppdFactorInSamples = (int)ppdFactor * getSampleRate();
+	int reverbPredalay[] = { (int)ppdFactorInSamples * (1 + panVal), (int)ppdFactorInSamples * (1 - panVal) };
+
+	for (int channel = 0; channel < buffer.getNumChannels(); channel++)
+	{
+		int delayedChannel = (panVal < 0) ? 1 : 0;
+		// Read position is set before writing because .write() updates writePosition
+		if (channel == delayedChannel)
+		{
+			mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel) - phaseShiftMaxInSamples * abs(panVal));
+		}
+		else
+		{
+			mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel));
+		}
+		mPanBuffer.write(channel, buffer);
+
+		mReverbBuffer.setReadPosition(channel, mReverbBuffer.getWritePosition(channel) - reverbPredalay[channel]);
+		mReverbBuffer.write(channel, reverbWet);
+	}
+
+
+	float reverbMix = *mState.getRawParameterValue("rev_mix");
+	for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
+	{
+		mPanBuffer.read(channel, buffer);
+		mReverbBuffer.read(channel, reverbWet);
+		// Mix wet and dry signals
+		mixer(buffer, reverbWet, reverbMix, channel, 1.0f);
+
+	}
+
+	buffer = reverbWet;
+
+
+	return;
 }
 
 void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, float maxPan)
@@ -358,21 +443,7 @@ void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, f
 
 		mPreverbBuffer.setReadPosition(channel, mPreverbBuffer.getWritePosition(channel) - preverbPredalay[channel]);
 		mPreverbBuffer.write(channel, preverbWet);
-	}
-
-
-	// Delay right channel if panned left and vice versa
-	
-
-	if (panVal != 0)
-	{
-		
-	}
-
-	
-
-
-	
+	}	
 
 
 	float preverbMix = *mState.getRawParameterValue("rev_mix");
@@ -395,7 +466,10 @@ void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
 {
 	
 
-	atmoPan(buffer, panVal, 0.8);
+	// TODO: maybe change this back to atmoPan(). Delete reverb stuff from atmoPan() and move the filtering stuff
+	// from this (pan()) function into atmoPan().
+	truePan(buffer, panVal, 0.8);
+
 	dsp::AudioBlock<float> block(buffer);
 	dsp::AudioBlock<float> blockL = block.getSingleChannelBlock(0);
 	dsp::AudioBlock<float> blockR = block.getSingleChannelBlock(1);
@@ -524,7 +598,7 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 
 		//========================================================================
 		// TODO: delayverb (diffusion) not working
-		dsp::AudioBlock<float> preDelayBlock(arr);
+		dsp::AudioBlock<float> preDelayBlock(delayBuffer);
 		dsp::Reverb::Parameters delayverbParams;
 		delayverbParams.roomSize = 0.05;
 		delayverbParams.damping = 1.0f;
