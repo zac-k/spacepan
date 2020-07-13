@@ -180,6 +180,11 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	lowPassFilterL.reset();
 	lowPassFilterR.reset();
 
+	revLowPassFilter.prepare(spec);
+	revLowPassFilter.reset();
+	revHighPassFilter.prepare(spec);
+	revHighPassFilter.reset();
+
 	preverb.prepare(spec);
 	preverb.reset();
 
@@ -371,6 +376,19 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 		mReverbBuffer.write(channel, reverbWet);
 	}
 
+	float revLPf = *mState.getRawParameterValue("rev_lowpass");
+	float revLPQ = *mState.getRawParameterValue("rev_lowpass_Q");
+	float revHPf = *mState.getRawParameterValue("rev_highpass");
+	float revHPQ = *mState.getRawParameterValue("rev_highpass_Q");
+
+
+	// TODO: get these filters working
+	*revLowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), revLPf, revLPQ);
+	*revHighPassFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), revHPf, revHPQ);
+
+	
+	revLowPassFilter.process(dsp::ProcessContextReplacing<float>(block));
+	revHighPassFilter.process(dsp::ProcessContextReplacing<float>(block));
 
 	float reverbMix = *mState.getRawParameterValue("rev_mix");
 	for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
