@@ -340,15 +340,10 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 
 
 	dsp::AudioBlock<float> block(reverbWet);
-	//dsp::AudioBlock<float> blockL = block.getSingleChannelBlock(0);
-	//dsp::AudioBlock<float> blockR = block.getSingleChannelBlock(1);
 	mReverb.process(dsp::ProcessContextReplacing<float>(block));
-	//preverbR.process(dsp::ProcessContextReplacing<float>(blockR));
 
 
 	int phaseShiftMaxInSamples = (headWidth / SOUND_SPEED) * getSampleRate();
-	// TODO: The writing loop should be outside this function so the buffer is always written to, or
-	// there should be a delay before the atmoPan 'kicks in' to allow the buffer to be filled
 	float ppdFactor = std::pow(ROOM_SIZE_MAX, *mState.getRawParameterValue("room_size")) / SOUND_SPEED;
 	int ppdFactorInSamples = (int)ppdFactor * getSampleRate();
 	int reverbPredalay[] = { (int)ppdFactorInSamples * (1 + panVal), (int)ppdFactorInSamples * (1 - panVal) };
@@ -580,10 +575,7 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 		for (int32 i = 0; i < numSamples; i++)
 		{
 			arr.getWritePointer(channel)[i] += (delayBuffer.getReadPointer(channel)[tempBufferPos] * mDelayFeedbackGain);
-			if (*mState.getRawParameterValue("delay_sat") > 0.1)
-			{
-				saturate(arr.getWritePointer(channel)[i], *mState.getRawParameterValue("delay_sat"));
-			}
+			
 			delayBuffer.getWritePointer(channel)[tempBufferPos] = arr.getReadPointer(channel)[i];
 			//buffer.getWritePointer(channel)[tempBufferPos + tempDelayInSamples] = arr.getReadPointer(channel)[i];
 			tempBufferPos++;
@@ -644,8 +636,14 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 
 		// Compensate for gain drop on first echo
 		delayWet.applyGain(channel, 0, samples.getNumSamples(), 1.0f / mDelayFeedbackGain);
+
 	}
 
+	// Add saturation to wet delay signal
+	if (*mState.getRawParameterValue("delay_sat") > 0.1)
+	{
+		saturate(delayWet, *mState.getRawParameterValue("delay_sat"));
+	}
 
 	// Apply filters to wet delay signal
 	dsp::AudioBlock<float> delayBlock(delayWet);
@@ -776,3 +774,20 @@ void SpacePanAudioProcessor::saturate(float &sample, float gain)
 	sample = atan(gain*sample) / gain;
 	return;
 }
+
+void SpacePanAudioProcessor::saturate(AudioBuffer<float> &samples, float gain)
+{
+
+	for (int channel = 0; channel < samples.getNumChannels(); channel++)
+	{
+		for (int i = 0; i < samples.getNumSamples(); i++)
+		{
+			float sample = samples.getReadPointer(channel)[i];
+			samples.getWritePointer(channel)[i] = atan(gain*sample) / gain;
+		}
+
+	}
+	return;
+}
+
+
