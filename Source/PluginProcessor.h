@@ -96,7 +96,7 @@ private:
 
 	void saturate(float &sample, float gain);
 	void saturate(AudioBuffer<float> &samples, float gain, int type);
-
+	void saturate(AudioBuffer<float> &samples, float gain, float character);
 	//float mHeadWidth{ 2 }; // metres
 
 	// Low pass filters for atmopan

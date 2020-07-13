@@ -28,6 +28,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelayHighPassQAttachment(p.mState, "delay_highpass_Q", mDelayHighPassQKnob),
 	mDelayMixAttachment(p.mState, "delay_mix", mDelayMixKnob),
 	mDelaySatAttachment(p.mState, "delay_sat", mDelaySatKnob),
+	mDelaySatCharAttachment(p.mState, "delay_sat_char", mDelaySatCharKnob),
 	mDelayWidthAttachment(p.mState, "delay_width", mDelayWidthKnob)
 	
 {
@@ -67,6 +68,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	//mDelayTimeKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxAbove, true, 100, 20);
 	mDelayMixKnob.init("DelayMixKnob", getBounds(), 0.11, 0.4, knobImg);
 	mDelaySatKnob.init("DelaySatKnob", getBounds(), 0.33, 0.6, knobImg);
+	mDelaySatCharKnob.init("DelaySatCharKnob", getBounds(), 0.4, 0.6, knobImg);
 	mDelayWidthKnob.init("DelayWidthKnob", getBounds(), 0.15, 0.6, knobImg);
 
 
@@ -107,6 +109,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addAndMakeVisible(mDelayHighPassQKnob);
 	addAndMakeVisible(mDelayMixKnob);
 	addAndMakeVisible(mDelaySatKnob);
+	addAndMakeVisible(mDelaySatCharKnob);
 	addAndMakeVisible(mDelayWidthKnob);
 
 	addAndMakeVisible(mDelayTimeText);

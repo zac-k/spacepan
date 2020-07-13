@@ -32,6 +32,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	  std::make_unique<AudioParameterFloat>("delay_allpass", "Delay Diffusion", NormalisableRange<float>(20.0f, 2.0e4f), 20.0f),
 	  std::make_unique<AudioParameterFloat>("delay_mix", "Delay Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_sat", "Delay Saturation", NormalisableRange<float>(0.0f, 10.0f), 0.0f),
+	  std::make_unique<AudioParameterFloat>("delay_sat_char", "Delay Saturation Character", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_width", "Delay Width", NormalisableRange<float>(0.0f, 1.0f), 0.5f) })
 #ifndef JucePlugin_PreferredChannelConfigurations
      , AudioProcessor (BusesProperties()
@@ -642,7 +643,7 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	// Add saturation to wet delay signal
 	if (*mState.getRawParameterValue("delay_sat") > 0.1)
 	{
-		saturate(delayWet, *mState.getRawParameterValue("delay_sat"), 2);
+		saturate(delayWet, *mState.getRawParameterValue("delay_sat"), *mState.getRawParameterValue("delay_sat_char"));
 	}
 
 	// Apply filters to wet delay signal
@@ -798,6 +799,27 @@ void SpacePanAudioProcessor::saturate(AudioBuffer<float> &samples, float gain, i
 			}
 			
 			
+		}
+
+	}
+	return;
+}
+
+void SpacePanAudioProcessor::saturate(AudioBuffer<float> &samples, float gain, float character)
+{
+	float a = std::max(1.0f - 2.0f * character, 0.0f);
+	float b = 2.0f * (0.5f - std::abs(character - 0.5f));
+	float c = std::max(2.0f* character - 1.0f, 0.0f);
+
+	for (int channel = 0; channel < samples.getNumChannels(); channel++)
+	{
+		for (int i = 0; i < samples.getNumSamples(); i++)
+		{
+			float sample = samples.getReadPointer(channel)[i];
+			float x = atan(gain*sample) / gain; //digital
+			float y = sample - std::pow(sample / 8.0f * gain, 3.0f); //valve
+			float z =  std::min(sample*gain, 1.0f) / gain; //hard clip
+			samples.getWritePointer(channel)[i] = a * x + b * y + c * z;
 		}
 
 	}
