@@ -100,6 +100,16 @@ private:
 	// Reverb controls
 	StandardRotary mRevMixKnob;
 	AudioProcessorValueTreeState::SliderAttachment mRevMixAttachment;
+	StandardRotary mRoomSizeKnob;
+	AudioProcessorValueTreeState::SliderAttachment mRoomSizeAttachment;
+	StandardRotary mRevLowPassKnob;
+	AudioProcessorValueTreeState::SliderAttachment mRevLowPassAttachment;
+	StandardRotary mRevLowPassQKnob;
+	AudioProcessorValueTreeState::SliderAttachment mRevLowPassQAttachment;
+	StandardRotary mRevHighPassKnob;
+	AudioProcessorValueTreeState::SliderAttachment mRevHighPassAttachment;
+	StandardRotary mRevHighPassQKnob;
+	AudioProcessorValueTreeState::SliderAttachment mRevHighPassQAttachment;
 	//Slider mRevMixKnob;
 
 	// Sidechain controls

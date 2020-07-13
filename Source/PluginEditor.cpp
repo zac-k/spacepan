@@ -18,7 +18,12 @@
 SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcessor& p)
 	: AudioProcessorEditor(&p), processor(p),
 	mRevMixAttachment(p.mState, "rev_mix", mRevMixKnob),
+	mRevLowPassAttachment(p.mState, "rev_lowpass", mRevLowPassKnob),
+	mRevLowPassQAttachment(p.mState, "rev_lowpass_Q", mRevLowPassQKnob),
+	mRevHighPassAttachment(p.mState, "rev_highpass", mRevHighPassKnob),
+	mRevHighPassQAttachment(p.mState, "rev_highpass_Q", mRevHighPassQKnob),
 	mPanAttachment(p.mState, "pan", mPanKnob),
+	mRoomSizeAttachment(p.mState, "room_size", mRoomSizeKnob),
 	mHeadWidthAttachment(p.mState, "head_width", mHeadWidthSlider),
 	mDelayFeedbackAttachment(p.mState, "delay_feedback", mDelayFeedbackKnob),
 	mDelayTimeAttachment(p.mState, "delay_time", mDelayTimeKnob),
@@ -48,17 +53,24 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 
 
 	// Initialise knobs
-	mRevMixKnob.init( "RevMixKnob", getBounds(), 0.5, 0.5, knobImg);
+	mRevMixKnob.init( "RevMixKnob", getBounds(), 0.6, 0.45, knobImg);
+
+	mRevLowPassKnob.init("RevLowPassKnob", getBounds(), 0.8, 0.5, knobImgPan);
+	mRevLowPassQKnob.setDim(32, 32);
+	mRevLowPassQKnob.init("RevLowPassQKnob", getBounds(), 0.8, 0.5, knobImg);
+	mRevHighPassKnob.init("RevHighPassKnob", getBounds(), 0.87, 0.5, knobImgPan);
+	mRevHighPassQKnob.setDim(32, 32);
+	mRevHighPassQKnob.init("RevHighPassQKnob", getBounds(), 0.87, 0.5, knobImg);
+
 	mPanKnob.init("PanKnob", getBounds(), 0.5, 0.15, knobImgPan);
+	mRoomSizeKnob.init("RoomSizeKnob", getBounds(), 0.7, 0.5, knobImg);
 	mHeadWidthSlider.init("HeadWidthKnob", getBounds(), 0.6, 0.15, knobImgPan);
 	mDelayFeedbackKnob.init("DelayFeedbackKnob", getBounds(), 0.25, 0.5, knobImg);
 	mDelayTimeKnob.init("DelayTimeKnob", getBounds(), 0.15, 0.5, knobImg);
 
 	mDelayLowPassKnob.init("DelayLowPassKnob", getBounds(), 0.33, 0.5, knobImgPan);
 	mDelayLowPassQKnob.setDim(32, 32);
-	mDelayLowPassQKnob.init("DelayLowPassQKnob", getBounds(), 0.33, 0.5, knobImg);
-
-	// TODO: frequencyRange<double> isn't working. Figure out why
+	mDelayLowPassQKnob.init("DelayLowPassQKnob", getBounds(), 0.33, 0.5, knobImg);	
 	mDelayHighPassKnob.init("DelayHighPassKnob", getBounds(), 0.4, 0.5, knobImgPan);
 	mDelayHighPassQKnob.setDim(32, 32);
 	mDelayHighPassQKnob.init("DelayHighPassQKnob", getBounds(), 0.4, 0.5, knobImg);
@@ -82,13 +94,15 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	// Set tooltips
 	mRevMixKnob.setTooltip("Mix");
 	mPanKnob.setTooltip("Pan");
+	mRoomSizeKnob.setTooltip("Room size");
 	mDelayFeedbackKnob.setTooltip("Feedback amount");
-	mDelayTimeKnob.setTooltip("Delay time");
+	mDelayTimeKnob.setTooltip("Time");
 	mDelayMixKnob.setTooltip("Mix");
 	mDelayWidthKnob.setTooltip("Stereo width");
 
 	mRevMixKnob.addListener(this);
 	mPanKnob.addListener(this);
+	mRoomSizeKnob.addListener(this);
 	mDelayFeedbackKnob.addListener(this);
 	mDelayTimeKnob.addListener(this);
 	mDelayMixKnob.addListener(this);
@@ -99,7 +113,12 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 
 	// Add knobs to GUI
 	addAndMakeVisible(mRevMixKnob);
+	addAndMakeVisible(mRevLowPassKnob);
+	addAndMakeVisible(mRevLowPassQKnob);
+	addAndMakeVisible(mRevHighPassKnob);
+	addAndMakeVisible(mRevHighPassQKnob);
 	addAndMakeVisible(mPanKnob);
+	addAndMakeVisible(mRoomSizeKnob);
 	addAndMakeVisible(mHeadWidthSlider);
 	addAndMakeVisible(mDelayFeedbackKnob);
 	addAndMakeVisible(mDelayTimeKnob);

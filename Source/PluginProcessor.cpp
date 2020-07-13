@@ -20,6 +20,10 @@ const float FILTER_SKEW = 0.25f;
 //==============================================================================
 SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state",
 	{ std::make_unique<AudioParameterFloat>("rev_mix", "Reverb Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+	  std::make_unique<AudioParameterFloat>("rev_lowpass", "Reverb Lowpass", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
+	  std::make_unique<AudioParameterFloat>("rev_lowpass_Q", "Reverb Lowpass Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
+	  std::make_unique<AudioParameterFloat>("rev_highpass", "Reverb Highpass", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
+	  std::make_unique<AudioParameterFloat>("rev_highpass_Q", "Reverb Highpass Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("pan", "Pan", NormalisableRange<float>(-1.0f, 1.0f), 0.0f),
 	  std::make_unique<AudioParameterFloat>("room_size", "Room Size", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("head_width", "Head Width", NormalisableRange<float>(0.0f, 10.0f), 0.15f),
@@ -541,6 +545,21 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	// TODO: This should be controlled via GUI!
 	String delayStereoType = "ping_pong";
 
+	float delayLPf = *mState.getRawParameterValue("delay_lowpass");
+	float delayLPQ = *mState.getRawParameterValue("delay_lowpass_Q");
+	float delayHPf = *mState.getRawParameterValue("delay_highpass");
+	float delayHPQ = *mState.getRawParameterValue("delay_highpass_Q");
+	float delayAPf = *mState.getRawParameterValue("delay_allpass");
+
+
+	// TODO: filtering needs to be done on signal added to delay buffer - maybe as separate option?
+
+	*delayLowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), delayLPf, delayLPQ);
+	*delayHighPassFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), delayHPf, delayHPQ);
+	//*delayAllPassFilter.state = *dsp::IIR::Coefficients<float>::makeAllPass(getSampleRate(), delayAPf, 40.0);
+
+
+
 	for (int channel = 0; channel < samples.getNumChannels(); ++channel)
 	{
 
@@ -572,7 +591,6 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 
 		
 
-
 		for (int32 i = 0; i < numSamples; i++)
 		{
 			arr.getWritePointer(channel)[i] += (delayBuffer.getReadPointer(channel)[tempBufferPos] * mDelayFeedbackGain);
@@ -588,27 +606,31 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 
 
 		}
-
-		//========================================================================
-		// TODO: delayverb (diffusion) not working
-		dsp::AudioBlock<float> preDelayBlock(delayBuffer);
-		dsp::Reverb::Parameters delayverbParams;
-		delayverbParams.roomSize = 0.05;
-		delayverbParams.damping = 1.0f;
-
-		delayverbParams.wetLevel = 0.0f;
-		delayverbParams.dryLevel = 0.95f;
-		delayverbParams.width = 0.0;
-		delayverbParams.freezeMode = 0.0f;
-		delayverb.setParameters(delayverbParams);
-		//delayverb.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
-
-		//========================================================================
+		
 
 		samples.copyFrom(channel, 0, arr.getReadPointer(channel), numSamples);
 
 		delayBuffer.moveWritePosition(channel, numSamples, delayInSamples);
 	}
+	
+	//========================================================================
+		// TODO: delayverb (diffusion) and pre-filter not working
+	dsp::AudioBlock<float> preDelayBlock(delayBuffer);
+	dsp::Reverb::Parameters delayverbParams;
+	delayverbParams.roomSize = 0.05;
+	delayverbParams.damping = 1.0f;
+
+	delayverbParams.wetLevel = 0.0f;
+	delayverbParams.dryLevel = 0.95f;
+	delayverbParams.width = 0.0;
+	delayverbParams.freezeMode = 0.0f;
+	delayverb.setParameters(delayverbParams);
+	//delayverb.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
+
+	
+	//delayLowPassFilter.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
+	//delayHighPassFilter.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
+	//========================================================================
 
 
 	float delayWidth = *mState.getRawParameterValue("delay_width");
@@ -618,17 +640,7 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 
 
 
-	float delayLPf = *mState.getRawParameterValue("delay_lowpass");
-	float delayLPQ = *mState.getRawParameterValue("delay_lowpass_Q");
-	float delayHPf = *mState.getRawParameterValue("delay_highpass");
-	float delayHPQ = *mState.getRawParameterValue("delay_highpass_Q");
-	float delayAPf = *mState.getRawParameterValue("delay_allpass");
-
-	// TODO: filtering needs to be done on signal added to delay buffer - maybe as separate option?
-
-	*delayLowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), delayLPf, delayLPQ);
-	*delayHighPassFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), delayHPf, delayHPQ);
-	//*delayAllPassFilter.state = *dsp::IIR::Coefficients<float>::makeAllPass(getSampleRate(), delayAPf, 40.0);
+	
 
 	for (int channel = 0; channel < samples.getNumChannels(); ++channel)
 	{
