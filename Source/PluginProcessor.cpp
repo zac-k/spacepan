@@ -642,7 +642,7 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	// Add saturation to wet delay signal
 	if (*mState.getRawParameterValue("delay_sat") > 0.1)
 	{
-		saturate(delayWet, *mState.getRawParameterValue("delay_sat"));
+		saturate(delayWet, *mState.getRawParameterValue("delay_sat"), 2);
 	}
 
 	// Apply filters to wet delay signal
@@ -775,7 +775,7 @@ void SpacePanAudioProcessor::saturate(float &sample, float gain)
 	return;
 }
 
-void SpacePanAudioProcessor::saturate(AudioBuffer<float> &samples, float gain)
+void SpacePanAudioProcessor::saturate(AudioBuffer<float> &samples, float gain, int type)
 {
 
 	for (int channel = 0; channel < samples.getNumChannels(); channel++)
@@ -783,7 +783,21 @@ void SpacePanAudioProcessor::saturate(AudioBuffer<float> &samples, float gain)
 		for (int i = 0; i < samples.getNumSamples(); i++)
 		{
 			float sample = samples.getReadPointer(channel)[i];
-			samples.getWritePointer(channel)[i] = atan(gain*sample) / gain;
+			switch (type)
+			{
+			case 0: // digital
+				samples.getWritePointer(channel)[i] = atan(gain*sample) / gain;
+				break;
+			case 1: // valve
+				samples.getWritePointer(channel)[i] = sample - std::pow(sample / 10.0f * gain, 3.0f);
+				break;
+			case 2: // hard clip
+				samples.getWritePointer(channel)[i] = std::min(sample*gain, 1.0f) / gain;
+				break;
+
+			}
+			
+			
 		}
 
 	}

@@ -95,7 +95,7 @@ public:
 private:
 
 	void saturate(float &sample, float gain);
-	void saturate(AudioBuffer<float> &samples, float gain);
+	void saturate(AudioBuffer<float> &samples, float gain, int type);
 
 	//float mHeadWidth{ 2 }; // metres
 
