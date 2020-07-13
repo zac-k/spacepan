@@ -31,6 +31,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	  std::make_unique<AudioParameterFloat>("delay_highpass_Q", "Delay Low Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("delay_allpass", "Delay Diffusion", NormalisableRange<float>(20.0f, 2.0e4f), 20.0f),
 	  std::make_unique<AudioParameterFloat>("delay_mix", "Delay Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+	  std::make_unique<AudioParameterFloat>("delay_sat", "Delay Saturation", NormalisableRange<float>(0.0f, 10.0f), 0.0f),
 	  std::make_unique<AudioParameterFloat>("delay_width", "Delay Width", NormalisableRange<float>(0.0f, 1.0f), 0.5f) })
 #ifndef JucePlugin_PreferredChannelConfigurations
      , AudioProcessor (BusesProperties()
@@ -170,6 +171,9 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 
 	preverb.prepare(spec);
 	preverb.reset();
+
+	delayverb.prepare(spec);
+	delayverb.reset();
 	//}
 	
 
@@ -456,6 +460,12 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	AudioBuffer<float> delayDry;
 	delayDry.makeCopyOf(samples);
 	float delaySeconds = *mState.getRawParameterValue("delay_time");
+
+	// TODO: This is for testing tempo-locked delay
+	float delayInBars = 3.0 / 8.0;
+	AudioPlayHead::CurrentPositionInfo cpi;
+	//delaySeconds = delayInBars * 60.0 * 4 / cpi.bpm;
+
 	int delayInSamples = std::max<int>(1, delaySeconds * sampleRate); // minimum 1 sample delay
 	float mDelayFeedbackGain = *mState.getRawParameterValue("delay_feedback");
 	// TODO: This should be controlled via GUI!
@@ -490,9 +500,16 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 		// Use wet signal for feedback, or dry signal for feedforward delay
 		//arr_temp = fb ? arr : samples.getReadPointer(channel);
 
+		
+
+
 		for (int32 i = 0; i < numSamples; i++)
 		{
 			arr.getWritePointer(channel)[i] += (delayBuffer.getReadPointer(channel)[tempBufferPos] * mDelayFeedbackGain);
+			if (*mState.getRawParameterValue("delay_sat") > 0.1)
+			{
+				saturate(arr.getWritePointer(channel)[i], *mState.getRawParameterValue("delay_sat"));
+			}
 			delayBuffer.getWritePointer(channel)[tempBufferPos] = arr.getReadPointer(channel)[i];
 			//buffer.getWritePointer(channel)[tempBufferPos + tempDelayInSamples] = arr.getReadPointer(channel)[i];
 			tempBufferPos++;
@@ -501,10 +518,29 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 				tempBufferPos = 0;
 			}
 
+
+
 		}
+
+		//========================================================================
+		// TODO: delayverb (diffusion) not working
+		dsp::AudioBlock<float> preDelayBlock(arr);
+		dsp::Reverb::Parameters delayverbParams;
+		delayverbParams.roomSize = 0.05;
+		delayverbParams.damping = 1.0f;
+
+		delayverbParams.wetLevel = 0.0f;
+		delayverbParams.dryLevel = 0.95f;
+		delayverbParams.width = 0.0;
+		delayverbParams.freezeMode = 0.0f;
+		delayverb.setParameters(delayverbParams);
+		//delayverb.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
+
+		//========================================================================
+
 		samples.copyFrom(channel, 0, arr.getReadPointer(channel), numSamples);
 
-		mDelayBuffer.moveWritePosition(channel, numSamples, delayInSamples);
+		delayBuffer.moveWritePosition(channel, numSamples, delayInSamples);
 	}
 
 
@@ -532,8 +568,6 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 		// Extract pure wet signal from delay buffer
 		FloatVectorOperations::subtract(delayWet.getWritePointer(channel), delayDry.getReadPointer(channel), samples.getNumSamples());
 
-
-		// TODO: Set minimum feedback gain to above zero or regularise this equation
 		// Compensate for gain drop on first echo
 		delayWet.applyGain(channel, 0, samples.getNumSamples(), 1.0f / mDelayFeedbackGain);
 	}
@@ -661,4 +695,10 @@ void SpacePanAudioProcessor::setStateInformation (const void* data, int sizeInBy
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new SpacePanAudioProcessor();
+}
+
+void SpacePanAudioProcessor::saturate(float &sample, float gain)
+{
+	sample = atan(gain*sample) / gain;
+	return;
 }

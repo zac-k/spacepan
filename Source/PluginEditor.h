@@ -87,6 +87,8 @@ private:
 	AudioProcessorValueTreeState::SliderAttachment mDelayHighPassQAttachment;
 	StandardRotary mDelayMixKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayMixAttachment;
+	StandardRotary mDelaySatKnob;
+	AudioProcessorValueTreeState::SliderAttachment mDelaySatAttachment;
 	StandardRotary mDelayWidthKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayWidthAttachment;
 

@@ -93,6 +93,8 @@ public:
 
 private:
 
+	void saturate(float &sample, float gain);
+
 
 	//float mHeadWidth{ 2 }; // metres
 
@@ -105,6 +107,7 @@ private:
 	dsp::ProcessorDuplicator< dsp::FIR::Filter<float>, dsp::FIR::Coefficients<float> > delayAllPassFilter;
 
 	dsp::Reverb preverb;
+	dsp::Reverb delayverb;
 	//dsp::Reverb preverbR;
 
 
