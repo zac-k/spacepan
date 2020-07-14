@@ -53,7 +53,8 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 
 
 	// Initialise knobs
-	mRevMixKnob.init( "RevMixKnob", getBounds(), 0.6, 0.45, knobImg);
+	//mRevMixKnob.init( "RevMixKnob", getBounds(), 0.6, 0.45, knobImg);
+	addControl(this, mRevMixKnob, "RevMixKnob", getBounds(), 0.6, 0.45, knobImg, "Mix");
 
 	mRevLowPassKnob.init("RevLowPassKnob", getBounds(), 0.8, 0.5, knobImgPan);
 	mRevLowPassQKnob.setDim(32, 32);
@@ -92,7 +93,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 
 	// TODO: finish adding tooltips
 	// Set tooltips
-	mRevMixKnob.setTooltip("Mix");
+	//mRevMixKnob.setTooltip("Mix");
 	mPanKnob.setTooltip("Pan");
 	mRoomSizeKnob.setTooltip("Room size");
 	mDelayFeedbackKnob.setTooltip("Feedback amount");
@@ -100,7 +101,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelayMixKnob.setTooltip("Mix");
 	mDelayWidthKnob.setTooltip("Stereo width");
 
-	mRevMixKnob.addListener(this);
+	//mRevMixKnob.addListener(this);
 	mPanKnob.addListener(this);
 	mRoomSizeKnob.addListener(this);
 	mDelayFeedbackKnob.addListener(this);
@@ -174,3 +175,12 @@ void SpacePanAudioProcessorEditor::resized()
 }
 
 //void Slider::mouseEnter(MouseEvent&)
+
+void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *const editor, StandardRotary &control, String name, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg, String tooltipText)
+{
+	control.init(name, parentBounds, relX, relY, spriteImg);
+	control.setTooltip(tooltipText);
+	control.addListener(editor);
+	editor->addAndMakeVisible(control);
+
+}

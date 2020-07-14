@@ -114,6 +114,7 @@ private:
 
 	// Sidechain controls
 
+	void addControl(SpacePanAudioProcessorEditor *const editor, StandardRotary &control, String name, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg, String tooltipText);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpacePanAudioProcessorEditor)
 };
