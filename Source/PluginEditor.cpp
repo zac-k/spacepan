@@ -34,7 +34,12 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelayMixAttachment(p.mState, "delay_mix", mDelayMixKnob),
 	mDelaySatAttachment(p.mState, "delay_sat", mDelaySatKnob),
 	mDelaySatCharAttachment(p.mState, "delay_sat_char", mDelaySatCharKnob),
-	mDelayWidthAttachment(p.mState, "delay_width", mDelayWidthKnob)
+	mDelayWidthAttachment(p.mState, "delay_width", mDelayWidthKnob),
+	mSCattackAttachment(p.mState, "sc_attack", mSCattackKnob),
+	mSCdecayAttachment(p.mState, "sc_decay", mSCdecayKnob),
+	mSCsustainAttachment(p.mState, "sc_sustain", mSCsustainKnob),
+	mSCreleaseAttachment(p.mState, "sc_release", mSCreleaseKnob),
+	mSCthresholdAttachment(p.mState, "sc_threshold", mSCthresholdKnob)
 	
 {
     setSize (852, 600);
@@ -76,6 +81,14 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mDelayMixKnob, "DelayMixKnob", 0.11, 0.4, knobImg, "Mix");
 	addControl(this, mDelaySatCharKnob, "DelaySatCharKnob", 0.4, 0.6, knobImg, "Saturation character");
 	addControl(this, mDelayWidthKnob, "DelayWidthKnob", 0.15, 0.6, knobImg, "Width");
+
+	// Sidechain controls
+	addControl(this, mSCattackKnob, "SCattackKnob", 0.2, 0.9, knobImg, "Attack");
+	addControl(this, mSCdecayKnob, "SCdecayKnob", 0.3, 0.9, knobImg, "Decay");
+	addControl(this, mSCsustainKnob, "SCsustainKnob", 0.4, 0.9, knobImg, "Sustain");
+	addControl(this, mSCreleaseKnob, "SCreleaseKnob", 0.5, 0.9, knobImg, "Release");
+	addControl(this, mSCthresholdKnob, "SCthresholdKnob", 0.6, 0.9, knobImg, "Threshold");
+
 
 	mDelayTimeText.setBounds(0, 0, 80, 20);
 	//mDelayTimeKnob.hideTextBox(false);

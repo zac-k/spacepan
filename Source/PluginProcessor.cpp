@@ -37,7 +37,12 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	  std::make_unique<AudioParameterFloat>("delay_mix", "Delay Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_sat", "Delay Saturation", NormalisableRange<float>(0.0f, 10.0f), 0.0f),
 	  std::make_unique<AudioParameterFloat>("delay_sat_char", "Delay Saturation Character", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-	  std::make_unique<AudioParameterFloat>("delay_width", "Delay Width", NormalisableRange<float>(0.0f, 1.0f), 0.5f) })
+	  std::make_unique<AudioParameterFloat>("delay_width", "Delay Width", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+	  std::make_unique<AudioParameterFloat>("sc_attack", "Sidechain Attack", NormalisableRange<float>(0.0f, 0.2f), 0.1f),
+	  std::make_unique<AudioParameterFloat>("sc_decay", "Sidechain Decay", NormalisableRange<float>(0.0f, 0.2f), 0.1f),
+	  std::make_unique<AudioParameterFloat>("sc_sustain", "Sidechain Sustain", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
+	  std::make_unique<AudioParameterFloat>("sc_release", "Sidechain Release", NormalisableRange<float>(0.0f, 1.0f), 0.1f),
+	  std::make_unique<AudioParameterFloat>("sc_threshold", "Sidechain Threshold", NormalisableRange<float>(0.0f, 1.0f), 0.5f) })
 #ifndef JucePlugin_PreferredChannelConfigurations
      , AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect

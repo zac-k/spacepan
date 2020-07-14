@@ -113,6 +113,17 @@ private:
 	//Slider mRevMixKnob;
 
 	// Sidechain controls
+	StandardRotary mSCattackKnob;
+	AudioProcessorValueTreeState::SliderAttachment mSCattackAttachment;
+	StandardRotary mSCdecayKnob;
+	AudioProcessorValueTreeState::SliderAttachment mSCdecayAttachment;
+	StandardRotary mSCsustainKnob;
+	AudioProcessorValueTreeState::SliderAttachment mSCsustainAttachment;
+	StandardRotary mSCreleaseKnob;
+	AudioProcessorValueTreeState::SliderAttachment mSCreleaseAttachment;
+	StandardRotary mSCthresholdKnob;
+	AudioProcessorValueTreeState::SliderAttachment mSCthresholdAttachment;
+
 
 	void addControl(SpacePanAudioProcessorEditor *const editor, StandardRotary &control, String name, float relX, float relY, Image spriteImg, String tooltipText);
 
