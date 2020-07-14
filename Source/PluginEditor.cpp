@@ -52,37 +52,35 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	
 
 
-	// Initialise knobs
-	//mRevMixKnob.init( "RevMixKnob", getBounds(), 0.6, 0.45, knobImg);
-	addControl(this, mRevMixKnob, "RevMixKnob", getBounds(), 0.6, 0.45, knobImg, "Mix");
-
-	mRevLowPassKnob.init("RevLowPassKnob", getBounds(), 0.8, 0.5, knobImgPan);
-	mRevLowPassQKnob.setDim(32, 32);
-	mRevLowPassQKnob.init("RevLowPassQKnob", getBounds(), 0.8, 0.5, knobImg);
-	mRevHighPassKnob.init("RevHighPassKnob", getBounds(), 0.87, 0.5, knobImgPan);
-	mRevHighPassQKnob.setDim(32, 32);
-	mRevHighPassQKnob.init("RevHighPassQKnob", getBounds(), 0.87, 0.5, knobImg);
-
-	mPanKnob.init("PanKnob", getBounds(), 0.5, 0.15, knobImgPan);
-	mRoomSizeKnob.init("RoomSizeKnob", getBounds(), 0.7, 0.5, knobImg);
-	mHeadWidthSlider.init("HeadWidthKnob", getBounds(), 0.6, 0.15, knobImgPan);
-	mDelayFeedbackKnob.init("DelayFeedbackKnob", getBounds(), 0.25, 0.5, knobImg);
-	mDelayTimeKnob.init("DelayTimeKnob", getBounds(), 0.15, 0.5, knobImg);
-
-	mDelayLowPassKnob.init("DelayLowPassKnob", getBounds(), 0.33, 0.5, knobImgPan);
-	mDelayLowPassQKnob.setDim(32, 32);
-	mDelayLowPassQKnob.init("DelayLowPassQKnob", getBounds(), 0.33, 0.5, knobImg);	
-	mDelayHighPassKnob.init("DelayHighPassKnob", getBounds(), 0.4, 0.5, knobImgPan);
-	mDelayHighPassQKnob.setDim(32, 32);
-	mDelayHighPassQKnob.init("DelayHighPassQKnob", getBounds(), 0.4, 0.5, knobImg);
 	
+	// Initialise and add knobs to GUI
+	addControl(this, mRevMixKnob, "RevMixKnob", 0.6, 0.45, knobImg, "Mix");
+	addControl(this, mRevLowPassKnob, "RevLowPassKnob", 0.8, 0.5, knobImgPan, "Lowpass");
+	mRevLowPassQKnob.setDim(32, 32);
+	addControl(this, mRevLowPassQKnob, "RevLowPassQKnob", 0.8, 0.5, knobImg, "Lowpass Q");
+	addControl(this, mRevHighPassKnob, "RevHighPassKnob", 0.87, 0.5, knobImgPan, "Highpass");
+	mRevHighPassQKnob.setDim(32, 32);
+	addControl(this, mRevHighPassQKnob, "RevHighPassQKnob", 0.87, 0.5, knobImg, "Highpass Q");
+	addControl(this, mDelaySatKnob, "DelaySatKnob", 0.33, 0.6, knobImg, "Saturation");
+	addControl(this, mPanKnob, "PanKnob", 0.5, 0.15, knobImgPan, "Pan");
+	addControl(this, mRoomSizeKnob, "RoomSizeKnob", 0.7, 0.5, knobImg, "Room size");
+	addControl(this, mHeadWidthSlider, "HeadWidthKnob", 0.6, 0.15, knobImgPan, "Head width");
+	addControl(this, mDelayFeedbackKnob, "DelayFeedbackKnob", 0.25, 0.5, knobImg, "Feedback");
+	addControl(this, mDelayTimeKnob, "DelayTimeKnob", 0.15, 0.5, knobImg, "Time");
+	addControl(this, mDelayLowPassKnob, "DelayLowPassKnob", 0.33, 0.5, knobImgPan, "Lowpass");
+	mDelayLowPassQKnob.setDim(32, 32);
+	addControl(this, mDelayLowPassQKnob, "DelayLowPassQKnob", 0.33, 0.5, knobImg, "Lowpass Q");
+	addControl(this, mDelayHighPassKnob, "DelayHighPassKnob", 0.4, 0.5, knobImgPan, "Highpass");
+	mDelayHighPassQKnob.setDim(32, 32);
+	addControl(this, mDelayHighPassQKnob, "DelayHighPassQKnob", 0.4, 0.5, knobImg, "Highpass Q");
+	addControl(this, mDelayMixKnob, "DelayMixKnob", 0.11, 0.4, knobImg, "Mix");
+	addControl(this, mDelaySatCharKnob, "DelaySatCharKnob", 0.4, 0.6, knobImg, "Saturation character");
+	addControl(this, mDelayWidthKnob, "DelayWidthKnob", 0.15, 0.6, knobImg, "Width");
+
 	mDelayTimeText.setBounds(0, 0, 80, 20);
 	//mDelayTimeKnob.hideTextBox(false);
 	//mDelayTimeKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxAbove, true, 100, 20);
-	mDelayMixKnob.init("DelayMixKnob", getBounds(), 0.11, 0.4, knobImg);
-	mDelaySatKnob.init("DelaySatKnob", getBounds(), 0.33, 0.6, knobImg);
-	mDelaySatCharKnob.init("DelaySatCharKnob", getBounds(), 0.4, 0.6, knobImg);
-	mDelayWidthKnob.init("DelayWidthKnob", getBounds(), 0.15, 0.6, knobImg);
+	
 
 
 	// Buttons
@@ -91,49 +89,12 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	//addAndMakeVisible(mDelayOnButton);
 
 
-	// TODO: finish adding tooltips
-	// Set tooltips
-	//mRevMixKnob.setTooltip("Mix");
-	mPanKnob.setTooltip("Pan");
-	mRoomSizeKnob.setTooltip("Room size");
-	mDelayFeedbackKnob.setTooltip("Feedback amount");
-	mDelayTimeKnob.setTooltip("Time");
-	mDelayMixKnob.setTooltip("Mix");
-	mDelayWidthKnob.setTooltip("Stereo width");
 
-	//mRevMixKnob.addListener(this);
-	mPanKnob.addListener(this);
-	mRoomSizeKnob.addListener(this);
-	mDelayFeedbackKnob.addListener(this);
-	mDelayTimeKnob.addListener(this);
-	mDelayMixKnob.addListener(this);
-	mDelayWidthKnob.addListener(this);
+
+	
 
 	
 	
-
-	// Add knobs to GUI
-	addAndMakeVisible(mRevMixKnob);
-	addAndMakeVisible(mRevLowPassKnob);
-	addAndMakeVisible(mRevLowPassQKnob);
-	addAndMakeVisible(mRevHighPassKnob);
-	addAndMakeVisible(mRevHighPassQKnob);
-	addAndMakeVisible(mPanKnob);
-	addAndMakeVisible(mRoomSizeKnob);
-	addAndMakeVisible(mHeadWidthSlider);
-	addAndMakeVisible(mDelayFeedbackKnob);
-	addAndMakeVisible(mDelayTimeKnob);
-	addAndMakeVisible(mDelayLowPassKnob);
-	addAndMakeVisible(mDelayLowPassQKnob);
-	addAndMakeVisible(mDelayHighPassKnob);
-	addAndMakeVisible(mDelayHighPassQKnob);
-	addAndMakeVisible(mDelayMixKnob);
-	addAndMakeVisible(mDelaySatKnob);
-	addAndMakeVisible(mDelaySatCharKnob);
-	addAndMakeVisible(mDelayWidthKnob);
-
-	addAndMakeVisible(mDelayTimeText);
-
 
 
 
@@ -176,9 +137,9 @@ void SpacePanAudioProcessorEditor::resized()
 
 //void Slider::mouseEnter(MouseEvent&)
 
-void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *const editor, StandardRotary &control, String name, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg, String tooltipText)
+void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *const editor, StandardRotary &control, String name, float relX, float relY, Image spriteImg, String tooltipText)
 {
-	control.init(name, parentBounds, relX, relY, spriteImg);
+	control.init(name, editor->getBounds(), relX, relY, spriteImg);
 	control.setTooltip(tooltipText);
 	control.addListener(editor);
 	editor->addAndMakeVisible(control);
