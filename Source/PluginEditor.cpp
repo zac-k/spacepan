@@ -37,6 +37,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelayWidthAttachment(p.mState, "delay_width", mDelayWidthKnob),
 	mSCattackAttachment(p.mState, "sc_attack", mSCattackKnob),
 	mSCdecayAttachment(p.mState, "sc_decay", mSCdecayKnob),
+	mSCsustainLevelAttachment(p.mState, "sc_sustain_level", mSCsustainLevelKnob),
 	mSCsustainAttachment(p.mState, "sc_sustain", mSCsustainKnob),
 	mSCreleaseAttachment(p.mState, "sc_release", mSCreleaseKnob),
 	mSCthresholdAttachment(p.mState, "sc_threshold", mSCthresholdKnob)
@@ -83,11 +84,12 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mDelayWidthKnob, "DelayWidthKnob", 0.15, 0.6, knobImg, "Width");
 
 	// Sidechain controls
-	addControl(this, mSCattackKnob, "SCattackKnob", 0.2, 0.9, knobImg, "Attack");
-	addControl(this, mSCdecayKnob, "SCdecayKnob", 0.3, 0.9, knobImg, "Decay");
-	addControl(this, mSCsustainKnob, "SCsustainKnob", 0.4, 0.9, knobImg, "Sustain");
-	addControl(this, mSCreleaseKnob, "SCreleaseKnob", 0.5, 0.9, knobImg, "Release");
-	addControl(this, mSCthresholdKnob, "SCthresholdKnob", 0.6, 0.9, knobImg, "Threshold");
+	addControl(this, mSCattackKnob, "SCattackKnob", 0.2, 0.9, knobImgPan, "Attack");
+	addControl(this, mSCdecayKnob, "SCdecayKnob", 0.3, 0.9, knobImgPan, "Decay");
+	addControl(this, mSCsustainLevelKnob, "SCsustainLevelKnob", 0.4, 0.9, knobImgPan, "Sustain Level");
+	addControl(this, mSCsustainKnob, "SCsustainKnob", 0.5, 0.9, knobImgPan, "Sustain");
+	addControl(this, mSCreleaseKnob, "SCreleaseKnob", 0.6, 0.9, knobImgPan, "Release");
+	addControl(this, mSCthresholdKnob, "SCthresholdKnob", 0.7, 0.9, knobImgPan, "Threshold");
 
 
 	mDelayTimeText.setBounds(0, 0, 80, 20);
@@ -102,7 +104,8 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	//addAndMakeVisible(mDelayOnButton);
 
 
-
+	//adsrPlot.reduceClipRegion();
+	//adsrPlot.setOrigin();
 
 	
 
@@ -127,7 +130,11 @@ SpacePanAudioProcessorEditor::~SpacePanAudioProcessorEditor()
 
 void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
-	
+
+	/*if (slider->getName() == "SCattackKnob")
+	{
+		adsrPlot.drawLine(0.0f, 0.0f, 400.0f, 300.0f);
+	}*/
 }
 
 //==============================================================================
@@ -140,6 +147,8 @@ void SpacePanAudioProcessorEditor::paint (Graphics& g)
     //g.setFont (15.0f);
     //g.drawFittedText ("Hello World!", getLocalBounds(), Justification::centred, 1);
 	g.drawImageAt(backgroundImage, 0, 0);
+	g.setColour(Colours::lightgreen);
+	g.drawLine(0.0f, 0.0f, 400.0f, 300.0f);
 }
 
 void SpacePanAudioProcessorEditor::resized()

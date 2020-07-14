@@ -17,6 +17,8 @@ const float HEAD_WIDTH_MAX = 10; //metres
 const float ROOM_SIZE_MAX = 100; //metres
 const float SOUND_SPEED = 343.0; // m/s
 const float FILTER_SKEW = 0.25f;
+
+
 //==============================================================================
 SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state",
 	{ std::make_unique<AudioParameterFloat>("rev_mix", "Reverb Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
@@ -40,7 +42,8 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	  std::make_unique<AudioParameterFloat>("delay_width", "Delay Width", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("sc_attack", "Sidechain Attack", NormalisableRange<float>(0.0f, 0.2f), 0.1f),
 	  std::make_unique<AudioParameterFloat>("sc_decay", "Sidechain Decay", NormalisableRange<float>(0.0f, 0.2f), 0.1f),
-	  std::make_unique<AudioParameterFloat>("sc_sustain", "Sidechain Sustain", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
+	  std::make_unique<AudioParameterFloat>("sc_sustain_level", "Sidechain Sustain Level", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
+	  std::make_unique<AudioParameterFloat>("sc_sustain", "Sidechain Sustain", NormalisableRange<float>(0.0f, 0.5f), 0.1f),
 	  std::make_unique<AudioParameterFloat>("sc_release", "Sidechain Release", NormalisableRange<float>(0.0f, 1.0f), 0.1f),
 	  std::make_unique<AudioParameterFloat>("sc_threshold", "Sidechain Threshold", NormalisableRange<float>(0.0f, 1.0f), 0.5f) })
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -59,11 +62,6 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 
 void SpacePanAudioProcessor::parameterChanged(const String &parameterID, float newValue)
 {
-	if (parameterID == "rev_mix")
-	{
-
-		//SpacePanAudioProcessorEditor::mRevMixKnob.setValue(mRevMixParam.getValue());
-	}
 	
 }
 
@@ -241,6 +239,16 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 	double sampleRate = getSampleRate();
 
+	envelope.setParams(*mState.getRawParameterValue("sc_attack"),
+		1.0, // TODO: change these shape factors to use GUI
+		*mState.getRawParameterValue("sc_decay"),
+		1.0,
+		*mState.getRawParameterValue("sc_sustain_level"),
+		*mState.getRawParameterValue("sc_sustain"),
+		*mState.getRawParameterValue("sc_release"),
+		1.0,
+		*mState.getRawParameterValue("sc_threshold"));
+
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
     // guaranteed to be empty - they may contain garbage).
@@ -267,6 +275,7 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 	pan(buffer, *mState.getRawParameterValue("pan"));
 	//=============================================================================
 
+	
 
 	// TODO: Control this via GUI and put inside delay function
 	float delayOffsets[] = { 0, 0 };
@@ -400,6 +409,22 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 	{
 		mPanBuffer.read(channel, buffer);
 		mReverbBuffer.read(channel, reverbWet);
+
+		// Apply sidechain
+		// TODO: use the GUI to control level
+		for (int i = 0; i < reverbWet.getNumSamples(); i++)
+		{
+			// TODO: this is placeholder. make stereo and use different envelope for
+			// delay (four envelopes total)
+			if (buffer.getReadPointer(channel)[i] >= envelope.getThresh())
+			{
+				envelope.trigger();
+			}
+			reverbWet.getWritePointer(channel)[i] *= (1 - envelope.getGain());
+			// TODO: update envelope at end of process block instead of here
+			envelope.update(1.0f / getSampleRate());
+		}
+
 		// Mix wet and dry signals
 		mixer(buffer, reverbWet, reverbMix, channel, 1.0f);
 

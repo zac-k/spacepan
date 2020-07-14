@@ -12,6 +12,8 @@
 
 #include <JuceHeader.h>
 #include "AudioBufferWithPos.cpp"
+#include "Envelope.h"
+
 
 
 
@@ -115,7 +117,7 @@ private:
 	dsp::Reverb delayverb;
 	dsp::Reverb mReverb;
 	//dsp::Reverb preverbR;
-
+	Envelope envelope;
 
 	double mPanFcR{ 0 };
 	double mPanFcL{ 0 };

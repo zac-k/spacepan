@@ -132,3 +132,7 @@ void CircularAudioBuffer<T>::read(int channel, AudioBuffer<T>& outputBuffer)
 	moveReadPosition(channel, outputBufferLength);
 	mExpectedReadPosition[channel] = mReadPosition[channel];
 }
+
+
+
+

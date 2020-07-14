@@ -50,6 +50,9 @@ private:
 	Image backgroundImage = ImageCache::getFromMemory(BinaryData::background_png, 
 													  BinaryData::background_pngSize);
 
+	//Graphics adsrPlot = Graphics(backgroundImage);
+	
+
 	// Load a knob image for testing
 	Image knobImg = ImageCache::getFromMemory(BinaryData::animation_knob_png,
 											  BinaryData::animation_knob_pngSize);
@@ -117,6 +120,8 @@ private:
 	AudioProcessorValueTreeState::SliderAttachment mSCattackAttachment;
 	StandardRotary mSCdecayKnob;
 	AudioProcessorValueTreeState::SliderAttachment mSCdecayAttachment;
+	StandardRotary mSCsustainLevelKnob;
+	AudioProcessorValueTreeState::SliderAttachment mSCsustainLevelAttachment;
 	StandardRotary mSCsustainKnob;
 	AudioProcessorValueTreeState::SliderAttachment mSCsustainAttachment;
 	StandardRotary mSCreleaseKnob;
