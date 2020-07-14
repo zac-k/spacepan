@@ -25,6 +25,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	  std::make_unique<AudioParameterFloat>("rev_lowpass", "Reverb Lowpass", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("rev_lowpass_Q", "Reverb Lowpass Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("rev_highpass", "Reverb Highpass", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
+	  std::make_unique<AudioParameterFloat>("rev_sc_amount", "Reverb Sidechain Amount", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
 	  std::make_unique<AudioParameterFloat>("rev_highpass_Q", "Reverb Highpass Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("pan", "Pan", NormalisableRange<float>(-1.0f, 1.0f), 0.0f),
 	  std::make_unique<AudioParameterFloat>("room_size", "Room Size", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
@@ -420,7 +421,7 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 			{
 				envelope.trigger();
 			}
-			reverbWet.getWritePointer(channel)[i] *= (1 - envelope.getGain());
+			reverbWet.getWritePointer(channel)[i] *= (1 - envelope.getGain() * *mState.getRawParameterValue("rev_sc_amount"));
 			// TODO: update envelope at end of process block instead of here
 			envelope.update(1.0f / getSampleRate());
 		}

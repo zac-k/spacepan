@@ -111,6 +111,8 @@ private:
 	AudioProcessorValueTreeState::SliderAttachment mRevLowPassQAttachment;
 	StandardRotary mRevHighPassKnob;
 	AudioProcessorValueTreeState::SliderAttachment mRevHighPassAttachment;
+	StandardRotary mRevSCamountKnob;
+	AudioProcessorValueTreeState::SliderAttachment mRevSCamountAttachment;
 	StandardRotary mRevHighPassQKnob;
 	AudioProcessorValueTreeState::SliderAttachment mRevHighPassQAttachment;
 	//Slider mRevMixKnob;

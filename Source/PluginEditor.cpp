@@ -22,6 +22,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mRevLowPassQAttachment(p.mState, "rev_lowpass_Q", mRevLowPassQKnob),
 	mRevHighPassAttachment(p.mState, "rev_highpass", mRevHighPassKnob),
 	mRevHighPassQAttachment(p.mState, "rev_highpass_Q", mRevHighPassQKnob),
+	mRevSCamountAttachment(p.mState, "rev_sc_amount", mRevSCamountKnob),
 	mPanAttachment(p.mState, "pan", mPanKnob),
 	mRoomSizeAttachment(p.mState, "room_size", mRoomSizeKnob),
 	mHeadWidthAttachment(p.mState, "head_width", mHeadWidthSlider),
@@ -67,6 +68,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mRevHighPassKnob, "RevHighPassKnob", 0.87, 0.5, knobImgPan, "Highpass");
 	mRevHighPassQKnob.setDim(32, 32);
 	addControl(this, mRevHighPassQKnob, "RevHighPassQKnob", 0.87, 0.5, knobImg, "Highpass Q");
+	addControl(this, mRevSCamountKnob, "RevSCamountKnob", 0.9, 0.6, knobImgPan, "Sidechain Amount");
 	addControl(this, mDelaySatKnob, "DelaySatKnob", 0.33, 0.6, knobImg, "Saturation");
 	addControl(this, mPanKnob, "PanKnob", 0.5, 0.15, knobImgPan, "Pan");
 	addControl(this, mRoomSizeKnob, "RoomSizeKnob", 0.7, 0.5, knobImg, "Room size");
