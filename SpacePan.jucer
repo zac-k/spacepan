@@ -4,6 +4,8 @@
               pluginFormats="buildVST3" pluginManufacturer="ZacK">
   <MAINGROUP id="VUMoM3" name="SpacePan">
     <GROUP id="{261BCDE9-08FB-1CA5-8C62-B1BC32715FEF}" name="Source">
+      <FILE id="daoIrA" name="Envelope.cpp" compile="1" resource="0" file="Source/Envelope.cpp"/>
+      <FILE id="z9Efp9" name="Envelope.h" compile="0" resource="0" file="Source/Envelope.h"/>
       <FILE id="YtRJgN" name="CustomLookAndFeel.cpp" compile="1" resource="0"
             file="Source/CustomLookAndFeel.cpp"/>
       <FILE id="eUxWC5" name="CustomLookAndFeel.h" compile="0" resource="0"
