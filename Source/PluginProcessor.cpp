@@ -74,7 +74,71 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 
 void SpacePanAudioProcessor::parameterChanged(const String &parameterID, float newValue)
 {
+
+	const float adsrTimeMax = ATTACK_MAX + DECAY_MAX + SUSTAIN_MAX + RELEASE_MAX;
+	float tAttack = *mState.getRawParameterValue("sc_attack");
+	float tDecay = *mState.getRawParameterValue("sc_decay");
+	float tSustain = *mState.getRawParameterValue("sc_sustain");
+	float tRelease = *mState.getRawParameterValue("sc_release");
 	
+	float shapeAttack = *mState.getRawParameterValue("sc_attack_shape");
+	float shapeDecay = *mState.getRawParameterValue("sc_decay_shape");
+	float sustainGain = *mState.getRawParameterValue("sc_sustain_level");
+	float shapeRelease = *mState.getRawParameterValue("sc_release_shape");;
+	Colour traceColour = Colours::lightgreen;
+	Colour bgColour = Colours::black;
+	adsrPlot.clear(adsrPlot.getBounds(), bgColour);
+
+	int pixTemp = adsrPlot.getHeight();
+	for (int i = 0; i < adsrPlot.getWidth(); i++)
+	{
+		float val;
+		float t = i * adsrTimeMax / adsrPlot.getWidth();
+		if (t < tAttack)
+		{
+			val = std::pow(t / tAttack, shapeAttack);
+		}
+		else if (t < tAttack + tDecay)
+		{
+			val = 1 - std::pow((t - tAttack) / tDecay, shapeDecay) * (1 - sustainGain);
+		}
+		else if (t < tAttack + tDecay + tSustain)
+		{
+			val = sustainGain;
+		}
+		else
+		{
+			val = (1 - std::pow((t - tAttack - tDecay - tSustain) / tRelease, shapeRelease)) * sustainGain;
+		}
+		int pix = (int)((1 - val) * adsrPlot.getHeight());
+
+
+	/*	Colour pixColour;
+		bool isInRange;
+		for (int j = 0; j < adsrPlot.getHeight(); j++)
+		{
+			isInRange = ((j >= pix) && (j < pixTemp)) || ((j <= pix) && (j > pixTemp));
+			if (isInRange)
+			{
+				pixColour = traceColour;
+			}
+			else
+			{
+				pixColour = bgColour;
+			}
+			adsrPlot.setPixelAt(i, j, bgColour);
+		}
+		pixTemp = pix;*/
+
+
+		while (std::abs(pix - pixTemp) > 0)
+		{
+			pixTemp = pixTemp + copysign(1, pix - pixTemp);
+			adsrPlot.setPixelAt(i, pixTemp, traceColour);
+		}
+		adsrPlot.setPixelAt(i, pix, traceColour);
+		
+	}
 }
 
 SpacePanAudioProcessor::~SpacePanAudioProcessor()
@@ -150,6 +214,16 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+
+	mState.addParameterListener("sc_attack", this);
+	mState.addParameterListener("sc_attack_shape", this);
+	mState.addParameterListener("sc_decay", this);
+	mState.addParameterListener("sc_decay_shape", this);
+	mState.addParameterListener("sc_sustain", this);
+	mState.addParameterListener("sc_sustain_level", this);
+	mState.addParameterListener("sc_release", this);
+	mState.addParameterListener("sc_release_shape", this);
+	
 	
 	const int numInputChannels = getTotalNumInputChannels();
 	const int delayBufferSize = static_cast<int>(DELAY_MAX * sampleRate + 2 * samplesPerBlock);
@@ -258,44 +332,7 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 	float shapeDecay = *mState.getRawParameterValue("sc_decay_shape");
 	float sustainGain = *mState.getRawParameterValue("sc_sustain_level");
 	float shapeRelease = *mState.getRawParameterValue("sc_release_shape");;
-	Colour traceColour = Colours::lightgreen;
-	adsrPlot.clear(adsrPlot.getBounds(), Colours::black);
-	// TODO: move the plot drawing code to a parameter changed callback
-
-	int pixTemp = adsrPlot.getHeight();
-	for (int i = 0; i < adsrPlot.getWidth(); i++)
-	{
-		float val;
-		float t = i * adsrTimeMax / adsrPlot.getWidth();
-		if (t < tAttack)
-		{
-			val = std::pow(t / tAttack, shapeAttack);
-		}
-		else if (t <  tAttack + tDecay)
-		{
-			val = 1 - std::pow((t-tAttack) / tDecay, shapeDecay) * (1 - sustainGain);
-		}
-		else if (t < tAttack + tDecay + tSustain)
-		{
-			val = sustainGain;
-		}
-		else
-		{
-			val = (1 - std::pow((t-tAttack -tDecay-tSustain) / tRelease, shapeRelease)) * sustainGain;
-		}
-		int pix = (int)((1 - val) * adsrPlot.getHeight());
-		while (std::abs(pix - pixTemp) > 0)
-		{
-			pixTemp = pixTemp + copysign(1, pix - pixTemp);
-			adsrPlot.setPixelAt(i, pixTemp, traceColour);
-		}
-		adsrPlot.setPixelAt(i, pix, traceColour);
-		/*while (std::abs(valPrev - val) > 1/adsrPlot.getHeight() )
-		{
-			adsrPlot.setPixelAt(i, (int)((1 - val) * adsrPlot.getHeight()), traceColour);
-			valPrev = valPrev + copysign(1.0, val - valPrev) / adsrPlot.getHeight();
-		}*/
-	}
+	
 	
 	
     ScopedNoDenormals noDenormals;
