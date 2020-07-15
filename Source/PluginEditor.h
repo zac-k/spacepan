@@ -121,14 +121,20 @@ private:
 	// Sidechain controls
 	StandardRotary mSCattackKnob;
 	AudioProcessorValueTreeState::SliderAttachment mSCattackAttachment;
+	StandardRotary mSCattackShapeKnob;
+	AudioProcessorValueTreeState::SliderAttachment mSCattackShapeAttachment;
 	StandardRotary mSCdecayKnob;
 	AudioProcessorValueTreeState::SliderAttachment mSCdecayAttachment;
+	StandardRotary mSCdecayShapeKnob;
+	AudioProcessorValueTreeState::SliderAttachment mSCdecayShapeAttachment;
 	StandardRotary mSCsustainLevelKnob;
 	AudioProcessorValueTreeState::SliderAttachment mSCsustainLevelAttachment;
 	StandardRotary mSCsustainKnob;
 	AudioProcessorValueTreeState::SliderAttachment mSCsustainAttachment;
 	StandardRotary mSCreleaseKnob;
 	AudioProcessorValueTreeState::SliderAttachment mSCreleaseAttachment;
+	StandardRotary mSCreleaseShapeKnob;
+	AudioProcessorValueTreeState::SliderAttachment mSCreleaseShapeAttachment;
 	StandardRotary mSCthresholdKnob;
 	AudioProcessorValueTreeState::SliderAttachment mSCthresholdAttachment;
 

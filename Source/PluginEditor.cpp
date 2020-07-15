@@ -23,9 +23,11 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mRevHighPassAttachment(p.mState, "rev_highpass", mRevHighPassKnob),
 	mRevHighPassQAttachment(p.mState, "rev_highpass_Q", mRevHighPassQKnob),
 	mRevSCamountAttachment(p.mState, "rev_sc_amount", mRevSCamountKnob),
+
 	mPanAttachment(p.mState, "pan", mPanKnob),
 	mRoomSizeAttachment(p.mState, "room_size", mRoomSizeKnob),
 	mHeadWidthAttachment(p.mState, "head_width", mHeadWidthSlider),
+
 	mDelayFeedbackAttachment(p.mState, "delay_feedback", mDelayFeedbackKnob),
 	mDelayTimeAttachment(p.mState, "delay_time", mDelayTimeKnob),
 	mDelayLowPassAttachment(p.mState, "delay_lowpass", mDelayLowPassKnob),
@@ -36,11 +38,15 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelaySatAttachment(p.mState, "delay_sat", mDelaySatKnob),
 	mDelaySatCharAttachment(p.mState, "delay_sat_char", mDelaySatCharKnob),
 	mDelayWidthAttachment(p.mState, "delay_width", mDelayWidthKnob),
+
 	mSCattackAttachment(p.mState, "sc_attack", mSCattackKnob),
+	mSCattackShapeAttachment(p.mState, "sc_attack_shape", mSCattackShapeKnob),
 	mSCdecayAttachment(p.mState, "sc_decay", mSCdecayKnob),
+	mSCdecayShapeAttachment(p.mState, "sc_decay_shape", mSCdecayShapeKnob),
 	mSCsustainLevelAttachment(p.mState, "sc_sustain_level", mSCsustainLevelKnob),
 	mSCsustainAttachment(p.mState, "sc_sustain", mSCsustainKnob),
 	mSCreleaseAttachment(p.mState, "sc_release", mSCreleaseKnob),
+	mSCreleaseShapeAttachment(p.mState, "sc_release_shape", mSCreleaseShapeKnob),
 	mSCthresholdAttachment(p.mState, "sc_threshold", mSCthresholdKnob)
 	
 {
@@ -69,6 +75,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mRevHighPassQKnob.setDim(32, 32);
 	addControl(this, mRevHighPassQKnob, "RevHighPassQKnob", 0.87, 0.5, knobImg, "Highpass Q");
 	addControl(this, mRevSCamountKnob, "RevSCamountKnob", 0.9, 0.6, knobImgPan, "Sidechain Amount");
+
 	addControl(this, mDelaySatKnob, "DelaySatKnob", 0.33, 0.6, knobImg, "Saturation");
 	addControl(this, mPanKnob, "PanKnob", 0.5, 0.15, knobImgPan, "Pan");
 	addControl(this, mRoomSizeKnob, "RoomSizeKnob", 0.7, 0.5, knobImg, "Room size");
@@ -87,11 +94,18 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 
 	// Sidechain controls
 	addControl(this, mSCattackKnob, "SCattackKnob", 0.2, 0.9, knobImgPan, "Attack");
+	mSCattackShapeKnob.setDim(32, 32);
+	addControl(this, mSCattackShapeKnob, "SCattackShapeKnob", 0.2, 0.9, knobImg, "Attack Shape");
 	addControl(this, mSCdecayKnob, "SCdecayKnob", 0.3, 0.9, knobImgPan, "Decay");
+	mSCdecayShapeKnob.setDim(32, 32);
+	addControl(this, mSCdecayShapeKnob, "SCdecayShapeKnob", 0.3, 0.9, knobImg, "Decay Shape");
+	addControl(this, mSCsustainKnob, "SCsustainKnob", 0.4, 0.9, knobImgPan, "Sustain");
+	mSCsustainLevelKnob.setDim(32, 32);
 	addControl(this, mSCsustainLevelKnob, "SCsustainLevelKnob", 0.4, 0.9, knobImgPan, "Sustain Level");
-	addControl(this, mSCsustainKnob, "SCsustainKnob", 0.5, 0.9, knobImgPan, "Sustain");
-	addControl(this, mSCreleaseKnob, "SCreleaseKnob", 0.6, 0.9, knobImgPan, "Release");
-	addControl(this, mSCthresholdKnob, "SCthresholdKnob", 0.7, 0.9, knobImgPan, "Threshold");
+	addControl(this, mSCreleaseKnob, "SCreleaseKnob", 0.5, 0.9, knobImgPan, "Release");
+	mSCreleaseShapeKnob.setDim(32, 32);
+	addControl(this, mSCreleaseShapeKnob, "SCreleaseShapeKnob", 0.5, 0.9, knobImg, "release Shape");
+	addControl(this, mSCthresholdKnob, "SCthresholdKnob", 0.6, 0.9, knobImgPan, "Threshold");
 
 
 	mDelayTimeText.setBounds(0, 0, 80, 20);
