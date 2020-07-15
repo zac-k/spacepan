@@ -203,8 +203,9 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	delayverb.reset();
 	//}
 
-	// TODO: set to Image::ARGB when the drawing methods are working
-	adsrPlot = Image(Image::ARGB, 200, 100, true);
+	
+
+	adsrPlot = Image(Image::ARGB, 150, 80, true);
 
 }
 
@@ -252,6 +253,9 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 	float shapeRelease = 1.0;
 	Colour traceColour = Colours::lightgreen;
 	adsrPlot.clear(adsrPlot.getBounds(), Colours::black);
+	// TODO: move the plot drawing code to a parameter changed callback
+
+	int pixTemp = adsrPlot.getHeight();
 	for (int i = 0; i < adsrPlot.getWidth(); i++)
 	{
 		float val;
@@ -272,9 +276,18 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 		{
 			val = (1 - std::pow((t-tAttack -tDecay-tSustain) / tRelease, shapeRelease)) * sustainGain;
 		}
-
-		adsrPlot.setPixelAt(i, (int)((1-val) * adsrPlot.getHeight()), traceColour);
-
+		int pix = (int)((1 - val) * adsrPlot.getHeight());
+		while (std::abs(pix - pixTemp) > 0)
+		{
+			pixTemp = pixTemp + copysign(1, pix - pixTemp);
+			adsrPlot.setPixelAt(i, pixTemp, traceColour);
+		}
+		adsrPlot.setPixelAt(i, pix, traceColour);
+		/*while (std::abs(valPrev - val) > 1/adsrPlot.getHeight() )
+		{
+			adsrPlot.setPixelAt(i, (int)((1 - val) * adsrPlot.getHeight()), traceColour);
+			valPrev = valPrev + copysign(1.0, val - valPrev) / adsrPlot.getHeight();
+		}*/
 	}
 	
 	

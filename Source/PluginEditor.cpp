@@ -114,7 +114,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	// Make reference to image in processor
 	pAdsrPlot = &(p.adsrPlot);
 	adsrPlot.setImage(p.adsrPlot);
-	adsrPlot.setBounds(550, 450, p.adsrPlot.getWidth(), p.adsrPlot.getHeight());
+	adsrPlot.setBounds(550, 470, p.adsrPlot.getWidth(), p.adsrPlot.getHeight());
 	addAndMakeVisible(adsrPlot);
 
 
