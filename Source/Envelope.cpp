@@ -77,6 +77,14 @@ void Envelope::trigger()
 	section = 1;
 }
 
+void Envelope::trigger(float signal)
+{
+	if (signal > this->threshold)
+	{
+		this->trigger();
+	}
+}
+
 void Envelope::update(float deltaTime)
 {
 	if (section > 0)

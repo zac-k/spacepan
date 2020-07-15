@@ -49,7 +49,8 @@ private:
 	// Load background image	
 	Image backgroundImage = ImageCache::getFromMemory(BinaryData::background_png, 
 													  BinaryData::background_pngSize);
-
+	ImageComponent adsrPlot;
+	Image* pAdsrPlot;
 	//Graphics adsrPlot = Graphics(backgroundImage);
 	
 

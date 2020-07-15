@@ -111,8 +111,12 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 
 	
 
-	
-	
+	// Make reference to image in processor
+	pAdsrPlot = &(p.adsrPlot);
+	adsrPlot.setImage(p.adsrPlot);
+	adsrPlot.setBounds(550, 450, p.adsrPlot.getWidth(), p.adsrPlot.getHeight());
+	addAndMakeVisible(adsrPlot);
+
 
 
 
@@ -132,7 +136,9 @@ SpacePanAudioProcessorEditor::~SpacePanAudioProcessorEditor()
 
 void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
-
+	// TODO: use an if statement to limit this to sc related knobs
+	adsrPlot.setImage(*pAdsrPlot);
+	adsrPlot.repaint();
 	/*if (slider->getName() == "SCattackKnob")
 	{
 		adsrPlot.drawLine(0.0f, 0.0f, 400.0f, 300.0f);
@@ -149,8 +155,9 @@ void SpacePanAudioProcessorEditor::paint (Graphics& g)
     //g.setFont (15.0f);
     //g.drawFittedText ("Hello World!", getLocalBounds(), Justification::centred, 1);
 	g.drawImageAt(backgroundImage, 0, 0);
-	g.setColour(Colours::lightgreen);
-	g.drawLine(0.0f, 0.0f, 400.0f, 300.0f);
+	//g.drawImageAt(adsrPlot, 550, 450);
+	//g.setColour(Colours::lightgreen);
+	//g.drawLine(0.0f, 0.0f, 400.0f, 300.0f);
 }
 
 void SpacePanAudioProcessorEditor::resized()

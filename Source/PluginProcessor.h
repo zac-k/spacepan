@@ -89,6 +89,7 @@ public:
 
 	//==============================================================================
 	const float DELAY_MAX = 2.0; // seconds
+	Image adsrPlot;
 
 
 	//==============================================================================
@@ -117,7 +118,7 @@ private:
 	dsp::Reverb delayverb;
 	dsp::Reverb mReverb;
 	//dsp::Reverb preverbR;
-	Envelope envelope;
+	Envelope revEnvelope[2];
 
 	double mPanFcR{ 0 };
 	double mPanFcL{ 0 };

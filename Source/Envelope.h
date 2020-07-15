@@ -19,6 +19,7 @@ public:
 
 	float getGain();
 	void trigger();
+	void trigger(float signal);
 	void update(float deltaTime);
 	void setParams(float attack, float aShape, float decay, float dShape, float sustainGain, float sustain, float release, float rShape, float thresh);
 	float getThresh();

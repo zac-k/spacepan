@@ -17,6 +17,10 @@ const float HEAD_WIDTH_MAX = 10; //metres
 const float ROOM_SIZE_MAX = 100; //metres
 const float SOUND_SPEED = 343.0; // m/s
 const float FILTER_SKEW = 0.25f;
+const float ATTACK_MAX = 0.2f;
+const float DECAY_MAX = 0.2f;
+const float SUSTAIN_MAX = 0.5f;
+const float RELEASE_MAX = 1.0f;
 
 
 //==============================================================================
@@ -41,11 +45,11 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	  std::make_unique<AudioParameterFloat>("delay_sat", "Delay Saturation", NormalisableRange<float>(0.0f, 10.0f), 0.0f),
 	  std::make_unique<AudioParameterFloat>("delay_sat_char", "Delay Saturation Character", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_width", "Delay Width", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-	  std::make_unique<AudioParameterFloat>("sc_attack", "Sidechain Attack", NormalisableRange<float>(0.0f, 0.2f), 0.1f),
-	  std::make_unique<AudioParameterFloat>("sc_decay", "Sidechain Decay", NormalisableRange<float>(0.0f, 0.2f), 0.1f),
+	  std::make_unique<AudioParameterFloat>("sc_attack", "Sidechain Attack", NormalisableRange<float>(0.0f, ATTACK_MAX), 0.1f),
+	  std::make_unique<AudioParameterFloat>("sc_decay", "Sidechain Decay", NormalisableRange<float>(0.0f, DECAY_MAX), 0.1f),
 	  std::make_unique<AudioParameterFloat>("sc_sustain_level", "Sidechain Sustain Level", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
-	  std::make_unique<AudioParameterFloat>("sc_sustain", "Sidechain Sustain", NormalisableRange<float>(0.0f, 0.5f), 0.1f),
-	  std::make_unique<AudioParameterFloat>("sc_release", "Sidechain Release", NormalisableRange<float>(0.0f, 1.0f), 0.1f),
+	  std::make_unique<AudioParameterFloat>("sc_sustain", "Sidechain Sustain", NormalisableRange<float>(0.0f, SUSTAIN_MAX), 0.1f),
+	  std::make_unique<AudioParameterFloat>("sc_release", "Sidechain Release", NormalisableRange<float>(0.0f, RELEASE_MAX), 0.1f),
 	  std::make_unique<AudioParameterFloat>("sc_threshold", "Sidechain Threshold", NormalisableRange<float>(0.0f, 1.0f), 0.5f) })
 #ifndef JucePlugin_PreferredChannelConfigurations
      , AudioProcessor (BusesProperties()
@@ -198,7 +202,9 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	delayverb.prepare(spec);
 	delayverb.reset();
 	//}
-	
+
+	// TODO: set to Image::ARGB when the drawing methods are working
+	adsrPlot = Image(Image::ARGB, 200, 100, true);
 
 }
 
@@ -234,21 +240,49 @@ bool SpacePanAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 
 void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
+	const float adsrTimeMax = ATTACK_MAX + DECAY_MAX + SUSTAIN_MAX + RELEASE_MAX;
+	float tAttack = *mState.getRawParameterValue("sc_attack");
+	float tDecay = *mState.getRawParameterValue("sc_decay");
+	float tSustain = *mState.getRawParameterValue("sc_sustain");
+	float tRelease = *mState.getRawParameterValue("sc_release");
+	// TODO: change these shape factors to use GUI
+	float shapeAttack = 1.0;
+	float shapeDecay = 1.0;
+	float sustainGain = *mState.getRawParameterValue("sc_sustain_level");
+	float shapeRelease = 1.0;
+	Colour traceColour = Colours::lightgreen;
+	adsrPlot.clear(adsrPlot.getBounds(), Colours::black);
+	for (int i = 0; i < adsrPlot.getWidth(); i++)
+	{
+		float val;
+		float t = i * adsrTimeMax / adsrPlot.getWidth();
+		if (t < tAttack)
+		{
+			val = std::pow(t / tAttack, shapeAttack);
+		}
+		else if (t <  tAttack + tDecay)
+		{
+			val = 1 - std::pow((t-tAttack) / tDecay, shapeDecay) * (1 - sustainGain);
+		}
+		else if (t < tAttack + tDecay + tSustain)
+		{
+			val = sustainGain;
+		}
+		else
+		{
+			val = (1 - std::pow((t-tAttack -tDecay-tSustain) / tRelease, shapeRelease)) * sustainGain;
+		}
+
+		adsrPlot.setPixelAt(i, (int)((1-val) * adsrPlot.getHeight()), traceColour);
+
+	}
+	
 	
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 	double sampleRate = getSampleRate();
-
-	envelope.setParams(*mState.getRawParameterValue("sc_attack"),
-		1.0, // TODO: change these shape factors to use GUI
-		*mState.getRawParameterValue("sc_decay"),
-		1.0,
-		*mState.getRawParameterValue("sc_sustain_level"),
-		*mState.getRawParameterValue("sc_sustain"),
-		*mState.getRawParameterValue("sc_release"),
-		1.0,
-		*mState.getRawParameterValue("sc_threshold"));
+	
 
     // In case we have more outputs than inputs, this code clears any output
     // channels that didn't contain input data, (because these aren't
@@ -266,7 +300,20 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
 		
+	for (int channel = 0; channel < buffer.getNumChannels(); channel++)
+	{
 
+
+		revEnvelope[channel].setParams(tAttack,
+			shapeAttack, 
+			tDecay,
+			shapeDecay,
+			sustainGain,
+			tSustain,
+			tRelease,
+			shapeRelease,
+			*mState.getRawParameterValue("sc_threshold"));
+	}
 	//=============================================================================
 
 		
@@ -417,13 +464,11 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 		{
 			// TODO: this is placeholder. make stereo and use different envelope for
 			// delay (four envelopes total)
-			if (buffer.getReadPointer(channel)[i] >= envelope.getThresh())
-			{
-				envelope.trigger();
-			}
-			reverbWet.getWritePointer(channel)[i] *= (1 - envelope.getGain() * *mState.getRawParameterValue("rev_sc_amount"));
+			revEnvelope[channel].trigger(buffer.getReadPointer(channel)[i]);
+			
+			reverbWet.getWritePointer(channel)[i] *= (1 - revEnvelope[channel].getGain() * *mState.getRawParameterValue("rev_sc_amount"));
 			// TODO: update envelope at end of process block instead of here
-			envelope.update(1.0f / getSampleRate());
+			revEnvelope[channel].update(1.0f / getSampleRate());
 		}
 
 		// Mix wet and dry signals
