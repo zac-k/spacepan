@@ -126,9 +126,11 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	
 
 	// Make reference to image in processor
-	pAdsrPlot = &(p.adsrPlot);
-	adsrPlot.setImage(p.adsrPlot);
-	adsrPlot.setBounds(550, 480, p.adsrPlot.getWidth(), p.adsrPlot.getHeight());
+	//pAdsrPlot = &(p.adsrPlot);
+	adsrPlotImage = Image(Image::ARGB, 70, 70, true);
+	adsrPlot.setImage(adsrPlotImage);
+	constructADSRplot();
+	adsrPlot.setBounds(550, 480, adsrPlotImage.getWidth(), adsrPlotImage.getHeight());
 	addAndMakeVisible(adsrPlot);
 
 	croGlass.setImage(croGlassImage);
@@ -153,8 +155,9 @@ SpacePanAudioProcessorEditor::~SpacePanAudioProcessorEditor()
 
 void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
-	// TODO: use an if statement to limit this to sc related knobs
-	adsrPlot.setImage(*pAdsrPlot);
+
+	constructADSRplot();
+	//adsrPlot.setImage(adsrPlotImage);
 	adsrPlot.repaint();
 	/*if (slider->getName() == "SCattackKnob")
 	{
@@ -184,6 +187,58 @@ void SpacePanAudioProcessorEditor::resized()
 }
 
 //void Slider::mouseEnter(MouseEvent&)
+
+void SpacePanAudioProcessorEditor::constructADSRplot()
+{
+
+	// TODO: use an if statement to limit this to sc related knobs
+	const float adsrTimeMax = processor.ATTACK_MAX + processor.DECAY_MAX + processor.SUSTAIN_MAX + processor.RELEASE_MAX;
+	float tAttack = *processor.mState.getRawParameterValue("sc_attack");
+	float tDecay = *processor.mState.getRawParameterValue("sc_decay");
+	float tSustain = *processor.mState.getRawParameterValue("sc_sustain");
+	float tRelease = *processor.mState.getRawParameterValue("sc_release");
+
+	float shapeAttack = *processor.mState.getRawParameterValue("sc_attack_shape");
+	float shapeDecay = *processor.mState.getRawParameterValue("sc_decay_shape");
+	float sustainGain = *processor.mState.getRawParameterValue("sc_sustain_level");
+	float shapeRelease = *processor.mState.getRawParameterValue("sc_release_shape");;
+	Colour traceColour = Colours::lightgreen;
+	Colour bgColour = Colours::transparentBlack;
+	adsrPlotImage.clear(adsrPlotImage.getBounds(), bgColour);
+
+	int pixTemp = adsrPlotImage.getHeight();
+	for (int i = 0; i < adsrPlotImage.getWidth(); i++)
+	{
+		float val;
+		float t = i * adsrTimeMax / adsrPlotImage.getWidth();
+		if (t < tAttack)
+		{
+			val = std::pow(t / tAttack, shapeAttack);
+		}
+		else if (t < tAttack + tDecay)
+		{
+			val = 1 - std::pow((t - tAttack) / tDecay, shapeDecay) * (1 - sustainGain);
+		}
+		else if (t < tAttack + tDecay + tSustain)
+		{
+			val = sustainGain;
+		}
+		else
+		{
+			val = (1 - std::pow((t - tAttack - tDecay - tSustain) / tRelease, shapeRelease)) * sustainGain;
+		}
+		int pix = (int)((1 - val) * adsrPlotImage.getHeight());
+
+
+		while (std::abs(pix - pixTemp) > 0)
+		{
+			pixTemp = pixTemp + copysign(1, pix - pixTemp);
+			adsrPlotImage.setPixelAt(i, pixTemp, traceColour);
+		}
+		adsrPlotImage.setPixelAt(i, pix, traceColour);
+
+	}
+}
 
 void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *const editor, StandardRotary &control, String name, float relX, float relY, Image spriteImg, String tooltipText)
 {

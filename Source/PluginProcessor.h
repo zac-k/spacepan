@@ -30,6 +30,11 @@ public:
     SpacePanAudioProcessor();
     ~SpacePanAudioProcessor();
 
+
+	const float ATTACK_MAX = 0.2f;
+	const float DECAY_MAX = 0.2f;
+	const float SUSTAIN_MAX = 0.5f;
+	const float RELEASE_MAX = 1.0f;
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
@@ -89,13 +94,15 @@ public:
 
 	//==============================================================================
 	const float DELAY_MAX = 2.0; // seconds
-	Image adsrPlot;
+	
 
 
 	//==============================================================================
 	AudioProcessorValueTreeState mState;
 
 private:
+
+
 
 	void saturate(float &sample, float gain);
 	void saturate(AudioBuffer<float> &samples, float gain, int type);

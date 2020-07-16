@@ -17,10 +17,6 @@ const float HEAD_WIDTH_MAX = 10; //metres
 const float ROOM_SIZE_MAX = 100; //metres
 const float SOUND_SPEED = 343.0; // m/s
 const float FILTER_SKEW = 0.25f;
-const float ATTACK_MAX = 0.2f;
-const float DECAY_MAX = 0.2f;
-const float SUSTAIN_MAX = 0.5f;
-const float RELEASE_MAX = 1.0f;
 
 
 //==============================================================================
@@ -55,7 +51,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	  std::make_unique<AudioParameterFloat>("sc_decay_shape", "Sidechain Decay Shape", NormalisableRange<float>(0.1f, 5.0f), 0.1f),
 	  std::make_unique<AudioParameterFloat>("sc_sustain_level", "Sidechain Sustain Level", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("sc_sustain", "Sidechain Sustain", NormalisableRange<float>(0.0f, SUSTAIN_MAX), 0.1f),
-	  std::make_unique<AudioParameterFloat>("sc_release", "Sidechain Release", NormalisableRange<float>(0.0f, RELEASE_MAX), 0.1f),
+	  std::make_unique<AudioParameterFloat>("sc_release", "Sidechain Release", NormalisableRange<float>(0.01f, RELEASE_MAX), 0.1f),
 	  std::make_unique<AudioParameterFloat>("sc_release_shape", "Sidechain release Shape", NormalisableRange<float>(0.1f, 10.0f), 0.1f),
 	  std::make_unique<AudioParameterFloat>("sc_threshold", "Sidechain Threshold", NormalisableRange<float>(0.0f, 1.0f), 0.5f) })
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -77,7 +73,7 @@ void SpacePanAudioProcessor::parameterChanged(const String &parameterID, float n
 
 	// TODO: this locks up the plugin. Try doing all this in the editor class
 
-	const float adsrTimeMax = ATTACK_MAX + DECAY_MAX + SUSTAIN_MAX + RELEASE_MAX;
+	/*const float adsrTimeMax = ATTACK_MAX + DECAY_MAX + SUSTAIN_MAX + RELEASE_MAX;
 	float tAttack = *mState.getRawParameterValue("sc_attack");
 	float tDecay = *mState.getRawParameterValue("sc_decay");
 	float tSustain = *mState.getRawParameterValue("sc_sustain");
@@ -115,24 +111,6 @@ void SpacePanAudioProcessor::parameterChanged(const String &parameterID, float n
 		int pix = (int)((1 - val) * adsrPlot.getHeight());
 
 
-	/*	Colour pixColour;
-		bool isInRange;
-		for (int j = 0; j < adsrPlot.getHeight(); j++)
-		{
-			isInRange = ((j >= pix) && (j < pixTemp)) || ((j <= pix) && (j > pixTemp));
-			if (isInRange)
-			{
-				pixColour = traceColour;
-			}
-			else
-			{
-				pixColour = bgColour;
-			}
-			adsrPlot.setPixelAt(i, j, bgColour);
-		}
-		pixTemp = pix;*/
-
-
 		while (std::abs(pix - pixTemp) > 0)
 		{
 			pixTemp = pixTemp + copysign(1, pix - pixTemp);
@@ -140,7 +118,7 @@ void SpacePanAudioProcessor::parameterChanged(const String &parameterID, float n
 		}
 		adsrPlot.setPixelAt(i, pix, traceColour);
 		
-	}
+	}*/
 }
 
 SpacePanAudioProcessor::~SpacePanAudioProcessor()
@@ -288,7 +266,7 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 
 	
 
-	adsrPlot = Image(Image::ARGB, 70, 70, true);
+	
 
 }
 

@@ -45,6 +45,9 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     SpacePanAudioProcessor& processor;
+	Image adsrPlotImage;
+
+	void constructADSRplot();
 
 	// Load background image	
 	Image backgroundImage = ImageCache::getFromMemory(BinaryData::background_png, 
