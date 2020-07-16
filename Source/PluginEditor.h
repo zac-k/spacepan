@@ -49,8 +49,12 @@ private:
 	// Load background image	
 	Image backgroundImage = ImageCache::getFromMemory(BinaryData::background_png, 
 													  BinaryData::background_pngSize);
+	Image croGlassImage = ImageCache::getFromMemory(BinaryData::cro_glass_png,
+		BinaryData::cro_glass_pngSize);
 	ImageComponent adsrPlot;
 	Image* pAdsrPlot;
+
+	ImageComponent croGlass;
 	//Graphics adsrPlot = Graphics(backgroundImage);
 	
 

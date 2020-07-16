@@ -49,7 +49,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	  std::make_unique<AudioParameterFloat>("delay_sat_char", "Delay Saturation Character", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_width", "Delay Width", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 
-	  std::make_unique<AudioParameterFloat>("sc_attack", "Sidechain Attack", NormalisableRange<float>(0.0f, ATTACK_MAX), 0.1f),
+	  std::make_unique<AudioParameterFloat>("sc_attack", "Sidechain Attack", NormalisableRange<float>(0.1f, ATTACK_MAX), 0.1f),
 	  std::make_unique<AudioParameterFloat>("sc_attack_shape", "Sidechain Attack Shape", NormalisableRange<float>(0.2f, 10.0f), 0.2f),
 	  std::make_unique<AudioParameterFloat>("sc_decay", "Sidechain Decay", NormalisableRange<float>(0.0f, DECAY_MAX), 0.1f),
 	  std::make_unique<AudioParameterFloat>("sc_decay_shape", "Sidechain Decay Shape", NormalisableRange<float>(0.1f, 5.0f), 0.1f),
@@ -75,6 +75,8 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 void SpacePanAudioProcessor::parameterChanged(const String &parameterID, float newValue)
 {
 
+	// TODO: this locks up the plugin. Try doing all this in the editor class
+
 	const float adsrTimeMax = ATTACK_MAX + DECAY_MAX + SUSTAIN_MAX + RELEASE_MAX;
 	float tAttack = *mState.getRawParameterValue("sc_attack");
 	float tDecay = *mState.getRawParameterValue("sc_decay");
@@ -86,7 +88,7 @@ void SpacePanAudioProcessor::parameterChanged(const String &parameterID, float n
 	float sustainGain = *mState.getRawParameterValue("sc_sustain_level");
 	float shapeRelease = *mState.getRawParameterValue("sc_release_shape");;
 	Colour traceColour = Colours::lightgreen;
-	Colour bgColour = Colours::black;
+	Colour bgColour = Colours::transparentBlack;
 	adsrPlot.clear(adsrPlot.getBounds(), bgColour);
 
 	int pixTemp = adsrPlot.getHeight();
@@ -286,7 +288,7 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 
 	
 
-	adsrPlot = Image(Image::ARGB, 150, 80, true);
+	adsrPlot = Image(Image::ARGB, 70, 70, true);
 
 }
 
