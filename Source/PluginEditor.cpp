@@ -38,6 +38,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelaySatAttachment(p.mState, "delay_sat", mDelaySatKnob),
 	mDelaySatCharAttachment(p.mState, "delay_sat_char", mDelaySatCharKnob),
 	mDelayWidthAttachment(p.mState, "delay_width", mDelayWidthKnob),
+	mDelaySCamountAttachment(p.mState, "delay_sc_amount", mDelaySCamountKnob),
 
 	mSCattackAttachment(p.mState, "sc_attack", mSCattackKnob),
 	mSCattackShapeAttachment(p.mState, "sc_attack_shape", mSCattackShapeKnob),
@@ -91,21 +92,23 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mDelayMixKnob, "DelayMixKnob", 0.11, 0.4, knobImg, "Mix");
 	addControl(this, mDelaySatCharKnob, "DelaySatCharKnob", 0.4, 0.6, knobImg, "Saturation character");
 	addControl(this, mDelayWidthKnob, "DelayWidthKnob", 0.15, 0.6, knobImg, "Width");
+	addControl(this, mDelaySCamountKnob, "DelaySCamountKnob", 0.5, 0.6, knobImgPan, "Sidechain Amount");
 
 	// Sidechain controls
-	addControl(this, mSCattackKnob, "SCattackKnob", 0.2, 0.9, knobImgPan, "Attack");
+	mSCattackKnob.setDim(50, 50);
+	addControl(this, mSCattackKnob, "SCattackKnob", 0.22, 0.9, knobImgPan, "Attack");
 	mSCattackShapeKnob.setDim(32, 32);
-	addControl(this, mSCattackShapeKnob, "SCattackShapeKnob", 0.2, 0.9, knobImg, "Attack Shape");
-	addControl(this, mSCdecayKnob, "SCdecayKnob", 0.3, 0.9, knobImgPan, "Decay");
+	addControl(this, mSCattackShapeKnob, "SCattackShapeKnob", 0.22, 0.9, knobImg, "Attack Shape");
+	addControl(this, mSCdecayKnob, "SCdecayKnob", 0.31, 0.9, knobImgPan, "Decay");
 	mSCdecayShapeKnob.setDim(32, 32);
-	addControl(this, mSCdecayShapeKnob, "SCdecayShapeKnob", 0.3, 0.9, knobImg, "Decay Shape");
+	addControl(this, mSCdecayShapeKnob, "SCdecayShapeKnob", 0.31, 0.9, knobImg, "Decay Shape");
 	addControl(this, mSCsustainKnob, "SCsustainKnob", 0.4, 0.9, knobImgPan, "Sustain");
 	mSCsustainLevelKnob.setDim(32, 32);
 	addControl(this, mSCsustainLevelKnob, "SCsustainLevelKnob", 0.4, 0.9, knobImgPan, "Sustain Level");
-	addControl(this, mSCreleaseKnob, "SCreleaseKnob", 0.5, 0.9, knobImgPan, "Release");
+	addControl(this, mSCreleaseKnob, "SCreleaseKnob", 0.49, 0.9, knobImgPan, "Release");
 	mSCreleaseShapeKnob.setDim(32, 32);
-	addControl(this, mSCreleaseShapeKnob, "SCreleaseShapeKnob", 0.5, 0.9, knobImg, "release Shape");
-	addControl(this, mSCthresholdKnob, "SCthresholdKnob", 0.6, 0.9, knobImgPan, "Threshold");
+	addControl(this, mSCreleaseShapeKnob, "SCreleaseShapeKnob", 0.49, 0.9, knobImg, "release Shape");
+	addControl(this, mSCthresholdKnob, "SCthresholdKnob", 0.58, 0.9, knobImgPan, "Threshold");
 
 
 	mDelayTimeText.setBounds(0, 0, 80, 20);
@@ -120,19 +123,12 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	//addAndMakeVisible(mDelayOnButton);
 
 
-	//adsrPlot.reduceClipRegion();
-	//adsrPlot.setOrigin();
-
-	
-
-	// Make reference to image in processor
-	//pAdsrPlot = &(p.adsrPlot);
 
 	
 	
 
 	adsrPlotImage = Image(Image::ARGB, 70, 70, true);
-	//adsrPlot.setImage(adsrPlotImage);
+	adsrPlot.setImage(adsrPlotImage);
 	constructADSRplot();
 	adsrPlot.setBounds(550, 480, adsrPlotImage.getWidth(), adsrPlotImage.getHeight());
 	addAndMakeVisible(adsrPlot);
@@ -196,7 +192,7 @@ void SpacePanAudioProcessorEditor::resized()
 void SpacePanAudioProcessorEditor::constructADSRplot()
 {
 
-	// TODO: use an if statement to limit this to sc related knobs
+	
 	const float adsrTimeMax = processor.ATTACK_MAX + processor.DECAY_MAX + processor.SUSTAIN_MAX + processor.RELEASE_MAX;
 	float tAttack = *processor.mState.getRawParameterValue("sc_attack");
 	float tDecay = *processor.mState.getRawParameterValue("sc_decay");
@@ -233,6 +229,8 @@ void SpacePanAudioProcessorEditor::constructADSRplot()
 			val = (1 - std::pow((t - tAttack - tDecay - tSustain) / tRelease, shapeRelease)) * sustainGain;
 		}
 		int pix = (int)((1 - val) * adsrPlotImage.getHeight());
+		pix = std::max(0, pix);
+		pix = std::min(pix, adsrPlotImage.getHeight());
 
 
 		while (std::abs(pix - pixTemp) > 0)
@@ -244,7 +242,7 @@ void SpacePanAudioProcessorEditor::constructADSRplot()
 
 	}
 	
-	adsrPlot.setImage(adsrPlotImage);
+	//adsrPlot.setImage(adsrPlotImage);
 }
 
 void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *const editor, StandardRotary &control, String name, float relX, float relY, Image spriteImg, String tooltipText)

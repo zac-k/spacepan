@@ -39,6 +39,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	  std::make_unique<AudioParameterFloat>("delay_highpass", "Delay Low Cut", utils::frequencyRange<float>(100.0f, 2.0e4f), 2.0e2f),
 	  std::make_unique<AudioParameterFloat>("delay_highpass_Q", "Delay Low Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("delay_allpass", "Delay Diffusion", NormalisableRange<float>(20.0f, 2.0e4f), 20.0f),
+	  std::make_unique<AudioParameterFloat>("delay_sc_amount", "Delay Sidechain Amount", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
 
 	  std::make_unique<AudioParameterFloat>("delay_mix", "Delay Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_sat", "Delay Saturation", NormalisableRange<float>(0.0f, 10.0f), 0.0f),
@@ -47,7 +48,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 
 	  std::make_unique<AudioParameterFloat>("sc_attack", "Sidechain Attack", NormalisableRange<float>(0.1f, ATTACK_MAX), 0.1f),
 	  std::make_unique<AudioParameterFloat>("sc_attack_shape", "Sidechain Attack Shape", NormalisableRange<float>(0.2f, 10.0f), 0.2f),
-	  std::make_unique<AudioParameterFloat>("sc_decay", "Sidechain Decay", NormalisableRange<float>(0.0f, DECAY_MAX), 0.1f),
+	  std::make_unique<AudioParameterFloat>("sc_decay", "Sidechain Decay", NormalisableRange<float>(0.01f, DECAY_MAX), 0.1f),
 	  std::make_unique<AudioParameterFloat>("sc_decay_shape", "Sidechain Decay Shape", NormalisableRange<float>(0.1f, 5.0f), 0.1f),
 	  std::make_unique<AudioParameterFloat>("sc_sustain_level", "Sidechain Sustain Level", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("sc_sustain", "Sidechain Sustain", NormalisableRange<float>(0.0f, SUSTAIN_MAX), 0.1f),
@@ -260,7 +261,6 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 	float tDecay = *mState.getRawParameterValue("sc_decay");
 	float tSustain = *mState.getRawParameterValue("sc_sustain");
 	float tRelease = *mState.getRawParameterValue("sc_release");
-	// TODO: change these shape factors to use GUI
 	float shapeAttack = *mState.getRawParameterValue("sc_attack_shape");
 	float shapeDecay = *mState.getRawParameterValue("sc_decay_shape");
 	float sustainGain = *mState.getRawParameterValue("sc_sustain_level");
@@ -296,6 +296,16 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 
 		revEnvelope[channel].setParams(tAttack,
 			shapeAttack, 
+			tDecay,
+			shapeDecay,
+			sustainGain,
+			tSustain,
+			tRelease,
+			shapeRelease,
+			*mState.getRawParameterValue("sc_threshold"));
+
+		delEnvelope[channel].setParams(tAttack,
+			shapeAttack,
 			tDecay,
 			shapeDecay,
 			sustainGain,
@@ -449,15 +459,11 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 		mReverbBuffer.read(channel, reverbWet);
 
 		// Apply sidechain
-		// TODO: use the GUI to control level
 		for (int i = 0; i < reverbWet.getNumSamples(); i++)
 		{
-			// TODO: this is placeholder. make stereo and use different envelope for
-			// delay (four envelopes total)
 			revEnvelope[channel].trigger(buffer.getReadPointer(channel)[i]);
 			
 			reverbWet.getWritePointer(channel)[i] *= (1 - revEnvelope[channel].getGain() * *mState.getRawParameterValue("rev_sc_amount"));
-			// TODO: update envelope at end of process block instead of here
 			revEnvelope[channel].update(1.0f / getSampleRate());
 		}
 
@@ -748,10 +754,19 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	delayHighPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
 	//delayAllPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
 
-
+	
 
 	for (int channel = 0; channel < samples.getNumChannels(); ++channel)
 	{
+		// Apply sidechain
+		for (int i = 0; i < delayWet.getNumSamples(); i++)
+		{
+			delEnvelope[channel].trigger(delayDry.getReadPointer(channel)[i]);
+
+			delayWet.getWritePointer(channel)[i] *= (1 - delEnvelope[channel].getGain() * *mState.getRawParameterValue("delay_sc_amount"));
+			delEnvelope[channel].update(1.0f / getSampleRate());
+		}
+
 		// Mix wet and dry signals
 		mixer(delayDry, delayWet, *mState.getRawParameterValue("delay_mix"), channel, 1.0f);
 

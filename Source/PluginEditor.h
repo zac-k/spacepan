@@ -106,6 +106,8 @@ private:
 	AudioProcessorValueTreeState::SliderAttachment mDelaySatCharAttachment;
 	StandardRotary mDelayWidthKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayWidthAttachment;
+	StandardRotary mDelaySCamountKnob;
+	AudioProcessorValueTreeState::SliderAttachment mDelaySCamountAttachment;
 
 	
 	//Slider mDelayFeedbackKnob;

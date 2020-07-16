@@ -126,6 +126,7 @@ private:
 	dsp::Reverb mReverb;
 	//dsp::Reverb preverbR;
 	Envelope revEnvelope[2];
+	Envelope delEnvelope[2];
 
 	double mPanFcR{ 0 };
 	double mPanFcL{ 0 };
