@@ -127,8 +127,12 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 
 	// Make reference to image in processor
 	//pAdsrPlot = &(p.adsrPlot);
+
+	
+	
+
 	adsrPlotImage = Image(Image::ARGB, 70, 70, true);
-	adsrPlot.setImage(adsrPlotImage);
+	//adsrPlot.setImage(adsrPlotImage);
 	constructADSRplot();
 	adsrPlot.setBounds(550, 480, adsrPlotImage.getWidth(), adsrPlotImage.getHeight());
 	addAndMakeVisible(adsrPlot);
@@ -155,14 +159,15 @@ SpacePanAudioProcessorEditor::~SpacePanAudioProcessorEditor()
 
 void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
-
-	constructADSRplot();
-	//adsrPlot.setImage(adsrPlotImage);
-	adsrPlot.repaint();
-	/*if (slider->getName() == "SCattackKnob")
+	bool isSCcontrol = (slider == &mSCattackKnob) || (slider == &mSCattackShapeKnob) ||
+		(slider == &mSCdecayKnob) || (slider == &mSCdecayShapeKnob) ||
+		(slider == &mSCsustainKnob) || (slider == &mSCsustainLevelKnob) ||
+		(slider == &mSCreleaseKnob) || (slider == &mSCreleaseShapeKnob);
+	if (isSCcontrol)
 	{
-		adsrPlot.drawLine(0.0f, 0.0f, 400.0f, 300.0f);
-	}*/
+		constructADSRplot();
+		adsrPlot.repaint();
+	}
 }
 
 //==============================================================================
@@ -238,6 +243,8 @@ void SpacePanAudioProcessorEditor::constructADSRplot()
 		adsrPlotImage.setPixelAt(i, pix, traceColour);
 
 	}
+	
+	adsrPlot.setImage(adsrPlotImage);
 }
 
 void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *const editor, StandardRotary &control, String name, float relX, float relY, Image spriteImg, String tooltipText)

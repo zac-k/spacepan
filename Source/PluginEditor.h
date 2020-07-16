@@ -40,6 +40,7 @@ public:
 	// Parameters
 
 	Label mDelayTimeText;
+	
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -47,6 +48,7 @@ private:
     SpacePanAudioProcessor& processor;
 	Image adsrPlotImage;
 
+	
 	void constructADSRplot();
 
 	// Load background image	

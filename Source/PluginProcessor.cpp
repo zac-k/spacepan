@@ -71,54 +71,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 void SpacePanAudioProcessor::parameterChanged(const String &parameterID, float newValue)
 {
 
-	// TODO: this locks up the plugin. Try doing all this in the editor class
-
-	/*const float adsrTimeMax = ATTACK_MAX + DECAY_MAX + SUSTAIN_MAX + RELEASE_MAX;
-	float tAttack = *mState.getRawParameterValue("sc_attack");
-	float tDecay = *mState.getRawParameterValue("sc_decay");
-	float tSustain = *mState.getRawParameterValue("sc_sustain");
-	float tRelease = *mState.getRawParameterValue("sc_release");
 	
-	float shapeAttack = *mState.getRawParameterValue("sc_attack_shape");
-	float shapeDecay = *mState.getRawParameterValue("sc_decay_shape");
-	float sustainGain = *mState.getRawParameterValue("sc_sustain_level");
-	float shapeRelease = *mState.getRawParameterValue("sc_release_shape");;
-	Colour traceColour = Colours::lightgreen;
-	Colour bgColour = Colours::transparentBlack;
-	adsrPlot.clear(adsrPlot.getBounds(), bgColour);
-
-	int pixTemp = adsrPlot.getHeight();
-	for (int i = 0; i < adsrPlot.getWidth(); i++)
-	{
-		float val;
-		float t = i * adsrTimeMax / adsrPlot.getWidth();
-		if (t < tAttack)
-		{
-			val = std::pow(t / tAttack, shapeAttack);
-		}
-		else if (t < tAttack + tDecay)
-		{
-			val = 1 - std::pow((t - tAttack) / tDecay, shapeDecay) * (1 - sustainGain);
-		}
-		else if (t < tAttack + tDecay + tSustain)
-		{
-			val = sustainGain;
-		}
-		else
-		{
-			val = (1 - std::pow((t - tAttack - tDecay - tSustain) / tRelease, shapeRelease)) * sustainGain;
-		}
-		int pix = (int)((1 - val) * adsrPlot.getHeight());
-
-
-		while (std::abs(pix - pixTemp) > 0)
-		{
-			pixTemp = pixTemp + copysign(1, pix - pixTemp);
-			adsrPlot.setPixelAt(i, pixTemp, traceColour);
-		}
-		adsrPlot.setPixelAt(i, pix, traceColour);
-		
-	}*/
 }
 
 SpacePanAudioProcessor::~SpacePanAudioProcessor()
