@@ -38,7 +38,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	  std::make_unique<AudioParameterFloat>("delay_lowpass_Q", "Delay High Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("delay_highpass", "Delay Low Cut", utils::frequencyRange<float>(100.0f, 2.0e4f), 2.0e2f),
 	  std::make_unique<AudioParameterFloat>("delay_highpass_Q", "Delay Low Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
-	  std::make_unique<AudioParameterFloat>("delay_allpass", "Delay Allpass", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
+	  std::make_unique<AudioParameterFloat>("delay_allpass", "Delay Allpass", NormalisableRange<float>(100.0f, 2.0e4f), 100.0f),
 	  std::make_unique<AudioParameterFloat>("delay_diffusion", "Delay Diffusion", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
 	  std::make_unique<AudioParameterFloat>("delay_sc_amount", "Delay Sidechain Amount", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
 
@@ -642,12 +642,14 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	float delayHPQ = *mState.getRawParameterValue("delay_highpass_Q");
 	float delayAPf = *mState.getRawParameterValue("delay_allpass");
 
+	// TODO: Placeholder
+	delayAPf = *mState.getRawParameterValue("delay_diffusion")*2.0e4f+50.0f;
 
 	// TODO: filtering needs to be done on signal added to delay buffer - maybe as separate option?
 
 	*delayLowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), delayLPf, delayLPQ);
 	*delayHighPassFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), delayHPf, delayHPQ);
-	//*delayAllPassFilter.state = *dsp::IIR::Coefficients<float>::makeAllPass(getSampleRate(), delayAPf, 40.0);
+	*delayAllPassFilter.state = *dsp::IIR::Coefficients<float>::makeAllPass(getSampleRate(), delayAPf, 40.0);
 
 		//========================================================================
 		// TODO: delayverb (diffusion) and pre-filter not working
@@ -663,11 +665,19 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	delayverbParams.width = width;
 	delayverbParams.freezeMode = 0.0f;
 	delayverb.setParameters(delayverbParams);
-	delayverb.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
+	//delayverb.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
 
+	//delayAllPassFilter.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
 
-	//delayLowPassFilter.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
-	//delayHighPassFilter.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
+	// TODO: Use GUI for pre/post filter
+	bool prefilter = true;
+
+	if (prefilter)
+	{
+		delayLowPassFilter.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
+		delayHighPassFilter.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
+	}
+	
 	//========================================================================
 
 	AudioBuffer<float> delayWet(samples.getNumChannels(), samples.getNumSamples());
@@ -754,11 +764,13 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	}
 
 	// Apply filters to wet delay signal
-	dsp::AudioBlock<float> delayBlock(delayWet);
-	delayLowPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
-	delayHighPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
-	//delayAllPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
-
+	if (!prefilter)
+	{
+		dsp::AudioBlock<float> delayBlock(delayWet);
+		delayLowPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
+		delayHighPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
+		//delayAllPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
+	}
 	
 
 	for (int channel = 0; channel < samples.getNumChannels(); ++channel)
