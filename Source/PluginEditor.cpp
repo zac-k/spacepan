@@ -38,6 +38,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelaySatAttachment(p.mState, "delay_sat", mDelaySatKnob),
 	mDelaySatCharAttachment(p.mState, "delay_sat_char", mDelaySatCharKnob),
 	mDelayWidthAttachment(p.mState, "delay_width", mDelayWidthKnob),
+	mDelayDiffusionAttachment(p.mState, "delay_diffusion", mDelayDiffusionKnob),
 	mDelaySCamountAttachment(p.mState, "delay_sc_amount", mDelaySCamountKnob),
 
 	mSCattackAttachment(p.mState, "sc_attack", mSCattackKnob),
@@ -92,6 +93,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mDelayMixKnob, "DelayMixKnob", 0.11, 0.4, knobImg, "Mix");
 	addControl(this, mDelaySatCharKnob, "DelaySatCharKnob", 0.4, 0.6, knobImg, "Saturation character");
 	addControl(this, mDelayWidthKnob, "DelayWidthKnob", 0.15, 0.6, knobImg, "Width");
+	addControl(this, mDelayDiffusionKnob, "DelayDiffusionKnob", 0.25, 0.6, knobImg, "Diffusion");
 	addControl(this, mDelaySCamountKnob, "DelaySCamountKnob", 0.5, 0.6, knobImgPan, "Sidechain Amount");
 
 	// Sidechain controls
@@ -204,10 +206,12 @@ void SpacePanAudioProcessorEditor::constructADSRplot()
 	float sustainGain = *processor.mState.getRawParameterValue("sc_sustain_level");
 	float shapeRelease = *processor.mState.getRawParameterValue("sc_release_shape");;
 	Colour traceColour = Colours::lightgreen;
+	//Colour traceColourHalf = Colour::fromFloatRGBA (124.0, 252.0, 0.0, 0.8);
 	Colour bgColour = Colours::transparentBlack;
 	adsrPlotImage.clear(adsrPlotImage.getBounds(), bgColour);
 
 	int pixTemp = adsrPlotImage.getHeight();
+	//int pixPrev = 0;
 	for (int i = 0; i < adsrPlotImage.getWidth(); i++)
 	{
 		float val;
@@ -237,6 +241,14 @@ void SpacePanAudioProcessorEditor::constructADSRplot()
 		{
 			pixTemp = pixTemp + copysign(1, pix - pixTemp);
 			adsrPlotImage.setPixelAt(i, pixTemp, traceColour);
+			/*if (i != adsrPlotImage.getWidth() - 1)
+			{
+				adsrPlotImage.setPixelAt(i + 1, pixTemp, traceColourHalf);
+			}
+			if (i != pixPrev && i != 0)
+			{
+				adsrPlotImage.setPixelAt(i - 1, pixTemp, traceColourHalf);
+			}*/
 		}
 		adsrPlotImage.setPixelAt(i, pix, traceColour);
 

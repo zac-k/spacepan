@@ -38,7 +38,8 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	  std::make_unique<AudioParameterFloat>("delay_lowpass_Q", "Delay High Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("delay_highpass", "Delay Low Cut", utils::frequencyRange<float>(100.0f, 2.0e4f), 2.0e2f),
 	  std::make_unique<AudioParameterFloat>("delay_highpass_Q", "Delay Low Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
-	  std::make_unique<AudioParameterFloat>("delay_allpass", "Delay Diffusion", NormalisableRange<float>(20.0f, 2.0e4f), 20.0f),
+	  std::make_unique<AudioParameterFloat>("delay_allpass", "Delay Allpass", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
+	  std::make_unique<AudioParameterFloat>("delay_diffusion", "Delay Diffusion", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
 	  std::make_unique<AudioParameterFloat>("delay_sc_amount", "Delay Sidechain Amount", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
 
 	  std::make_unique<AudioParameterFloat>("delay_mix", "Delay Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
@@ -66,7 +67,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
                        )
 #endif
 {
-	// TODO: reverse delay lowpass knob so it's a "high cut" knob
+
 }
 
 void SpacePanAudioProcessor::parameterChanged(const String &parameterID, float newValue)
@@ -369,7 +370,7 @@ void SpacePanAudioProcessor::truePan(AudioBuffer<float> &buffer, float panVal, f
 {
 	// TODO: This is faux pan placeholder. Change to true pan algorithm
 	panVal *= maxPan;
-	AudioBuffer<float> bufferTemp;
+	AudioBuffer<float> bufferTemp;// TODO: this isn't used for anything, right?
 	bufferTemp.makeCopyOf(buffer);
 	int bufferLength = buffer.getNumSamples();
 	float distanceFactor = *mState.getRawParameterValue("room_size");
@@ -648,7 +649,29 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	*delayHighPassFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), delayHPf, delayHPQ);
 	//*delayAllPassFilter.state = *dsp::IIR::Coefficients<float>::makeAllPass(getSampleRate(), delayAPf, 40.0);
 
+		//========================================================================
+		// TODO: delayverb (diffusion) and pre-filter not working
+	dsp::AudioBlock<float> preDelayBlock(samples);
+	dsp::Reverb::Parameters delayverbParams;
+	float diffusion = *mState.getRawParameterValue("delay_diffusion");
+	float width = *mState.getRawParameterValue("delay_width");
+	delayverbParams.roomSize = diffusion / 10.0f;
+	delayverbParams.damping = 1.0f;
 
+	delayverbParams.wetLevel = diffusion;
+	delayverbParams.dryLevel = 1 - diffusion;
+	delayverbParams.width = width;
+	delayverbParams.freezeMode = 0.0f;
+	delayverb.setParameters(delayverbParams);
+	delayverb.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
+
+
+	//delayLowPassFilter.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
+	//delayHighPassFilter.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
+	//========================================================================
+
+	AudioBuffer<float> delayWet(samples.getNumChannels(), samples.getNumSamples());
+	//delayWet.makeCopyOf(samples);
 
 	for (int channel = 0; channel < samples.getNumChannels(); ++channel)
 	{
@@ -679,12 +702,15 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 		// Use wet signal for feedback, or dry signal for feedforward delay
 		//arr_temp = fb ? arr : samples.getReadPointer(channel);
 
-		
+
+
+
 
 		for (int32 i = 0; i < numSamples; i++)
 		{
 			arr.getWritePointer(channel)[i] += (delayBuffer.getReadPointer(channel)[tempBufferPos] * mDelayFeedbackGain);
-			
+			delayWet.getWritePointer(channel)[i] = (delayBuffer.getReadPointer(channel)[tempBufferPos] * mDelayFeedbackGain);
+
 			delayBuffer.getWritePointer(channel)[tempBufferPos] = arr.getReadPointer(channel)[i];
 			//buffer.getWritePointer(channel)[tempBufferPos + tempDelayInSamples] = arr.getReadPointer(channel)[i];
 			tempBufferPos++;
@@ -702,30 +728,9 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 
 		delayBuffer.moveWritePosition(channel, numSamples, delayInSamples);
 	}
-	
-	//========================================================================
-		// TODO: delayverb (diffusion) and pre-filter not working
-	dsp::AudioBlock<float> preDelayBlock(delayBuffer);
-	dsp::Reverb::Parameters delayverbParams;
-	delayverbParams.roomSize = 0.05;
-	delayverbParams.damping = 1.0f;
-
-	delayverbParams.wetLevel = 0.0f;
-	delayverbParams.dryLevel = 0.95f;
-	delayverbParams.width = 0.0;
-	delayverbParams.freezeMode = 0.0f;
-	delayverb.setParameters(delayverbParams);
-	//delayverb.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
-
-	
-	//delayLowPassFilter.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
-	//delayHighPassFilter.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
-	//========================================================================
 
 
 	float delayWidth = *mState.getRawParameterValue("delay_width");
-	AudioBuffer<float> delayWet;
-	delayWet.makeCopyOf(samples);
 
 
 
@@ -735,7 +740,7 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	for (int channel = 0; channel < samples.getNumChannels(); ++channel)
 	{
 		// Extract pure wet signal from delay buffer
-		FloatVectorOperations::subtract(delayWet.getWritePointer(channel), delayDry.getReadPointer(channel), samples.getNumSamples());
+		//FloatVectorOperations::subtract(delayWet.getWritePointer(channel), delayDry.getReadPointer(channel), samples.getNumSamples());
 
 		// Compensate for gain drop on first echo
 		delayWet.applyGain(channel, 0, samples.getNumSamples(), 1.0f / mDelayFeedbackGain);
