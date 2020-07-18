@@ -41,13 +41,14 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 	  std::make_unique<AudioParameterFloat>("delay_allpass", "Delay Allpass", NormalisableRange<float>(100.0f, 2.0e4f), 100.0f),
 	  std::make_unique<AudioParameterFloat>("delay_diffusion", "Delay Diffusion", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
 	  std::make_unique<AudioParameterFloat>("delay_sc_amount", "Delay Sidechain Amount", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
+	  std::make_unique<AudioParameterBool>("delay_tempo_lock", "Delay Tempo Lock", true),
 
 	  std::make_unique<AudioParameterFloat>("delay_mix", "Delay Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_sat", "Delay Saturation", NormalisableRange<float>(0.0f, 10.0f), 0.0f),
 	  std::make_unique<AudioParameterFloat>("delay_sat_char", "Delay Saturation Character", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_width", "Delay Width", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 
-	  std::make_unique<AudioParameterFloat>("sc_attack", "Sidechain Attack", NormalisableRange<float>(0.1f, ATTACK_MAX), 0.1f),
+	  std::make_unique<AudioParameterFloat>("sc_attack", "Sidechain Attack", NormalisableRange<float>(0.01f, ATTACK_MAX), 0.1f),
 	  std::make_unique<AudioParameterFloat>("sc_attack_shape", "Sidechain Attack Shape", NormalisableRange<float>(0.2f, 10.0f), 0.2f),
 	  std::make_unique<AudioParameterFloat>("sc_decay", "Sidechain Decay", NormalisableRange<float>(0.01f, DECAY_MAX), 0.1f),
 	  std::make_unique<AudioParameterFloat>("sc_decay_shape", "Sidechain Decay Shape", NormalisableRange<float>(0.1f, 5.0f), 0.1f),
@@ -403,12 +404,16 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 
 	float headWidth = *mState.getRawParameterValue("head_width");
 
-	// Make mono
+
 	AudioBuffer<float> reverbWet;
 	reverbWet.makeCopyOf(buffer);
-	reverbWet.addFrom(0, 0, reverbWet.getReadPointer(1), reverbWet.getNumSamples());
+
+
+	// TODO: not sure if it's better in mono or stereo.
+	// Make mono
+	/*reverbWet.addFrom(0, 0, reverbWet.getReadPointer(1), reverbWet.getNumSamples());
 	reverbWet.copyFrom(1, 0, reverbWet.getReadPointer(0), reverbWet.getNumSamples());
-	reverbWet.applyGain(0.5);
+	reverbWet.applyGain(0.5);*/
 
 
 
@@ -624,12 +629,27 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 
 	AudioBuffer<float> delayDry;
 	delayDry.makeCopyOf(samples);
-	float delaySeconds = *mState.getRawParameterValue("delay_time");
-
+	float delaySeconds;
 	// TODO: This is for testing tempo-locked delay
 	float delayInBars = 3.0 / 8.0;
 	AudioPlayHead::CurrentPositionInfo cpi;
-	//delaySeconds = delayInBars * 60.0 * 4 / cpi.bpm;
+	AudioPlayHead *playHead = getPlayHead();
+	playHead->getCurrentPosition(cpi);
+
+
+	bool isTempoLocked = *mState.getRawParameterValue("delay_tempo_lock");
+	//delaySeconds = isTempoLocked ? (delayInBars * 60.0 * 4 / cpi.bpm) : (*mState.getRawParameterValue("delay_time"));
+
+	if (isTempoLocked)
+	{
+		
+		delaySeconds = delayInBars * 60.0 * 4.0 / cpi.bpm;
+	}
+	else
+	{
+		delaySeconds = *mState.getRawParameterValue("delay_time");
+	}
+	
 
 	int delayInSamples = std::max<int>(1, delaySeconds * sampleRate); // minimum 1 sample delay
 	float mDelayFeedbackGain = *mState.getRawParameterValue("delay_feedback");
