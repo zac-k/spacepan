@@ -4,6 +4,10 @@
               pluginFormats="buildVST3" pluginManufacturer="ZacK">
   <MAINGROUP id="VUMoM3" name="SpacePan">
     <GROUP id="{261BCDE9-08FB-1CA5-8C62-B1BC32715FEF}" name="Source">
+      <FILE id="yb163t" name="StandardButton.cpp" compile="1" resource="0"
+            file="Source/StandardButton.cpp"/>
+      <FILE id="NqVBIZ" name="StandardButton.h" compile="0" resource="0"
+            file="Source/StandardButton.h"/>
       <FILE id="daoIrA" name="Envelope.cpp" compile="1" resource="0" file="Source/Envelope.cpp"/>
       <FILE id="z9Efp9" name="Envelope.h" compile="0" resource="0" file="Source/Envelope.h"/>
       <FILE id="YtRJgN" name="CustomLookAndFeel.cpp" compile="1" resource="0"
@@ -28,6 +32,8 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="fKHiQ3" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="YieCFY" name="sig.png" compile="1" resource="1" file="Resource/sig.png"/>
+    <FILE id="NYZoqM" name="sigDown.png" compile="1" resource="1" file="Resource/sigDown.png"/>
     <FILE id="fGXxlv" name="background.png" compile="1" resource="1" file="Resource/background.png"/>
     <FILE id="TtQGCd" name="cro_glass.png" compile="1" resource="1" file="Resource/cro_glass.png"/>
     <FILE id="NGWbbE" name="delayOnButtonOff.png" compile="0" resource="1"

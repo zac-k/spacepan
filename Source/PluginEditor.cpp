@@ -214,9 +214,16 @@ void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
 		{
 			mDelayDiscreteTimeKnob.setVisible(true);
 			mDelayTimeKnob.setVisible(false);
+			mDelayTempoLockButton.setImages(true, true, true, delayOnButtonOnImg,
+				1.0f, Colours::transparentBlack, delayOnButtonOnImg, 1.0f, Colours::transparentBlack,
+				delayOnButtonOnImg, 1.0f, Colours::transparentBlack);
+			mDelayTempoLockButton.setCentrePosition(200, 100);
 		}
 		else
 		{
+			mDelayTempoLockButton.setImages(true, true, true, delayOnButtonOffImg,
+				1.0f, Colours::transparentBlack, delayOnButtonOffImg, 1.0f, Colours::transparentBlack,
+				delayOnButtonOffImg, 1.0f, Colours::transparentBlack);
 			mDelayDiscreteTimeKnob.setVisible(false);
 			mDelayTimeKnob.setVisible(true);
 		}

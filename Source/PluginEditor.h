@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "StandardRotary.h"
+#include "StandardButton.h"
 //#include "utils.h"
 
 //==============================================================================
@@ -98,7 +99,7 @@ private:
 	//ImageButton mDelayOnButton;
 	StandardRotary mDelayFeedbackKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayFeedbackAttachment;
-	ImageButton mDelayTempoLockButton;
+	StandardButton mDelayTempoLockButton;
 	AudioProcessorValueTreeState::ButtonAttachment mDelayTempoLockAttachment;
 	StandardRotary mDelayTimeKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayTimeAttachment;
