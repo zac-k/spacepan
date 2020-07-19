@@ -19,6 +19,24 @@ const float SOUND_SPEED = 343.0; // m/s
 const float FILTER_SKEW = 0.25f;
 
 
+// TODO: this should be declared in the header file, but I'm not sure where to initialise it so it's ready for
+// the constructor.
+NormalisableRange<float> discreteTimeRange(0.03125f,
+	8.0f,
+	[](float rangeStart, float rangeEnd, float valueToRemap)
+{
+	return jmap(valueToRemap, rangeStart, rangeEnd);
+},
+[](auto rangeStart, auto rangeEnd, auto valueToRemap)  // maps 0..1 values to real world
+{ return jmap(valueToRemap, rangeStart, rangeEnd, 0.0f, 1.0f); },
+[](auto rangeStart, auto rangeEnd, auto valueToRemap)  // maps real world to legal real world
+{
+	float vals[] = { 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f };
+	int nVals = sizeof(vals) / sizeof(vals[0]);
+	return vals[(int)floor((valueToRemap - rangeStart)/(rangeEnd-rangeStart) * (nVals-1))];  // e.g. make sure, only one digit after comma
+});
+
+
 //==============================================================================
 SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state",
 	{ std::make_unique<AudioParameterFloat>("rev_mix", "Reverb Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
@@ -34,6 +52,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 
 	  std::make_unique<AudioParameterFloat>("delay_feedback", "Delay Feedback", NormalisableRange<float>(0.005f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_time", "Delay Time", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+	  std::make_unique<AudioParameterFloat>("delay_time_discrete", "Delay Time", discreteTimeRange, 1.0f),
 	  std::make_unique<AudioParameterFloat>("delay_lowpass", "Delay High Cut", utils::frequencyRange(100.0f, 2.0e4f), 2.0e3f),
 	  std::make_unique<AudioParameterFloat>("delay_lowpass_Q", "Delay High Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("delay_highpass", "Delay Low Cut", utils::frequencyRange<float>(100.0f, 2.0e4f), 2.0e2f),
@@ -73,7 +92,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 
 void SpacePanAudioProcessor::parameterChanged(const String &parameterID, float newValue)
 {
-
+	
 	
 }
 
@@ -159,6 +178,8 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	mState.addParameterListener("sc_sustain_level", this);
 	mState.addParameterListener("sc_release", this);
 	mState.addParameterListener("sc_release_shape", this);
+
+	
 	
 	
 	const int numInputChannels = getTotalNumInputChannels();
@@ -221,7 +242,7 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	//}
 
 	
-
+	
 	
 
 }
@@ -631,16 +652,16 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	delayDry.makeCopyOf(samples);
 	float delaySeconds;
 	// TODO: This is for testing tempo-locked delay
-	float delayInBars = 3.0 / 8.0;
+	float delayInBars = *mState.getRawParameterValue("delay_time_discrete");
 	AudioPlayHead::CurrentPositionInfo cpi;
 	AudioPlayHead *playHead = getPlayHead();
 	playHead->getCurrentPosition(cpi);
 
 
-	bool isTempoLocked = *mState.getRawParameterValue("delay_tempo_lock");
+	mIsTempoLocked = *mState.getRawParameterValue("delay_tempo_lock");
 	//delaySeconds = isTempoLocked ? (delayInBars * 60.0 * 4 / cpi.bpm) : (*mState.getRawParameterValue("delay_time"));
 
-	if (isTempoLocked)
+	if (mIsTempoLocked)
 	{
 		
 		delaySeconds = delayInBars * 60.0 * 4.0 / cpi.bpm;

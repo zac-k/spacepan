@@ -93,16 +93,18 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 	//==============================================================================
-	const float DELAY_MAX = 2.0; // seconds
+	const float DELAY_MAX = 10.0; // seconds
 	
 
 
 	//==============================================================================
 	AudioProcessorValueTreeState mState;
-
+	bool mIsTempoLocked;
+	
+		//{ 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f }
 private:
 
-
+	//StringArray::StringArray("1/32", "1/16", "1/8", "1/4", "1/2", "1", "2")
 
 	void saturate(float &sample, float gain);
 	void saturate(AudioBuffer<float> &samples, float gain, int type);

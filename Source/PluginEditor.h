@@ -19,7 +19,8 @@
 /**
 */
 class SpacePanAudioProcessorEditor  : public AudioProcessorEditor,
-									  private StandardRotary::Listener
+									  private StandardRotary::Listener,
+									  private Button::Listener
 {
 public:
     SpacePanAudioProcessorEditor (SpacePanAudioProcessor&);
@@ -31,9 +32,11 @@ public:
 
 
 	void sliderValueChanged(Slider* slider) override;
-
+	//virtual void buttonStateChanged(Button* button) override;
 	//TextEditor debugText;
 	//
+	void buttonClicked(Button* button) override;
+	void buttonStateChanged(Button* button) override;
 
 	TooltipWindow mToolTipWindow;
 
@@ -88,8 +91,12 @@ private:
 	//ImageButton mDelayOnButton;
 	StandardRotary mDelayFeedbackKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayFeedbackAttachment;
+	ToggleButton mDelayTempoLockButton;
+	AudioProcessorValueTreeState::ButtonAttachment mDelayTempoLockAttachment;
 	StandardRotary mDelayTimeKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayTimeAttachment;
+	StandardRotary mDelayDiscreteTimeKnob;
+	AudioProcessorValueTreeState::SliderAttachment mDelayDiscreteTimeAttachment;
 	StandardRotary mDelayLowPassKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayLowPassAttachment;
 	StandardRotary mDelayLowPassQKnob;

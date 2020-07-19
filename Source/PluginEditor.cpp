@@ -29,7 +29,9 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mHeadWidthAttachment(p.mState, "head_width", mHeadWidthSlider),
 
 	mDelayFeedbackAttachment(p.mState, "delay_feedback", mDelayFeedbackKnob),
+	mDelayTempoLockAttachment(p.mState, "delay_tempo_lock", mDelayTempoLockButton),
 	mDelayTimeAttachment(p.mState, "delay_time", mDelayTimeKnob),
+	mDelayDiscreteTimeAttachment(p.mState, "delay_time_discrete", mDelayDiscreteTimeKnob),
 	mDelayLowPassAttachment(p.mState, "delay_lowpass", mDelayLowPassKnob),
 	mDelayLowPassQAttachment(p.mState, "delay_lowpass_Q", mDelayLowPassQKnob),
 	mDelayHighPassAttachment(p.mState, "delay_highpass", mDelayHighPassKnob),
@@ -84,6 +86,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mHeadWidthSlider, "HeadWidthKnob", 0.6, 0.15, knobImgPan, "Head width");
 	addControl(this, mDelayFeedbackKnob, "DelayFeedbackKnob", 0.25, 0.5, knobImg, "Feedback");
 	addControl(this, mDelayTimeKnob, "DelayTimeKnob", 0.15, 0.5, knobImg, "Time");
+	addControl(this, mDelayDiscreteTimeKnob, "DelayDiscreteTimeKnob", 0.15, 0.5, knobImg, "Time");
 	addControl(this, mDelayLowPassKnob, "DelayLowPassKnob", 0.33, 0.5, knobImgPan, "Lowpass");
 	mDelayLowPassQKnob.setDim(32, 32);
 	addControl(this, mDelayLowPassQKnob, "DelayLowPassQKnob", 0.33, 0.5, knobImg, "Lowpass Q");
@@ -117,12 +120,25 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	//mDelayTimeKnob.hideTextBox(false);
 	//mDelayTimeKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxAbove, true, 100, 20);
 	
-
+	if (p.mIsTempoLocked)
+	{
+		mDelayTimeKnob.setVisible(false);
+	}
+	else
+	{
+		mDelayDiscreteTimeKnob.setVisible(false);
+	}
 
 	// Buttons
 	//mDelayOnButton.setBounds(100, 100, 20, 80);
 	//mDelayOnButton.setImages(false, false, true,);
 	//addAndMakeVisible(mDelayOnButton);
+	mDelayTempoLockButton.setButtonText("Lock Temp");
+	mDelayTempoLockButton.setBounds(200, 50, 100, 100);
+
+	// TODO: adding the listener crashes the plugin. Why?
+	mDelayTempoLockButton.addListener(this);
+	addAndMakeVisible(mDelayTempoLockButton);
 
 
 
@@ -155,6 +171,8 @@ SpacePanAudioProcessorEditor::~SpacePanAudioProcessorEditor()
 //	T::mouseMove(const MouseEvent &)
 //}
 
+
+
 void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
 	bool isSCcontrol = (slider == &mSCattackKnob) || (slider == &mSCattackShapeKnob) ||
@@ -165,6 +183,26 @@ void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 	{
 		constructADSRplot();
 		adsrPlot.repaint();
+	}
+}
+
+void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
+{
+
+}
+
+void SpacePanAudioProcessorEditor::buttonStateChanged(Button* button)
+{
+	// TODO: add an if statement to only do this for the tempo lock button
+	if (button->getToggleState())
+	{
+		mDelayDiscreteTimeKnob.setVisible(true);
+		mDelayTimeKnob.setVisible(false);
+	}
+	else
+	{
+		mDelayDiscreteTimeKnob.setVisible(false);
+		mDelayTimeKnob.setVisible(true);
 	}
 }
 
