@@ -20,7 +20,7 @@ const float FILTER_SKEW = 0.25f;
 
 
 // TODO: this should be declared in the header file, but I'm not sure where to initialise it so it's ready for
-// the constructor.
+// the constructor. ...probably can initialise it in constructor before mState!!!
 NormalisableRange<float> discreteTimeRange(0.03125f,
 	8.0f,
 	[](float rangeStart, float rangeEnd, float valueToRemap)

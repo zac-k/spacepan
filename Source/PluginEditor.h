@@ -72,6 +72,13 @@ private:
 	Image knobImgPan = ImageCache::getFromMemory(BinaryData::animation_knob2_png,
 		BinaryData::animation_knob2_pngSize);
 
+	Image sigImg = ImageCache::getFromMemory(BinaryData::sig_png,
+		BinaryData::sig_pngSize);
+	Image sigDownImg = ImageCache::getFromMemory(BinaryData::sigDown_png,
+		BinaryData::sigDown_pngSize);
+
+	ImageButton mSigButton;
+
 	// Load a switch image for testing
 
 	Image delayOnButtonOnImg = ImageCache::getFromMemory(BinaryData::delayOnButtonOn_png,
@@ -91,7 +98,7 @@ private:
 	//ImageButton mDelayOnButton;
 	StandardRotary mDelayFeedbackKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayFeedbackAttachment;
-	ToggleButton mDelayTempoLockButton;
+	ImageButton mDelayTempoLockButton;
 	AudioProcessorValueTreeState::ButtonAttachment mDelayTempoLockAttachment;
 	StandardRotary mDelayTimeKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayTimeAttachment;

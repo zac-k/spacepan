@@ -13,6 +13,10 @@
 #include "PluginEditor.h"
 //#include "utils.h"
 
+// For opening hyperlink
+//#include <windows.h>
+//#include <shellapi.h>
+
 
 //==============================================================================
 SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcessor& p)
@@ -133,8 +137,13 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	//mDelayOnButton.setBounds(100, 100, 20, 80);
 	//mDelayOnButton.setImages(false, false, true,);
 	//addAndMakeVisible(mDelayOnButton);
-	mDelayTempoLockButton.setButtonText("Lock Temp");
-	mDelayTempoLockButton.setBounds(200, 50, 100, 100);
+	mDelayTempoLockButton.setName("delayTempoLockButton");
+
+	
+	mDelayTempoLockButton.setImages(true, true, true, delayOnButtonOnImg,
+		1.0f, Colours::transparentBlack, delayOnButtonOnImg, 1.0f, Colours::transparentBlack,
+		delayOnButtonOnImg, 1.0f, Colours::transparentBlack);
+	mDelayTempoLockButton.setCentrePosition(200, 100);
 
 	// TODO: adding the listener crashes the plugin. Why?
 	mDelayTempoLockButton.addListener(this);
@@ -156,6 +165,15 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	croGlass.setBounds(540, 470, croGlassImage.getWidth(), croGlassImage.getHeight());
 	addAndMakeVisible(croGlass);
 
+	mSigButton.setName("sigButton");
+	mSigButton.setImages(true, true, true, sigImg,
+		1.0f, Colours::transparentBlack, sigImg, 1.0f, Colours::transparentBlack,
+		sigDownImg, 1.0f, Colours::transparentBlack);
+	mSigButton.setCentrePosition(770, 100);
+	mSigButton.setSize(150, 50);
+
+	mSigButton.addListener(this);
+	addAndMakeVisible(mSigButton);
 
 }
 
@@ -188,22 +206,31 @@ void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 
 void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
 {
+	if (button->getName() == "delayTempoLockButton")
+	{
+		
+		button->setToggleState(!button->getToggleState(), dontSendNotification);
+		if (button->getToggleState())
+		{
+			mDelayDiscreteTimeKnob.setVisible(true);
+			mDelayTimeKnob.setVisible(false);
+		}
+		else
+		{
+			mDelayDiscreteTimeKnob.setVisible(false);
+			mDelayTimeKnob.setVisible(true);
+		}
+	}
+	else if (button->getName() == "sigButton")
+	{
+		//ShellExecute(0, 0, "zac-k.github.io", 0, 0, SW_SHOW);
+	}
 
 }
 
 void SpacePanAudioProcessorEditor::buttonStateChanged(Button* button)
 {
-	// TODO: add an if statement to only do this for the tempo lock button
-	if (button->getToggleState())
-	{
-		mDelayDiscreteTimeKnob.setVisible(true);
-		mDelayTimeKnob.setVisible(false);
-	}
-	else
-	{
-		mDelayDiscreteTimeKnob.setVisible(false);
-		mDelayTimeKnob.setVisible(true);
-	}
+	
 }
 
 //==============================================================================
