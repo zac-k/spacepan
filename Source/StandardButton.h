@@ -15,4 +15,12 @@ class StandardButton : public ImageButton
 {
 	// Constructor
 	using ImageButton::ImageButton;
+public:
+	void setOnOffImages(Image onImage, Image offImage);
+	void setOnOffImages(Image onOffImage, bool isVertical=true);
+	void displayAsOn(bool isOn);
+
+private:
+	Image mOnImage;
+	Image mOffImage;
 };

@@ -32,6 +32,8 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="fKHiQ3" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="NJfWns" name="delayTempoLockOnOff.png" compile="1" resource="1"
+          file="Resource/delayTempoLockOnOff.png"/>
     <FILE id="YieCFY" name="sig.png" compile="1" resource="1" file="Resource/sig.png"/>
     <FILE id="NYZoqM" name="sigDown.png" compile="1" resource="1" file="Resource/sigDown.png"/>
     <FILE id="fGXxlv" name="background.png" compile="1" resource="1" file="Resource/background.png"/>

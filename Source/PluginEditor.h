@@ -87,6 +87,9 @@ private:
 	Image delayOnButtonOffImg = ImageCache::getFromMemory(BinaryData::delayOnButtonOff_png,
 		BinaryData::delayOnButtonOff_pngSize);
 
+	Image delayTempoLockButtonImg = ImageCache::getFromMemory(BinaryData::delayTempoLockOnOff_png,
+		BinaryData::delayTempoLockOnOff_pngSize);
+
 
 	// Global controls
 	StandardRotary mPanKnob;

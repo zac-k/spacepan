@@ -139,10 +139,11 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	//addAndMakeVisible(mDelayOnButton);
 	mDelayTempoLockButton.setName("delayTempoLockButton");
 
-	
-	mDelayTempoLockButton.setImages(true, true, true, delayOnButtonOnImg,
+	mDelayTempoLockButton.setOnOffImages(delayTempoLockButtonImg);
+	/*mDelayTempoLockButton.setImages(true, true, true, delayOnButtonOnImg,
 		1.0f, Colours::transparentBlack, delayOnButtonOnImg, 1.0f, Colours::transparentBlack,
-		delayOnButtonOnImg, 1.0f, Colours::transparentBlack);
+		delayOnButtonOnImg, 1.0f, Colours::transparentBlack);*/
+	mDelayTempoLockButton.displayAsOn(true);
 	mDelayTempoLockButton.setCentrePosition(200, 100);
 
 	// TODO: adding the listener crashes the plugin. Why?
@@ -214,16 +215,11 @@ void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
 		{
 			mDelayDiscreteTimeKnob.setVisible(true);
 			mDelayTimeKnob.setVisible(false);
-			mDelayTempoLockButton.setImages(true, true, true, delayOnButtonOnImg,
-				1.0f, Colours::transparentBlack, delayOnButtonOnImg, 1.0f, Colours::transparentBlack,
-				delayOnButtonOnImg, 1.0f, Colours::transparentBlack);
-			mDelayTempoLockButton.setCentrePosition(200, 100);
+			mDelayTempoLockButton.displayAsOn(true);
 		}
 		else
 		{
-			mDelayTempoLockButton.setImages(true, true, true, delayOnButtonOffImg,
-				1.0f, Colours::transparentBlack, delayOnButtonOffImg, 1.0f, Colours::transparentBlack,
-				delayOnButtonOffImg, 1.0f, Colours::transparentBlack);
+			mDelayTempoLockButton.displayAsOn(false);
 			mDelayDiscreteTimeKnob.setVisible(false);
 			mDelayTimeKnob.setVisible(true);
 		}
