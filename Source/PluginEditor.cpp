@@ -13,9 +13,7 @@
 #include "PluginEditor.h"
 //#include "utils.h"
 
-// For opening hyperlink
-//#include <windows.h>
-//#include <shellapi.h>
+
 
 
 //==============================================================================
@@ -61,17 +59,18 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
     setSize (852, 600);
 
 	// Debug textbox
-	/*debugText.setBounds(0, 0, 100, 50);
-	addAndMakeVisible(debugText);
-	debugText.setText("test");*/
+	//debugText.setBounds(0, 0, 100, 50);
+	//addAndMakeVisible(debugText);
+	//debugText.setText("test");
 	//debugText.setText((String)(utils::modulo(-5, 7)));
 
 	/*mHeadWidthSlider.setRange(0.0, 10.0);
 	mHeadWidthSlider.setValue(0.15);
 	mHeadWidthSlider.setBounds(600, 200, 20, 100);
 	//mHeadWidthSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);*/
-	
-
+	/*mDelayDiscreteTimeKnob.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
+	mDelayDiscreteTimeKnob.setBounds(20, 20, 200, 200);
+	addAndMakeVisible(mDelayDiscreteTimeKnob);*/
 
 	
 	// Initialise and add knobs to GUI
@@ -140,13 +139,11 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelayTempoLockButton.setName("delayTempoLockButton");
 
 	mDelayTempoLockButton.setOnOffImages(delayTempoLockButtonImg);
-	/*mDelayTempoLockButton.setImages(true, true, true, delayOnButtonOnImg,
-		1.0f, Colours::transparentBlack, delayOnButtonOnImg, 1.0f, Colours::transparentBlack,
-		delayOnButtonOnImg, 1.0f, Colours::transparentBlack);*/
+	
 	mDelayTempoLockButton.displayAsOn(true);
 	mDelayTempoLockButton.setCentrePosition(200, 100);
 
-	// TODO: adding the listener crashes the plugin. Why?
+	
 	mDelayTempoLockButton.addListener(this);
 	addAndMakeVisible(mDelayTempoLockButton);
 
@@ -226,7 +223,9 @@ void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
 	}
 	else if (button->getName() == "sigButton")
 	{
-		//ShellExecute(0, 0, "zac-k.github.io", 0, 0, SW_SHOW);
+		// For opening hyperlink
+		
+		//
 	}
 
 }

@@ -11,9 +11,12 @@
 #pragma once
 #include "JuceHeader.h"
 
+
 namespace utils
 {
 
+//#include <windows.h>
+//#include <shellapi.h>
 	int modulo(int val1, int val2);
 
 
@@ -22,5 +25,7 @@ namespace utils
 
 	template <typename T>
 	NormalisableRange<T> frequencyRange(T min, T max, T interval = 0.0);
+
+	//void openHyperlink(const char *url);
 
 };

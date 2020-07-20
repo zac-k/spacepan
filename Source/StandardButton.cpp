@@ -19,8 +19,8 @@ void StandardButton::setOnOffImages(Image onImage, Image offImage)
 void StandardButton::setOnOffImages(Image onOffImage, bool isVertical)
 {
 	// TODO: implement isVertical == false
-	Rectangle<int> onArea = Rectangle<int>(0, 0, onOffImage.getWidth(), onOffImage.getHeight() / 2);
-	Rectangle<int> offArea = Rectangle<int>(0, onOffImage.getHeight() / 2 - 1, onOffImage.getWidth(), onOffImage.getHeight() / 2);
+	Rectangle<int> offArea = Rectangle<int>(0, 0, onOffImage.getWidth(), onOffImage.getHeight() / 2);
+	Rectangle<int> onArea = Rectangle<int>(0, onOffImage.getHeight() / 2 - 1, onOffImage.getWidth(), onOffImage.getHeight() / 2);
 	this->mOnImage = onOffImage.getClippedImage(onArea);
 	this->mOffImage = onOffImage.getClippedImage(offArea);
 }

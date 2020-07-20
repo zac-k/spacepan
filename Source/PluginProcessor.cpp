@@ -52,7 +52,8 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 
 	  std::make_unique<AudioParameterFloat>("delay_feedback", "Delay Feedback", NormalisableRange<float>(0.005f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_time", "Delay Time", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-	  std::make_unique<AudioParameterFloat>("delay_time_discrete", "Delay Time", discreteTimeRange, 1.0f),
+	std::make_unique<AudioParameterInt>("delay_time_discrete", "Delay Time", 0, 8, 1),
+	  //std::make_unique<AudioParameterFloat>("delay_time_discrete", "Delay Time", discreteTimeRange, 1.0f),
 	  std::make_unique<AudioParameterFloat>("delay_lowpass", "Delay High Cut", utils::frequencyRange(100.0f, 2.0e4f), 2.0e3f),
 	  std::make_unique<AudioParameterFloat>("delay_lowpass_Q", "Delay High Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("delay_highpass", "Delay Low Cut", utils::frequencyRange<float>(100.0f, 2.0e4f), 2.0e2f),
@@ -652,7 +653,8 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	delayDry.makeCopyOf(samples);
 	float delaySeconds;
 	// TODO: This is for testing tempo-locked delay
-	float delayInBars = *mState.getRawParameterValue("delay_time_discrete");
+	float delaysInBars[] = { 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f };
+	float delayInBars = delaysInBars[(int)*mState.getRawParameterValue("delay_time_discrete")];
 	AudioPlayHead::CurrentPositionInfo cpi;
 	AudioPlayHead *playHead = getPlayHead();
 	playHead->getCurrentPosition(cpi);
