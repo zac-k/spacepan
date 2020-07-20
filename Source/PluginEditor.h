@@ -37,7 +37,7 @@ public:
 	TextButton debugText;
 	//
 	void buttonClicked(Button* button) override;
-	void buttonStateChanged(Button* button) override;
+	//void buttonStateChanged(Button* button) override;
 
 	TooltipWindow mToolTipWindow;
 

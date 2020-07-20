@@ -43,6 +43,6 @@ int DiscreteParam<T>::getNumParams()
 template<class T>
 auto DiscreteParam<T>::labelsLambda() 
 {
-	return [this](int val, int maxStrLen) {return this->mNames[val]; };
+	return [this](int val, int) {return this->mNames[val]; };
 }
 

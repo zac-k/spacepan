@@ -13,7 +13,7 @@
 #include "utils.cpp"
 #include <vector>
 
-const float PI = 3.1415926535897932384626;
+const float PI = 3.1415926535897932384626f;
 const float HEAD_WIDTH_MAX = 10; //metres
 const float ROOM_SIZE_MAX = 100; //metres
 const float SOUND_SPEED = 343.0; // m/s
@@ -28,11 +28,11 @@ const float FILTER_SKEW = 0.25f;
 // TODO: this should be declared in the header file, but I'm not sure where to initialise it so it's ready for
 // the constructor. ...probably can initialise it in constructor before mState!!!
 
-auto stringFromInt = [](int val, int maxStrLen)
-{
-	String delayInBarsArr[] = { "1/32", "1/16", "1/8", "1/4", "1/2", "1", "2", "4", "8" };
-	return delayInBarsArr[val];
-};
+//auto stringFromInt = [](int val, int maxStrLen)
+//{
+//	String delayInBarsArr[] = { "1/32", "1/16", "1/8", "1/4", "1/2", "1", "2", "4", "8" };
+//	return delayInBarsArr[val];
+//};
 
 
 //==============================================================================
