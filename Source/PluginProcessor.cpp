@@ -11,6 +11,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "utils.cpp"
+#include <vector>
 
 const float PI = 3.1415926535897932384626;
 const float HEAD_WIDTH_MAX = 10; //metres
@@ -19,24 +20,13 @@ const float SOUND_SPEED = 343.0; // m/s
 const float FILTER_SKEW = 0.25f;
 
 
-// TODO: this should be declared in the header file, but I'm not sure where to initialise it so it's ready for
-// the constructor. ...probably can initialise it in constructor before mState!!!
-NormalisableRange<float> discreteTimeRange(0.03125f,
-	8.0f,
-	[](float rangeStart, float rangeEnd, float valueToRemap)
-{
-	return jmap(valueToRemap, rangeStart, rangeEnd);
-},
-[](auto rangeStart, auto rangeEnd, auto valueToRemap)  // maps 0..1 values to real world
-{ return jmap(valueToRemap, rangeStart, rangeEnd, 0.0f, 1.0f); },
-[](auto rangeStart, auto rangeEnd, auto valueToRemap)  // maps real world to legal real world
-{
-	float vals[] = { 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f };
-	int nVals = sizeof(vals) / sizeof(vals[0]);
-	return vals[(int)floor((valueToRemap - rangeStart)/(rangeEnd-rangeStart) * (nVals-1))];  // e.g. make sure, only one digit after comma
-});
+
+
 
 //float delaysInBars[] = { 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f };
+
+// TODO: this should be declared in the header file, but I'm not sure where to initialise it so it's ready for
+// the constructor. ...probably can initialise it in constructor before mState!!!
 
 auto stringFromInt = [](int val, int maxStrLen)
 {
@@ -46,21 +36,26 @@ auto stringFromInt = [](int val, int maxStrLen)
 
 
 //==============================================================================
-SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state",
-	{ std::make_unique<AudioParameterFloat>("rev_mix", "Reverb Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-	  std::make_unique<AudioParameterFloat>("rev_lowpass", "Reverb Lowpass", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
-	  std::make_unique<AudioParameterFloat>("rev_lowpass_Q", "Reverb Lowpass Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
-	  std::make_unique<AudioParameterFloat>("rev_highpass", "Reverb Highpass", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
-	  std::make_unique<AudioParameterFloat>("rev_sc_amount", "Reverb Sidechain Amount", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
-	  std::make_unique<AudioParameterFloat>("rev_highpass_Q", "Reverb Highpass Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
+SpacePanAudioProcessor::SpacePanAudioProcessor() :
+	//delayInBarsDP(delayInBars, delayInBarsStr),
 
-	  std::make_unique<AudioParameterFloat>("pan", "Pan", NormalisableRange<float>(-1.0f, 1.0f), 0.0f),
-	  std::make_unique<AudioParameterFloat>("room_size", "Room Size", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
-	  std::make_unique<AudioParameterFloat>("head_width", "Head Width", NormalisableRange<float>(0.0f, 10.0f), 0.15f),
+	mState(*this, nullptr, "state",
+		{ std::make_unique<AudioParameterFloat>("rev_mix", "Reverb Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+		  std::make_unique<AudioParameterFloat>("rev_lowpass", "Reverb Lowpass", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
+		  std::make_unique<AudioParameterFloat>("rev_lowpass_Q", "Reverb Lowpass Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
+		  std::make_unique<AudioParameterFloat>("rev_highpass", "Reverb Highpass", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
+		  std::make_unique<AudioParameterFloat>("rev_sc_amount", "Reverb Sidechain Amount", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
+		  std::make_unique<AudioParameterFloat>("rev_highpass_Q", "Reverb Highpass Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 
-	  std::make_unique<AudioParameterFloat>("delay_feedback", "Delay Feedback", NormalisableRange<float>(0.005f, 1.0f), 0.5f),
-	  std::make_unique<AudioParameterFloat>("delay_time", "Delay Time", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-	std::make_unique<AudioParameterInt>("delay_time_discrete", "Delay Time", 0, 8, 1, String(), stringFromInt),
+		  std::make_unique<AudioParameterFloat>("pan", "Pan", NormalisableRange<float>(-1.0f, 1.0f), 0.0f),
+		  std::make_unique<AudioParameterFloat>("room_size", "Room Size", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
+		  std::make_unique<AudioParameterFloat>("head_width", "Head Width", NormalisableRange<float>(0.0f, 10.0f), 0.15f),
+
+		  std::make_unique<AudioParameterFloat>("delay_feedback", "Delay Feedback", NormalisableRange<float>(0.005f, 1.0f), 0.5f),
+		  std::make_unique<AudioParameterFloat>("delay_time", "Delay Time", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+
+		  //std::make_unique<AudioParameterInt>("delay_time_discrete", "Delay Time", 0, 8, 1, String(), stringFromInt),// delayInBarsDP.labelsLambda()),
+	  std::make_unique<AudioParameterInt>("delay_time_discrete", "Delay Time", 0, delayInBarsDP.getNumParams() - 1, 1, String(), delayInBarsDP.labelsLambda()),
 	  std::make_unique<AudioParameterFloat>("delay_lowpass", "Delay High Cut", utils::frequencyRange(100.0f, 2.0e4f), 2.0e3f),
 	  std::make_unique<AudioParameterFloat>("delay_lowpass_Q", "Delay High Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("delay_highpass", "Delay Low Cut", utils::frequencyRange<float>(100.0f, 2.0e4f), 2.0e2f),
@@ -659,9 +654,9 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	AudioBuffer<float> delayDry;
 	delayDry.makeCopyOf(samples);
 	float delaySeconds;
-	// TODO: This is for testing tempo-locked delay
 	float delaysInBars[] = { 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f };
-	float delayInBars = delaysInBars[(int)*mState.getRawParameterValue("delay_time_discrete")];
+	// TODO: replace with version from DiscreteParam class
+	float delayInBarsTemp = delaysInBars[(int)*mState.getRawParameterValue("delay_time_discrete")];
 	AudioPlayHead::CurrentPositionInfo cpi;
 	AudioPlayHead *playHead = getPlayHead();
 	playHead->getCurrentPosition(cpi);
@@ -673,7 +668,7 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	if (mIsTempoLocked)
 	{
 		
-		delaySeconds = delayInBars * 60.0 * 4.0 / cpi.bpm;
+		delaySeconds = delayInBarsTemp * 60.0 * 4.0 / cpi.bpm;
 	}
 	else
 	{

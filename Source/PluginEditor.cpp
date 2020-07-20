@@ -59,9 +59,9 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
     setSize (852, 600);
 
 	// Debug textbox
-	//debugText.setBounds(0, 0, 100, 50);
-	//addAndMakeVisible(debugText);
-	//debugText.setText("test");
+	debugText.setBounds(0, 0, 150, 100);
+	addAndMakeVisible(debugText);
+	debugText.setButtonText("Debug\nText");
 	//debugText.setText((String)(utils::modulo(-5, 7)));
 
 	/*mHeadWidthSlider.setRange(0.0, 10.0);

@@ -34,7 +34,7 @@ public:
 
 	void sliderValueChanged(Slider* slider) override;
 	//virtual void buttonStateChanged(Button* button) override;
-	//TextEditor debugText;
+	TextButton debugText;
 	//
 	void buttonClicked(Button* button) override;
 	void buttonStateChanged(Button* button) override;

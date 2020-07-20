@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "AudioBufferWithPos.cpp"
 #include "Envelope.h"
+#include "DiscreteParam.cpp"
 
 
 
@@ -95,7 +96,10 @@ public:
 	//==============================================================================
 	const float DELAY_MAX = 10.0; // seconds
 	
-
+	// TODO: Why does plugin crash if the following is private?
+	float delayInBars[9]{ 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f };
+	String delayInBarsStr[9]{ "1/32", "1/16", "1/8", "1/4", "1/2", "1", "2", "4", "8" };
+	DiscreteParam<float> delayInBarsDP{ delayInBars, delayInBarsStr, 9 };
 
 	//==============================================================================
 	AudioProcessorValueTreeState mState;
@@ -105,6 +109,8 @@ public:
 private:
 
 	//StringArray::StringArray("1/32", "1/16", "1/8", "1/4", "1/2", "1", "2")
+
+	
 
 	void saturate(float &sample, float gain);
 	void saturate(AudioBuffer<float> &samples, float gain, int type);
