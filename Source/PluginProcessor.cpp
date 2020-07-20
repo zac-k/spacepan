@@ -36,6 +36,14 @@ NormalisableRange<float> discreteTimeRange(0.03125f,
 	return vals[(int)floor((valueToRemap - rangeStart)/(rangeEnd-rangeStart) * (nVals-1))];  // e.g. make sure, only one digit after comma
 });
 
+//float delaysInBars[] = { 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f };
+
+auto stringFromInt = [](int val, int maxStrLen)
+{
+	String delayInBarsArr[] = { "1/32", "1/16", "1/8", "1/4", "1/2", "1", "2", "4", "8" };
+	return delayInBarsArr[val];
+};
+
 
 //==============================================================================
 SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state",
@@ -52,8 +60,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() : mState(*this, nullptr, "state
 
 	  std::make_unique<AudioParameterFloat>("delay_feedback", "Delay Feedback", NormalisableRange<float>(0.005f, 1.0f), 0.5f),
 	  std::make_unique<AudioParameterFloat>("delay_time", "Delay Time", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-	std::make_unique<AudioParameterInt>("delay_time_discrete", "Delay Time", 0, 8, 1),
-	  //std::make_unique<AudioParameterFloat>("delay_time_discrete", "Delay Time", discreteTimeRange, 1.0f),
+	std::make_unique<AudioParameterInt>("delay_time_discrete", "Delay Time", 0, 8, 1, String(), stringFromInt),
 	  std::make_unique<AudioParameterFloat>("delay_lowpass", "Delay High Cut", utils::frequencyRange(100.0f, 2.0e4f), 2.0e3f),
 	  std::make_unique<AudioParameterFloat>("delay_lowpass_Q", "Delay High Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("delay_highpass", "Delay Low Cut", utils::frequencyRange<float>(100.0f, 2.0e4f), 2.0e2f),
