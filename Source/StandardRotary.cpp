@@ -33,6 +33,25 @@ void StandardRotary::setDim(int width, int height)
 	this->height = height;
 }
 
+void StandardRotary::sendToDisplay(Label &dataLabel, Label &unitsLabel, float multiplier)
+{
+	
+	std::stringstream ss;
+	ss << std::fixed << std::setprecision(0) << this->getValue() * multiplier;
+	String text = ss.str();
+	dataLabel.setText(text, NotificationType::sendNotification);
+	unitsLabel.setText("ms", NotificationType::dontSendNotification);
+	
+}
+
+void StandardRotary::sendToDisplay(Label &dataLabel, Label &unitsLabel, std::vector<String> names)
+{
+	
+	String text = names[this->getValue()];
+	dataLabel.setText(text, NotificationType::sendNotification);
+	unitsLabel.setText("bars", NotificationType::dontSendNotification);
+	
+}
 
 
 /*	void StandardRotary::init(float min, float max, float value, int xpos, int ypos, Image sprite)

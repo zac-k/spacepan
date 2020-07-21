@@ -25,7 +25,8 @@ public:
 	// Public methods
 	void init(String name, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg);
 	void setDim(int width, int height);
-	//void sendToDisplay(Label recipient, )
+	void sendToDisplay(Label &dataLabel, Label &unitsLabel, float multiplier = 1.0f);
+	void sendToDisplay(Label &dataLabel, Label &unitsLabel, std::vector<String>);
 
 private:
 

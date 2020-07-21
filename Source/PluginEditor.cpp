@@ -174,16 +174,16 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mSigButton.addListener(this);
 	addAndMakeVisible(mSigButton);
 
-	mDelayTimeUnitsText.setBounds(155, 250, 60, 20);
+	mDelayTimeUnitsText.setBounds(155, 250, 75, 20);
 	mDelayTimeUnitsText.setEditable(false);
 	mDelayTimeUnitsText.setColour(mDelayTimeUnitsText.textColourId, Colours::darkred);
 	mDelayTimeUnitsText.setJustificationType(Justification::centredRight);
-	mDelayTimeText.setBounds(155, 250, 60, 20);
+	mDelayTimeText.setBounds(155, 250, 75, 20);
 	mDelayTimeText.setEditable(true);
 	mDelayTimeText.setColour(mDelayTimeText.textColourId, Colours::darkred);
 
 	
-	//mDelayTimeText.setColour(mDelayTimeText.outlineColourId, Colours::black);
+	
 	//TODO: Add custom font with 7-segment style (see comment below) numbers. Must be monospaced.
 	// Might need to be dot matrix to allow letters
 
@@ -192,6 +192,16 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelayTimeText.setText("testing", NotificationType::sendNotification);
 	addAndMakeVisible(mDelayTimeUnitsText);
 	addAndMakeVisible(mDelayTimeText);
+
+	if (mDelayTempoLockButton.getToggleState())
+	{
+		mDelayDiscreteTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, processor.delayInBarsDP.getNames());
+		
+	}
+	else
+	{
+		mDelayTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, 1000.0f);
+	}
 
 }
 
@@ -225,31 +235,11 @@ void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 	// called elsewhere
 	if (slider == &mDelayTimeKnob)
 	{
-		std::stringstream ss;
-		ss << std::fixed << std::setprecision(0) << slider->getValue() * 1000;
-		String text = ss.str();
-		/*String spaces = "";
-		int nSpaces = 5 - text.length();
-		for (int i = 0; i < nSpaces; i++)
-		{
-			spaces += " ";
-		}*/
-		mDelayTimeText.setText(text, NotificationType::sendNotification);
-		mDelayTimeUnitsText.setText("ms", NotificationType::dontSendNotification);
+		mDelayTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, 1000.0f);
 	}
 	else if (slider == &mDelayDiscreteTimeKnob)
 	{
-		std::stringstream ss;
-		//ss << std::fixed << std::setprecision(0) << slider->getValue() * 1000;
-		String text = processor.delayInBarsDP.getNames()[slider->getValue()];
-		/*String spaces = "";
-		int nSpaces = 5 - text.length();
-		for (int i = 0; i < nSpaces; i++)
-		{
-			spaces += " ";
-		}*/
-		mDelayTimeText.setText(text, NotificationType::sendNotification);
-		mDelayTimeUnitsText.setText("bars", NotificationType::dontSendNotification);
+		mDelayDiscreteTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, processor.delayInBarsDP.getNames());
 	}
 }
 
@@ -258,18 +248,21 @@ void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
 	if (button->getName() == "delayTempoLockButton")
 	{
 		
+		
 		button->setToggleState(!button->getToggleState(), dontSendNotification);
 		if (button->getToggleState())
 		{
 			mDelayDiscreteTimeKnob.setVisible(true);
 			mDelayTimeKnob.setVisible(false);
 			mDelayTempoLockButton.displayAsOn(true);
+			mDelayDiscreteTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, processor.delayInBarsDP.getNames());
 		}
 		else
 		{
 			mDelayTempoLockButton.displayAsOn(false);
 			mDelayDiscreteTimeKnob.setVisible(false);
 			mDelayTimeKnob.setVisible(true);
+			mDelayTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, 1000.0f);
 		}
 	}
 	else if (button->getName() == "sigButton")
