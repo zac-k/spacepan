@@ -35,6 +35,7 @@ public:
 	void sliderValueChanged(Slider* slider) override;
 	//virtual void buttonStateChanged(Button* button) override;
 	TextButton debugText;
+	
 	//
 	void buttonClicked(Button* button) override;
 	//void buttonStateChanged(Button* button) override;
@@ -44,6 +45,7 @@ public:
 	// Parameters
 
 	Label mDelayTimeText;
+	//TextEditor delayTimeTextBox;
 	
 
 private:
@@ -51,7 +53,6 @@ private:
     // access the processor object that created it.
     SpacePanAudioProcessor& processor;
 	Image adsrPlotImage;
-
 	
 	void constructADSRplot();
 

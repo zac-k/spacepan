@@ -119,7 +119,6 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mSCthresholdKnob, "SCthresholdKnob", 0.58f, 0.9f, knobImgPan, "Threshold");
 
 
-	mDelayTimeText.setBounds(0, 0, 80, 20);
 	//mDelayTimeKnob.hideTextBox(false);
 	//mDelayTimeKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxAbove, true, 100, 20);
 	
@@ -173,6 +172,17 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mSigButton.addListener(this);
 	addAndMakeVisible(mSigButton);
 
+
+	mDelayTimeText.setBounds(155, 110, 80, 20);
+	mDelayTimeText.setEditable(true);
+	mDelayTimeText.setColour(mDelayTimeText.textColourId, Colours::darkred);
+	//mDelayTimeText.setColour(mDelayTimeText.outlineColourId, Colours::black);
+	//TODO: Add custom font with 7-segment style numbers. Must be monospaced.
+	//mDelayTimeText.setFont(juce::Typeface::mono);
+	
+	mDelayTimeText.setText("testing", NotificationType::sendNotification);
+	addAndMakeVisible(mDelayTimeText);
+
 }
 
 
@@ -199,6 +209,33 @@ void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 	{
 		constructADSRplot();
 		adsrPlot.repaint();
+	}
+
+	if (slider == &mDelayTimeKnob)
+	{
+		std::stringstream ss;
+		ss << std::fixed << std::setprecision(0) << slider->getValue() * 1000;
+		String text = ss.str();
+		String spaces = "";
+		int nSpaces = 5 - text.length();
+		for (int i = 0; i < nSpaces; i++)
+		{
+			spaces += " ";
+		}
+		mDelayTimeText.setText(text + spaces + "ms", NotificationType::sendNotification);
+	}
+	else if (slider == &mDelayDiscreteTimeKnob)
+	{
+		std::stringstream ss;
+		//ss << std::fixed << std::setprecision(0) << slider->getValue() * 1000;
+		String text = processor.delayInBarsDP.getNames()[slider->getValue()];
+		String spaces = "";
+		int nSpaces = 5 - text.length();
+		for (int i = 0; i < nSpaces; i++)
+		{
+			spaces += " ";
+		}
+		mDelayTimeText.setText(text + spaces + "bars", NotificationType::sendNotification);
 	}
 }
 

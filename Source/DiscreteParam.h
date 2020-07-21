@@ -22,6 +22,7 @@ public:
 	DiscreteParam<T>(T vals[], String names[], int numParams);
 
 	int getNumParams();
+	std::vector<String> getNames();
 
 	auto labelsLambda();
 private:
