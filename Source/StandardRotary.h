@@ -25,6 +25,7 @@ public:
 	// Public methods
 	void init(String name, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg);
 	void setDim(int width, int height);
+	//void sendToDisplay(Label recipient, )
 
 private:
 

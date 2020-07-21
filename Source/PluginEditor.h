@@ -43,8 +43,9 @@ public:
 	TooltipWindow mToolTipWindow;
 
 	// Parameters
-
+	Label mDelayTimeUnitsText;
 	Label mDelayTimeText;
+	
 	//TextEditor delayTimeTextBox;
 	
 
