@@ -130,7 +130,8 @@ private:
 	AudioProcessorValueTreeState::SliderAttachment mDelayDiffusionAttachment;
 	StandardRotary mDelaySCamountKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelaySCamountAttachment;
-
+	Slider mNoteDotTripSlider;
+	AudioProcessorValueTreeState::SliderAttachment mNoteDotTripAttachment;
 	
 	//Slider mDelayFeedbackKnob;
 	

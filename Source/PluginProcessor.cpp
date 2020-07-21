@@ -41,6 +41,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() :
 
 		  //std::make_unique<AudioParameterInt>("delay_time_discrete", "Delay Time", 0, 8, 1, String(), stringFromInt),// delayInBarsDP.labelsLambda()),
 	  std::make_unique<AudioParameterInt>("delay_time_discrete", "Delay Time", 0, delayInBarsDP.getNumParams() - 1, 1, String(), delayInBarsDP.labelsLambda()),
+	  std::make_unique<AudioParameterInt>("delay_modifier", "Delay Modifier", 0, delayModifierDP.getNumParams() - 1, 1, String(), delayModifierDP.labelsLambda()),
 	  std::make_unique<AudioParameterFloat>("delay_lowpass", "Delay High Cut", utils::frequencyRange(100.0f, 2.0e4f), 2.0e3f),
 	  std::make_unique<AudioParameterFloat>("delay_lowpass_Q", "Delay High Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 	  std::make_unique<AudioParameterFloat>("delay_highpass", "Delay Low Cut", utils::frequencyRange<float>(100.0f, 2.0e4f), 2.0e2f),
@@ -642,8 +643,8 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	// TODO: replace with version from DiscreteParam class
 	float delaysInBars[] = { 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f };
 	int timeLockIndex = 1;
-	float noteDotTrip[3] = { 1.0f, 1.5f, 2.0f/3.0f };
-	float modifier = noteDotTrip[timeLockIndex];
+	//float noteDotTrip[3] = { 1.0f, 1.5f, 2.0f/3.0f };
+	float modifier = delayModifierDP.getValues()[(int)*mState.getRawParameterValue("delay_modifier")];// noteDotTrip[timeLockIndex];
 	//float delayInBarsTemp = delaysInBars[(int)*mState.getRawParameterValue("delay_time_discrete")];
 	float delayInBarsTemp = delayInBarsDP.getValues()[(int)*mState.getRawParameterValue("delay_time_discrete")];
 	AudioPlayHead::CurrentPositionInfo cpi;

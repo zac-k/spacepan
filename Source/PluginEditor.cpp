@@ -34,6 +34,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelayTempoLockAttachment(p.mState, "delay_tempo_lock", mDelayTempoLockButton),
 	mDelayTimeAttachment(p.mState, "delay_time", mDelayTimeKnob),
 	mDelayDiscreteTimeAttachment(p.mState, "delay_time_discrete", mDelayDiscreteTimeKnob),
+	mNoteDotTripAttachment(p.mState, "delay_modifier", mNoteDotTripSlider),
 	mDelayLowPassAttachment(p.mState, "delay_lowpass", mDelayLowPassKnob),
 	mDelayLowPassQAttachment(p.mState, "delay_lowpass_Q", mDelayLowPassQKnob),
 	mDelayHighPassAttachment(p.mState, "delay_highpass", mDelayHighPassKnob),
@@ -90,6 +91,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mDelayFeedbackKnob, "DelayFeedbackKnob", 0.25f, 0.5f, knobImg, "Feedback");
 	addControl(this, mDelayTimeKnob, "DelayTimeKnob", 0.15f, 0.5f, knobImg, "Time");
 	addControl(this, mDelayDiscreteTimeKnob, "DelayDiscreteTimeKnob", 0.15f, 0.5f, knobImg, "Time");
+	
 	addControl(this, mDelayLowPassKnob, "DelayLowPassKnob", 0.33f, 0.5f, knobImgPan, "Lowpass");
 	mDelayLowPassQKnob.setDim(32, 32);
 	addControl(this, mDelayLowPassQKnob, "DelayLowPassQKnob", 0.33f, 0.5f, knobImg, "Lowpass Q");
@@ -182,7 +184,13 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelayTimeText.setEditable(true);
 	mDelayTimeText.setColour(mDelayTimeText.textColourId, Colours::darkred);
 
-	
+	mNoteDotTripSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
+
+	mNoteDotTripSlider.hideTextBox(true);
+	mNoteDotTripSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+	mNoteDotTripSlider.setSize(50, 100);
+	mNoteDotTripSlider.setCentrePosition(180.0f, 400.0f);
+	addAndMakeVisible(mNoteDotTripSlider);
 	
 	//TODO: Add custom font with 7-segment style (see comment below) numbers. Must be monospaced.
 	// Might need to be dot matrix to allow letters
