@@ -23,6 +23,7 @@ public:
 
 	int getNumParams();
 	std::vector<String> getNames();
+	std::vector<T> getValues();
 
 	auto labelsLambda();
 private:

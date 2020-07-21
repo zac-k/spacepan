@@ -119,7 +119,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mSCthresholdKnob, "SCthresholdKnob", 0.58f, 0.9f, knobImgPan, "Threshold");
 
 
-	// TODO: limit discrete time knob based on bpm and maximum buffer length
+	
 
 	//mDelayTimeKnob.hideTextBox(false);
 	//mDelayTimeKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxAbove, true, 100, 20);
@@ -230,15 +230,14 @@ void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 		constructADSRplot();
 		adsrPlot.repaint();
 	}
-
-	// TODO: move the two block in if/else to separate functions so they can be
-	// called elsewhere
+	
 	if (slider == &mDelayTimeKnob)
 	{
 		mDelayTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, 1000.0f);
 	}
 	else if (slider == &mDelayDiscreteTimeKnob)
 	{
+		// TODO: limit discrete time knob based on bpm and maximum buffer length
 		mDelayDiscreteTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, processor.delayInBarsDP.getNames());
 	}
 }

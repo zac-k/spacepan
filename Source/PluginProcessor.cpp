@@ -20,21 +20,6 @@ const float SOUND_SPEED = 343.0; // m/s
 const float FILTER_SKEW = 0.25f;
 
 
-
-
-
-//float delaysInBars[] = { 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f };
-
-// TODO: this should be declared in the header file, but I'm not sure where to initialise it so it's ready for
-// the constructor. ...probably can initialise it in constructor before mState!!!
-
-//auto stringFromInt = [](int val, int maxStrLen)
-//{
-//	String delayInBarsArr[] = { "1/32", "1/16", "1/8", "1/4", "1/2", "1", "2", "4", "8" };
-//	return delayInBarsArr[val];
-//};
-
-
 //==============================================================================
 SpacePanAudioProcessor::SpacePanAudioProcessor() :
 	//delayInBarsDP(delayInBars, delayInBarsStr),
@@ -654,21 +639,32 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	AudioBuffer<float> delayDry;
 	delayDry.makeCopyOf(samples);
 	float delaySeconds;
-	float delaysInBars[] = { 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f };
 	// TODO: replace with version from DiscreteParam class
-	float delayInBarsTemp = delaysInBars[(int)*mState.getRawParameterValue("delay_time_discrete")];
+	float delaysInBars[] = { 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f };
+	int timeLockIndex = 1;
+	float noteDotTrip[3] = { 1.0f, 1.5f, 2.0f/3.0f };
+	float modifier = noteDotTrip[timeLockIndex];
+	//float delayInBarsTemp = delaysInBars[(int)*mState.getRawParameterValue("delay_time_discrete")];
+	float delayInBarsTemp = delayInBarsDP.getValues()[(int)*mState.getRawParameterValue("delay_time_discrete")];
 	AudioPlayHead::CurrentPositionInfo cpi;
 	AudioPlayHead *playHead = getPlayHead();
 	playHead->getCurrentPosition(cpi);
 
 
 	mIsTempoLocked = *mState.getRawParameterValue("delay_tempo_lock");
-	//delaySeconds = isTempoLocked ? (delayInBars * 60.0 * 4 / cpi.bpm) : (*mState.getRawParameterValue("delay_time"));
 
 	if (mIsTempoLocked)
 	{
 		
-		delaySeconds = delayInBarsTemp * 60.0 * 4.0 / cpi.bpm;
+		delaySeconds = delayInBarsTemp * 60.0 * 4.0 / cpi.bpm * modifier;
+		while (delaySeconds > DELAY_MAX)
+		{
+			mState.getParameter("delay_time_discrete")->setValueNotifyingHost(
+				(int)*mState.getRawParameterValue("delay_time_discrete") - 1);
+			//TODO: maybe this one should stay temp?
+			delayInBarsTemp = delaysInBars[(int)*mState.getRawParameterValue("delay_time_discrete")];
+			delaySeconds = delayInBarsTemp * 60.0 * 4.0 / cpi.bpm;
+		}
 	}
 	else
 	{

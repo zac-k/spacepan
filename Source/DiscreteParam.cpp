@@ -47,6 +47,12 @@ std::vector<String> DiscreteParam<T>::getNames()
 }
 
 template<class T>
+std::vector<T> DiscreteParam<T>::getValues()
+{
+	return mVals;
+}
+
+template<class T>
 auto DiscreteParam<T>::labelsLambda() 
 {
 	return [this](int val, int) {return this->mNames[val]; };
