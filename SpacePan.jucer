@@ -4,6 +4,13 @@
               pluginFormats="buildVST3" pluginManufacturer="ZacK">
   <MAINGROUP id="VUMoM3" name="SpacePan">
     <GROUP id="{261BCDE9-08FB-1CA5-8C62-B1BC32715FEF}" name="Source">
+      <FILE id="a3WUlq" name="StandardSwitch.cpp" compile="1" resource="0"
+            file="Source/StandardSwitch.cpp"/>
+      <FILE id="J3LeNP" name="StandardSwitch.h" compile="0" resource="0"
+            file="Source/StandardSwitch.h"/>
+      <FILE id="PobFRs" name="DiscreteParam.cpp" compile="1" resource="0"
+            file="Source/DiscreteParam.cpp"/>
+      <FILE id="wPYbnr" name="DiscreteParam.h" compile="0" resource="0" file="Source/DiscreteParam.h"/>
       <FILE id="yb163t" name="StandardButton.cpp" compile="1" resource="0"
             file="Source/StandardButton.cpp"/>
       <FILE id="NqVBIZ" name="StandardButton.h" compile="0" resource="0"
@@ -34,6 +41,8 @@
     </GROUP>
     <FILE id="NJfWns" name="delayTempoLockOnOff.png" compile="1" resource="1"
           file="Resource/delayTempoLockOnOff.png"/>
+    <FILE id="iJFsGA" name="three_pos_switch.png" compile="1" resource="1"
+          file="Resource/three_pos_switch.png"/>
     <FILE id="YieCFY" name="sig.png" compile="1" resource="1" file="Resource/sig.png"/>
     <FILE id="NYZoqM" name="sigDown.png" compile="1" resource="1" file="Resource/sigDown.png"/>
     <FILE id="fGXxlv" name="background.png" compile="1" resource="1" file="Resource/background.png"/>
