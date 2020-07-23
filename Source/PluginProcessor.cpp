@@ -26,9 +26,9 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() :
 
 	mState(*this, nullptr, "state",
 		{ std::make_unique<AudioParameterFloat>("rev_mix", "Reverb Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-		  std::make_unique<AudioParameterFloat>("rev_lowpass", "Reverb Lowpass", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
+		  std::make_unique<AudioParameterFloat>("rev_lowpass", "Reverb Lowpass", utils::frequencyRange(100.0f, 2.0e4f), 2.0e3f),
 		  std::make_unique<AudioParameterFloat>("rev_lowpass_Q", "Reverb Lowpass Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
-		  std::make_unique<AudioParameterFloat>("rev_highpass", "Reverb Highpass", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
+		  std::make_unique<AudioParameterFloat>("rev_highpass", "Reverb Highpass", utils::frequencyRange<float>(100.0f, 2.0e4f), 2.0e2f),
 		  std::make_unique<AudioParameterFloat>("rev_sc_amount", "Reverb Sidechain Amount", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
 		  std::make_unique<AudioParameterFloat>("rev_highpass_Q", "Reverb Highpass Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 
@@ -158,7 +158,7 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-
+	mSamplesPerBlock = samplesPerBlock;
 	mState.addParameterListener("sc_attack", this);
 	mState.addParameterListener("sc_attack_shape", this);
 	mState.addParameterListener("sc_decay", this);
@@ -381,7 +381,7 @@ void SpacePanAudioProcessor::truePan(AudioBuffer<float> &buffer, float panVal, f
 {
 	// TODO: This is faux pan placeholder. Change to true pan algorithm
 	panVal *= maxPan;
-	AudioBuffer<float> bufferTemp;// TODO: this isn't used for anything, right?
+	AudioBuffer<float> bufferTemp;// TODO: this isn't used for anything, probably put it here for the true pan algorithm
 	bufferTemp.makeCopyOf(buffer);
 	int bufferLength = buffer.getNumSamples();
 	float distanceFactor = *mState.getRawParameterValue("room_size");
@@ -426,16 +426,32 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 	reverbWet.applyGain(0.5);*/
 
 
+	float revLPf = *mState.getRawParameterValue("rev_lowpass");
+	float revLPQ = *mState.getRawParameterValue("rev_lowpass_Q");
+	float revHPf = *mState.getRawParameterValue("rev_highpass");
+	float revHPQ = *mState.getRawParameterValue("rev_highpass_Q");
+
+
+	
+	*revLowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), revLPf, revLPQ);
+	*revHighPassFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), revHPf, revHPQ);
 
 	dsp::AudioBlock<float> block(reverbWet);
 	mReverb.process(dsp::ProcessContextReplacing<float>(block));
 
+	
+	// TODO: get these filters working
+	revLowPassFilter.process(dsp::ProcessContextReplacing<float>(block));
+	revHighPassFilter.process(dsp::ProcessContextReplacing<float>(block));
 
 	int phaseShiftMaxInSamples = (headWidth / SOUND_SPEED) * getSampleRate();
 	float ppdFactor = std::pow(ROOM_SIZE_MAX, *mState.getRawParameterValue("room_size")) / SOUND_SPEED;
 	int ppdFactorInSamples = (int)ppdFactor * getSampleRate();
 	int reverbPredalay[] = { (int)ppdFactorInSamples * (1 + panVal), (int)ppdFactorInSamples * (1 - panVal) };
 
+
+	// TODO: The pan part of this should be in the pan function, otherwise it will turn off when the
+	// reverb is disabled
 	for (int channel = 0; channel < buffer.getNumChannels(); channel++)
 	{
 		int delayedChannel = (panVal < 0) ? 1 : 0;
@@ -454,19 +470,9 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 		mReverbBuffer.write(channel, reverbWet);
 	}
 
-	float revLPf = *mState.getRawParameterValue("rev_lowpass");
-	float revLPQ = *mState.getRawParameterValue("rev_lowpass_Q");
-	float revHPf = *mState.getRawParameterValue("rev_highpass");
-	float revHPQ = *mState.getRawParameterValue("rev_highpass_Q");
-
-
-	// TODO: get these filters working
-	*revLowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), revLPf, revLPQ);
-	*revHighPassFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), revHPf, revHPQ);
+	
 
 	
-	revLowPassFilter.process(dsp::ProcessContextReplacing<float>(block));
-	revHighPassFilter.process(dsp::ProcessContextReplacing<float>(block));
 
 	float reverbMix = *mState.getRawParameterValue("rev_mix");
 	for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
@@ -637,11 +643,8 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	float* delayOffsets, float sampleRate, int32 comb, bool fb)
 {
 
-	AudioBuffer<float> delayDry;
-	delayDry.makeCopyOf(samples);
+	
 	float delaySeconds;
-	// TODO: replace with version from DiscreteParam class
-	float delaysInBars[] = { 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f };
 	int timeLockIndex = 1;
 	//float noteDotTrip[3] = { 1.0f, 1.5f, 2.0f/3.0f };
 	float modifier = delayModifierDP.getValues()[(int)*mState.getRawParameterValue("delay_modifier")];// noteDotTrip[timeLockIndex];
@@ -657,13 +660,13 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	if (mIsTempoLocked)
 	{
 		
-		delaySeconds = delayInBarsTemp * 60.0 * 4.0 / cpi.bpm * modifier;
+		delaySeconds = delayInBarsTemp * modifier * 60.0 * 4.0 / cpi.bpm;
 		while (delaySeconds > DELAY_MAX)
 		{
 			mState.getParameter("delay_time_discrete")->setValueNotifyingHost(
 				(int)*mState.getRawParameterValue("delay_time_discrete") - 1);
 			//TODO: maybe this one should stay temp?
-			delayInBarsTemp = delaysInBars[(int)*mState.getRawParameterValue("delay_time_discrete")];
+			delayInBarsTemp = delayInBarsDP.getValues()[(int)*mState.getRawParameterValue("delay_time_discrete")];
 			delaySeconds = delayInBarsTemp * 60.0 * 4.0 / cpi.bpm;
 		}
 	}
@@ -671,7 +674,15 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	{
 		delaySeconds = *mState.getRawParameterValue("delay_time");
 	}
-	
+
+	// TODO: This is for dynamically changing delayBuffer size based on decay, but is not working yet
+	/*const int delayBufferSizeRequired = static_cast<int>(delaySeconds * 2 * sampleRate + 2 * mSamplesPerBlock);
+	if (delayBufferSizeRequired > delayBuffer.getNumSamples())
+	{
+		mDelayBuffer.setSize(delayBuffer.getNumChannels(), delayBufferSizeRequired, true);
+	}*/
+	AudioBuffer<float> delayDry;
+	delayDry.makeCopyOf(samples);
 
 	int delayInSamples = std::max<int>(1, delaySeconds * sampleRate); // minimum 1 sample delay
 	float mDelayFeedbackGain = *mState.getRawParameterValue("delay_feedback");
@@ -687,7 +698,6 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	// TODO: Placeholder
 	delayAPf = *mState.getRawParameterValue("delay_diffusion")*2.0e4f+50.0f;
 
-	// TODO: filtering needs to be done on signal added to delay buffer - maybe as separate option?
 
 	*delayLowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), delayLPf, delayLPQ);
 	*delayHighPassFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), delayHPf, delayHPQ);

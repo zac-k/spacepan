@@ -94,7 +94,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 	//==============================================================================
-	const float DELAY_MAX = 10.0; // seconds
+	const float DELAY_MAX = 60.0; // seconds
 	
 	// Keep this public so the labels can be displayed in GUI
 	float delayInBars[9]{ 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f };
@@ -113,7 +113,6 @@ private:
 
 	//StringArray::StringArray("1/32", "1/16", "1/8", "1/4", "1/2", "1", "2")
 
-	
 
 	void saturate(float &sample, float gain);
 	void saturate(AudioBuffer<float> &samples, float gain, int type);
@@ -145,6 +144,7 @@ private:
 
 	int mBufferPosArr[2] = { 0, 0 };
 
+	int mSamplesPerBlock;
 	// Buffers
 	CircularAudioBuffer<float> mDelayBuffer;
 	CircularAudioBuffer<float> mPanBuffer;

@@ -261,8 +261,6 @@ void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 	}
 	else if ((slider == &mDelayDiscreteTimeKnob || slider == &mNoteDotTripSlider) && mDelayTempoLockButton.getToggleState())
 	{
-		// TODO: limit discrete time knob based on bpm and maximum buffer length		
-		
 		int index = (int)mNoteDotTripSlider.getValue();
 		mDelayDiscreteTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, processor.delayInBarsDP.getNames(), mDelayModifierChar.substring(index, index + 1));
 	}
