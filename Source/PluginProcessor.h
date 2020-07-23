@@ -54,6 +54,9 @@ public:
 	void delay(AudioBuffer<float> &samples, CircularAudioBuffer<float> &buffer, int numSamples,
 		float* delayOffsets, float sampleRate, int32 comb, bool fb);
 
+	void delay_old(AudioBuffer<float> &samples, CircularAudioBuffer<float> &buffer, int numSamples,
+		float* delayOffsets, float sampleRate, int32 comb, bool fb);
+
 	float* combFilter(float* samples, float** buffer, int channel, int numSamples,
 		int32 delayInSamples, float** delayOffsets, float decay,
 		float sampleRate, int32 comb, bool fb);
@@ -106,7 +109,7 @@ public:
 	DiscreteParam<float> delayModifierDP{ delayModifierVals, delayModifierStr, 3 };	
 
 	int delayFilterTypeVals[3]{ 0, 1, 2 };
-	String delayFilterTypeStr[3]{ "Prefilter", "Recursive", "Postfilter" };
+	String delayFilterTypeStr[3]{ "Post filter", "Recursive filter", "Pre filter" };
 	DiscreteParam<int> delayFilterTypeDP{ delayFilterTypeVals, delayFilterTypeStr, 3 };
 	//==============================================================================
 	AudioProcessorValueTreeState mState;
