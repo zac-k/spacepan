@@ -100,10 +100,14 @@ public:
 	float delayInBars[9]{ 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f };
 	String delayInBarsStr[9]{ "1/32", "1/16", "1/8", "1/4", "1/2", "1", "2", "4", "8" };
 	DiscreteParam<float> delayInBarsDP{ delayInBars, delayInBarsStr, 9 };
+	
 	float delayModifierVals[3]{ 2.0f / 3.0f, 1.5f, 1.0f };
 	String delayModifierStr[3]{"Triplets", "Dotted", "Note" };
-	DiscreteParam<float> delayModifierDP{ delayModifierVals, delayModifierStr, 3 };
+	DiscreteParam<float> delayModifierDP{ delayModifierVals, delayModifierStr, 3 };	
 
+	int delayFilterTypeVals[3]{ 0, 1, 2 };
+	String delayFilterTypeStr[3]{ "Prefilter", "Recursive", "Postfilter" };
+	DiscreteParam<int> delayFilterTypeDP{ delayFilterTypeVals, delayFilterTypeStr, 3 };
 	//==============================================================================
 	AudioProcessorValueTreeState mState;
 	bool mIsTempoLocked;

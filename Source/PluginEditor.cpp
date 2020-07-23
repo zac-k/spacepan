@@ -39,6 +39,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelayTimeAttachment(p.mState, "delay_time", mDelayTimeKnob),
 	mDelayDiscreteTimeAttachment(p.mState, "delay_time_discrete", mDelayDiscreteTimeKnob),
 	mNoteDotTripAttachment(p.mState, "delay_modifier", mNoteDotTripSlider),
+	mDelayFilterTypeAttachment(p.mState, "delay_filter_type", mDelayFilterTypeSwitch),
 	mDelayLowPassAttachment(p.mState, "delay_lowpass", mDelayLowPassKnob),
 	mDelayLowPassQAttachment(p.mState, "delay_lowpass_Q", mDelayLowPassQKnob),
 	mDelayHighPassAttachment(p.mState, "delay_highpass", mDelayHighPassKnob),
@@ -115,6 +116,8 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mNoteDotTripSlider.setDim(32, 32);
 	addControl(this, mNoteDotTripSlider, "noteDotTripSlider", 0.23f, 0.5f, switchImg, "Delay modifier", Slider::SliderStyle::LinearVertical);
 
+	mDelayFilterTypeSwitch.setDim(32, 32);
+	addControl(this, mDelayFilterTypeSwitch, "DelayFilterTypeSwitch", 0.5f, 0.5f, switchImg, "Filter type", Slider::SliderStyle::LinearVertical);
 
 	// Sidechain controls
 	mSCattackKnob.setDim(50, 50);

@@ -97,6 +97,7 @@ private:
 	Image delayTempoLockButtonImg = ImageCache::getFromMemory(BinaryData::delayTempoLockOnOff_png,
 		BinaryData::delayTempoLockOnOff_pngSize);
 
+	//==============================================================================
 
 	// Global controls
 	StandardRotary mPanKnob;
@@ -104,6 +105,9 @@ private:
 	// TODO: Change the head width slider to a linear one
 	StandardRotary mHeadWidthSlider;
 	AudioProcessorValueTreeState::SliderAttachment mHeadWidthAttachment;
+
+
+	//==============================================================================
 
 	// Delay controls
 	//ImageButton mDelayOnButton;
@@ -137,8 +141,10 @@ private:
 	AudioProcessorValueTreeState::SliderAttachment mDelaySCamountAttachment;
 	StandardRotary mNoteDotTripSlider;
 	AudioProcessorValueTreeState::SliderAttachment mNoteDotTripAttachment;
+	StandardRotary mDelayFilterTypeSwitch;
+	AudioProcessorValueTreeState::SliderAttachment mDelayFilterTypeAttachment;
 	
-	//Slider mDelayFeedbackKnob;
+	//==============================================================================
 	
 	// Reverb controls
 	StandardRotary mRevMixKnob;
@@ -156,6 +162,8 @@ private:
 	StandardRotary mRevHighPassQKnob;
 	AudioProcessorValueTreeState::SliderAttachment mRevHighPassQAttachment;
 	//Slider mRevMixKnob;
+
+	//==============================================================================
 
 	// Sidechain controls
 	StandardRotary mSCattackKnob;
@@ -176,6 +184,8 @@ private:
 	AudioProcessorValueTreeState::SliderAttachment mSCreleaseShapeAttachment;
 	StandardRotary mSCthresholdKnob;
 	AudioProcessorValueTreeState::SliderAttachment mSCthresholdAttachment;
+
+	//==============================================================================
 
 	String mDelayModifierChar{ "TDN" };
 
