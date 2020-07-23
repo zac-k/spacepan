@@ -23,10 +23,11 @@ class StandardRotary : public Slider
 public:
 
 	// Public methods
-	void init(String name, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg);
+	void init(String name, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg, Slider::SliderStyle = Slider::SliderStyle::RotaryVerticalDrag);
 	void setDim(int width, int height);
-	void sendToDisplay(Label &dataLabel, Label &unitsLabel, float multiplier = 1.0f);
-	void sendToDisplay(Label &dataLabel, Label &unitsLabel, std::vector<String>);
+	void sendToDisplay(Label &dataLabel, Label &unitsLabel, float multiplier=1.0f);
+	void sendToDisplay(Label &dataLabel, Label &unitsLabel, std::vector<String>, String modifier="");
+	void reverse();
 
 private:
 
@@ -36,6 +37,7 @@ private:
 	int ypos;
 	Image sprite;
 	CustomLookAndFeel mLookAndFeel;
+	bool mReverse{ false };
 
 };
 

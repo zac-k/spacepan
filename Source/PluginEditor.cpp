@@ -8,6 +8,10 @@
   ==============================================================================
 */
 
+
+
+// TODO: can probably remove class StandardSwitch
+
 #include "PluginProcessor.h"
 //#include "PluginProcessor.cpp"
 #include "PluginEditor.h"
@@ -58,6 +62,9 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	
 {
     setSize (852, 600);
+	/*LookAndFeel *editorLookAndFeel = &this->getLookAndFeel();
+	*editorLookAndFeel.setDefaultSansSerifTypeface(BPdotsTypeface);*/
+	LookAndFeel::getDefaultLookAndFeel().setDefaultSansSerifTypeface(BPdotsTypeface);
 
 	// Debug textbox
 	debugText.setBounds(0, 0, 150, 100);
@@ -75,7 +82,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 
 	
 	// Initialise and add knobs to GUI
-	addControl(this, mRevMixKnob, "RevMixKnob", 0.6f, 0.45f, knobImg, "Mix");
+	addControl(this, mRevMixKnob, "RevMixKnob", 0.6f, 0.46f, knobImg, "Mix");
 	addControl(this, mRevLowPassKnob, "RevLowPassKnob", 0.8f, 0.5f, knobImgPan, "Lowpass");
 	mRevLowPassQKnob.setDim(32, 32);
 	addControl(this, mRevLowPassQKnob, "RevLowPassQKnob", 0.8f, 0.5f, knobImg, "Lowpass Q");
@@ -84,41 +91,50 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mRevHighPassQKnob, "RevHighPassQKnob", 0.87f, 0.5f, knobImg, "Highpass Q");
 	addControl(this, mRevSCamountKnob, "RevSCamountKnob", 0.9f, 0.6f, knobImgPan, "Sidechain Amount");
 
-	addControl(this, mDelaySatKnob, "DelaySatKnob", 0.33f, 0.6f, knobImg, "Saturation");
+	addControl(this, mDelaySatKnob, "DelaySatKnob", 0.35f, 0.6f, knobImg, "Saturation");
 	addControl(this, mPanKnob, "PanKnob", 0.5f, 0.15f, knobImgPan, "Pan");
 	addControl(this, mRoomSizeKnob, "RoomSizeKnob", 0.7f, 0.5f, knobImg, "Room size");
 	addControl(this, mHeadWidthSlider, "HeadWidthKnob", 0.6f, 0.15f, knobImgPan, "Head width");
-	addControl(this, mDelayFeedbackKnob, "DelayFeedbackKnob", 0.25f, 0.5f, knobImg, "Feedback");
-	addControl(this, mDelayTimeKnob, "DelayTimeKnob", 0.15f, 0.5f, knobImg, "Time");
-	addControl(this, mDelayDiscreteTimeKnob, "DelayDiscreteTimeKnob", 0.15f, 0.5f, knobImg, "Time");
+	addControl(this, mDelayFeedbackKnob, "DelayFeedbackKnob", 0.28f, 0.5f, knobImg, "Feedback");
+	addControl(this, mDelayTimeKnob, "DelayTimeKnob", 0.18f, 0.5f, knobImg, "Time");
+	addControl(this, mDelayDiscreteTimeKnob, "DelayDiscreteTimeKnob", 0.18f, 0.5f, knobImg, "Time");
 	
-	addControl(this, mDelayLowPassKnob, "DelayLowPassKnob", 0.33f, 0.5f, knobImgPan, "Lowpass");
+	addControl(this, mDelayLowPassKnob, "DelayLowPassKnob", 0.35f, 0.5f, knobImgPan, "Lowpass");
 	mDelayLowPassQKnob.setDim(32, 32);
-	addControl(this, mDelayLowPassQKnob, "DelayLowPassQKnob", 0.33f, 0.5f, knobImg, "Lowpass Q");
-	addControl(this, mDelayHighPassKnob, "DelayHighPassKnob", 0.4f, 0.5f, knobImgPan, "Highpass");
+	addControl(this, mDelayLowPassQKnob, "DelayLowPassQKnob", 0.35f, 0.5f, knobImg, "Lowpass Q");
+	addControl(this, mDelayHighPassKnob, "DelayHighPassKnob", 0.42f, 0.5f, knobImgPan, "Highpass");
 	mDelayHighPassQKnob.setDim(32, 32);
-	addControl(this, mDelayHighPassQKnob, "DelayHighPassQKnob", 0.4f, 0.5f, knobImg, "Highpass Q");
-	addControl(this, mDelayMixKnob, "DelayMixKnob", 0.11f, 0.4f, knobImg, "Mix");
-	addControl(this, mDelaySatCharKnob, "DelaySatCharKnob", 0.4f, 0.6f, knobImg, "Saturation character");
-	addControl(this, mDelayWidthKnob, "DelayWidthKnob", 0.15f, 0.6f, knobImg, "Width");
-	addControl(this, mDelayDiffusionKnob, "DelayDiffusionKnob", 0.25f, 0.6f, knobImg, "Diffusion");
+	addControl(this, mDelayHighPassQKnob, "DelayHighPassQKnob", 0.42f, 0.5f, knobImg, "Highpass Q");
+	addControl(this, mDelayMixKnob, "DelayMixKnob", 0.11f, 0.46f, knobImg, "Mix");
+	addControl(this, mDelaySatCharKnob, "DelaySatCharKnob", 0.42f, 0.6f, knobImg, "Saturation character");
+	addControl(this, mDelayWidthKnob, "DelayWidthKnob", 0.18f, 0.6f, knobImg, "Width");
+	addControl(this, mDelayDiffusionKnob, "DelayDiffusionKnob", 0.28f, 0.6f, knobImg, "Diffusion");
 	addControl(this, mDelaySCamountKnob, "DelaySCamountKnob", 0.5f, 0.6f, knobImgPan, "Sidechain Amount");
+
+
+	mNoteDotTripSlider.setDim(32, 32);
+	addControl(this, mNoteDotTripSlider, "noteDotTripSlider", 0.23f, 0.5f, switchImg, "Delay modifier", Slider::SliderStyle::LinearVertical);
+
 
 	// Sidechain controls
 	mSCattackKnob.setDim(50, 50);
-	addControl(this, mSCattackKnob, "SCattackKnob", 0.22f, 0.9f, knobImgPan, "Attack");
-	mSCattackShapeKnob.setDim(32, 32);
-	addControl(this, mSCattackShapeKnob, "SCattackShapeKnob", 0.22f, 0.9f, knobImg, "Attack Shape");
-	addControl(this, mSCdecayKnob, "SCdecayKnob", 0.31f, 0.9f, knobImgPan, "Decay");
-	mSCdecayShapeKnob.setDim(32, 32);
-	addControl(this, mSCdecayShapeKnob, "SCdecayShapeKnob", 0.31f, 0.9f, knobImg, "Decay Shape");
-	addControl(this, mSCsustainKnob, "SCsustainKnob", 0.4f, 0.9f, knobImgPan, "Sustain");
-	mSCsustainLevelKnob.setDim(32, 32);
-	addControl(this, mSCsustainLevelKnob, "SCsustainLevelKnob", 0.4f, 0.9f, knobImgPan, "Sustain Level");
-	addControl(this, mSCreleaseKnob, "SCreleaseKnob", 0.49f, 0.9f, knobImgPan, "Release");
-	mSCreleaseShapeKnob.setDim(32, 32);
-	addControl(this, mSCreleaseShapeKnob, "SCreleaseShapeKnob", 0.49f, 0.9f, knobImg, "release Shape");
-	addControl(this, mSCthresholdKnob, "SCthresholdKnob", 0.58f, 0.9f, knobImgPan, "Threshold");
+	addControl(this, mSCattackKnob, "SCattackKnob", 0.22f, 0.89f, knobImgPan, "Attack");
+	mSCattackShapeKnob.setDim(25, 25);
+	addControl(this, mSCattackShapeKnob, "SCattackShapeKnob", 0.22f, 0.89f, knobImg, "Attack Shape");
+	mSCdecayKnob.setDim(50, 50);
+	addControl(this, mSCdecayKnob, "SCdecayKnob", 0.31f, 0.89f, knobImgPan, "Decay");
+	mSCdecayShapeKnob.setDim(25, 25);
+	addControl(this, mSCdecayShapeKnob, "SCdecayShapeKnob", 0.31f, 0.89f, knobImg, "Decay Shape");
+	mSCsustainKnob.setDim(50, 50);
+	addControl(this, mSCsustainKnob, "SCsustainKnob", 0.4f, 0.89f, knobImgPan, "Sustain");
+	mSCsustainLevelKnob.setDim(25, 25);
+	addControl(this, mSCsustainLevelKnob, "SCsustainLevelKnob", 0.4f, 0.89f, knobImgPan, "Sustain Level");
+	mSCreleaseKnob.setDim(50, 50);
+	addControl(this, mSCreleaseKnob, "SCreleaseKnob", 0.49f, 0.89f, knobImgPan, "Release");
+	mSCreleaseShapeKnob.setDim(25, 25);
+	addControl(this, mSCreleaseShapeKnob, "SCreleaseShapeKnob", 0.49f, 0.89f, knobImg, "release Shape");
+	mSCthresholdKnob.setDim(50, 50);
+	addControl(this, mSCthresholdKnob, "SCthresholdKnob", 0.58f, 0.89f, knobImgPan, "Threshold");
 
 
 	
@@ -154,7 +170,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 
 	
 	
-
+	// Build CRO display
 	adsrPlotImage = Image(Image::ARGB, 70, 70, true);
 	adsrPlot.setImage(adsrPlotImage);
 	constructADSRplot();
@@ -166,44 +182,44 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	croGlass.setBounds(540, 470, croGlassImage.getWidth(), croGlassImage.getHeight());
 	addAndMakeVisible(croGlass);
 
+	// Add signature button
 	mSigButton.setName("sigButton");
 	mSigButton.setImages(true, true, true, sigImg,
 		1.0f, Colours::transparentBlack, sigImg, 1.0f, Colours::transparentBlack,
 		sigDownImg, 1.0f, Colours::transparentBlack);
 	mSigButton.setCentrePosition(770, 100);
 	mSigButton.setSize(150, 50);
-
 	mSigButton.addListener(this);
 	addAndMakeVisible(mSigButton);
 
-	mDelayTimeUnitsText.setBounds(155, 250, 75, 20);
+
+	Rectangle<int> timeTextBounds = Rectangle<int>(137, 227, 60, 41);
+	mDelayTimeUnitsText.setBounds(timeTextBounds);
 	mDelayTimeUnitsText.setEditable(false);
-	mDelayTimeUnitsText.setColour(mDelayTimeUnitsText.textColourId, Colours::darkred);
-	mDelayTimeUnitsText.setJustificationType(Justification::centredRight);
-	mDelayTimeText.setBounds(155, 250, 75, 20);
+	mDelayTimeUnitsText.setColour(mDelayTimeUnitsText.textColourId, Colours::lightgreen);	
+	mDelayTimeUnitsText.setJustificationType(Justification::centredBottom);
+	mDelayTimeUnitsText.setFont(22);
+
+	mDelayTimeText.setBounds(timeTextBounds);
 	mDelayTimeText.setEditable(true);
-	mDelayTimeText.setColour(mDelayTimeText.textColourId, Colours::darkred);
-
-	mNoteDotTripSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);
-
-	mNoteDotTripSlider.hideTextBox(true);
-	mNoteDotTripSlider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
-	mNoteDotTripSlider.setSize(50, 100);
-	mNoteDotTripSlider.setCentrePosition(180.0f, 400.0f);
-	addAndMakeVisible(mNoteDotTripSlider);
-	
-	//TODO: Add custom font with 7-segment style (see comment below) numbers. Must be monospaced.
-	// Might need to be dot matrix to allow letters
-
-	//mDelayTimeText.setFont(juce::Typeface::mono);
+	mDelayTimeText.setColour(mDelayTimeText.textColourId, Colours::lightgreen);
+	mDelayTimeText.setJustificationType(Justification::centredTop);
+	mDelayTimeText.setFont(22);
 	
 	mDelayTimeText.setText("testing", NotificationType::sendNotification);
 	addAndMakeVisible(mDelayTimeUnitsText);
 	addAndMakeVisible(mDelayTimeText);
+	Image timeTextImage = croGlassImage.rescaled(timeTextBounds.getWidth(), timeTextBounds.getHeight());
+	timeTextGlass.setImage(timeTextImage);
+	timeTextGlass.setAlpha(0.5);
+	timeTextGlass.setBounds(timeTextBounds);
+	addAndMakeVisible(timeTextGlass);
 
 	if (mDelayTempoLockButton.getToggleState())
 	{
-		mDelayDiscreteTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, processor.delayInBarsDP.getNames());
+		
+		int index = (int)mNoteDotTripSlider.getValue();
+		mDelayDiscreteTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, processor.delayInBarsDP.getNames(), mDelayModifierChar.substring(index, index +1));
 		
 	}
 	else
@@ -243,10 +259,12 @@ void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 	{
 		mDelayTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, 1000.0f);
 	}
-	else if (slider == &mDelayDiscreteTimeKnob)
+	else if ((slider == &mDelayDiscreteTimeKnob || slider == &mNoteDotTripSlider) && mDelayTempoLockButton.getToggleState())
 	{
-		// TODO: limit discrete time knob based on bpm and maximum buffer length
-		mDelayDiscreteTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, processor.delayInBarsDP.getNames());
+		// TODO: limit discrete time knob based on bpm and maximum buffer length		
+		
+		int index = (int)mNoteDotTripSlider.getValue();
+		mDelayDiscreteTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, processor.delayInBarsDP.getNames(), mDelayModifierChar.substring(index, index + 1));
 	}
 }
 
@@ -262,7 +280,8 @@ void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
 			mDelayDiscreteTimeKnob.setVisible(true);
 			mDelayTimeKnob.setVisible(false);
 			mDelayTempoLockButton.displayAsOn(true);
-			mDelayDiscreteTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, processor.delayInBarsDP.getNames());
+			int index = (int)mNoteDotTripSlider.getValue();
+			mDelayDiscreteTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, processor.delayInBarsDP.getNames(), (String)mDelayModifierChar.substring(index, index + 1));
 		}
 		else
 		{
@@ -375,9 +394,9 @@ void SpacePanAudioProcessorEditor::constructADSRplot()
 	//adsrPlot.setImage(adsrPlotImage);
 }
 
-void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *const editor, StandardRotary &control, String name, float relX, float relY, Image spriteImg, String tooltipText)
+void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *const editor, StandardRotary &control, String name, float relX, float relY, Image spriteImg, String tooltipText, Slider::SliderStyle style)
 {
-	control.init(name, editor->getBounds(), relX, relY, spriteImg);
+	control.init(name, editor->getBounds(), relX, relY, spriteImg, style);
 	control.setTooltip(tooltipText);
 	control.addListener(editor);
 	editor->addAndMakeVisible(control);

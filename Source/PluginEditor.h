@@ -14,6 +14,7 @@
 #include "PluginProcessor.h"
 #include "StandardRotary.h"
 #include "StandardButton.h"
+#include "StandardSwitch.h"
 //#include "utils.h"
 
 //==============================================================================
@@ -66,6 +67,7 @@ private:
 	Image* pAdsrPlot;
 
 	ImageComponent croGlass;
+	ImageComponent timeTextGlass;
 	//Graphics adsrPlot = Graphics(backgroundImage);
 	
 
@@ -74,6 +76,9 @@ private:
 											  BinaryData::animation_knob_pngSize);
 	Image knobImgPan = ImageCache::getFromMemory(BinaryData::animation_knob2_png,
 		BinaryData::animation_knob2_pngSize);
+	Image switchImg = ImageCache::getFromMemory(BinaryData::three_pos_switch_png,
+		BinaryData::three_pos_switch_pngSize);
+
 
 	Image sigImg = ImageCache::getFromMemory(BinaryData::sig_png,
 		BinaryData::sig_pngSize);
@@ -130,7 +135,7 @@ private:
 	AudioProcessorValueTreeState::SliderAttachment mDelayDiffusionAttachment;
 	StandardRotary mDelaySCamountKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelaySCamountAttachment;
-	Slider mNoteDotTripSlider;
+	StandardRotary mNoteDotTripSlider;
 	AudioProcessorValueTreeState::SliderAttachment mNoteDotTripAttachment;
 	
 	//Slider mDelayFeedbackKnob;
@@ -172,8 +177,11 @@ private:
 	StandardRotary mSCthresholdKnob;
 	AudioProcessorValueTreeState::SliderAttachment mSCthresholdAttachment;
 
+	String mDelayModifierChar{ "TDN" };
 
-	void addControl(SpacePanAudioProcessorEditor *const editor, StandardRotary &control, String name, float relX, float relY, Image spriteImg, String tooltipText);
+	Typeface::Ptr BPdotsTypeface = Typeface::createSystemTypefaceFor(BinaryData::BPdots_otf, BinaryData::BPdots_otfSize);
+
+	void addControl(SpacePanAudioProcessorEditor *const editor, StandardRotary &control, String name, float relX, float relY, Image spriteImg, String tooltipText, Slider::SliderStyle = Slider::SliderStyle::RotaryVerticalDrag);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpacePanAudioProcessorEditor)
 };

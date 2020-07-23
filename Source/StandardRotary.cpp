@@ -7,7 +7,7 @@
 //StandardRotary::StandardRotary() {}
 		
 
-void StandardRotary::init(String name, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg) 
+void StandardRotary::init(String name, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg, Slider::SliderStyle) 
 {
 		
 
@@ -24,6 +24,11 @@ void StandardRotary::init(String name, Rectangle<int> parentBounds, float relX, 
 	this->sprite = spriteImg;
 
 	return;
+}
+
+void StandardRotary::reverse()
+{
+	mReverse = !mReverse;
 }
 
 
@@ -44,11 +49,11 @@ void StandardRotary::sendToDisplay(Label &dataLabel, Label &unitsLabel, float mu
 	
 }
 
-void StandardRotary::sendToDisplay(Label &dataLabel, Label &unitsLabel, std::vector<String> names)
+void StandardRotary::sendToDisplay(Label &dataLabel, Label &unitsLabel, std::vector<String> names, String modifier)
 {
 	
 	String text = names[this->getValue()];
-	dataLabel.setText(text, NotificationType::sendNotification);
+	dataLabel.setText(text+modifier, NotificationType::sendNotification);
 	unitsLabel.setText("bars", NotificationType::dontSendNotification);
 	
 }
