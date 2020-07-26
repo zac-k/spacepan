@@ -73,13 +73,6 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	debugText.setButtonText("Debug\nText");
 	//debugText.setText((String)(utils::modulo(-5, 7)));
 
-	/*mHeadWidthSlider.setRange(0.0, 10.0);
-	mHeadWidthSlider.setValue(0.15);
-	mHeadWidthSlider.setBounds(600, 200, 20, 100);
-	//mHeadWidthSlider.setSliderStyle(Slider::SliderStyle::LinearVertical);*/
-	/*mDelayDiscreteTimeKnob.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-	mDelayDiscreteTimeKnob.setBounds(20, 20, 200, 200);
-	addAndMakeVisible(mDelayDiscreteTimeKnob);*/
 
 	
 	// Initialise and add knobs to GUI
@@ -248,6 +241,7 @@ SpacePanAudioProcessorEditor::~SpacePanAudioProcessorEditor()
 
 void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
+	// Update sidechain envelope display if a sidechain control is changed
 	bool isSCcontrol = (slider == &mSCattackKnob) || (slider == &mSCattackShapeKnob) ||
 		(slider == &mSCdecayKnob) || (slider == &mSCdecayShapeKnob) ||
 		(slider == &mSCsustainKnob) || (slider == &mSCsustainLevelKnob) ||
@@ -258,6 +252,7 @@ void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 		adsrPlot.repaint();
 	}
 	
+	// Update delay time display if a delay control is changed
 	if (slider == &mDelayTimeKnob)
 	{
 		mDelayTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, 1000.0f);
@@ -331,7 +326,7 @@ void SpacePanAudioProcessorEditor::resized()
 
 void SpacePanAudioProcessorEditor::constructADSRplot()
 {
-
+	/* Draws the ADSR envelope */
 	
 	const float adsrTimeMax = processor.ATTACK_MAX + processor.DECAY_MAX + processor.SUSTAIN_MAX + processor.RELEASE_MAX;
 	float tAttack = *processor.mState.getRawParameterValue("sc_attack");
@@ -344,7 +339,6 @@ void SpacePanAudioProcessorEditor::constructADSRplot()
 	float sustainGain = *processor.mState.getRawParameterValue("sc_sustain_level");
 	float shapeRelease = *processor.mState.getRawParameterValue("sc_release_shape");;
 	Colour traceColour = Colours::lightgreen;
-	//Colour traceColourHalf = Colour::fromFloatRGBA (124.0, 252.0, 0.0, 0.8);
 	Colour bgColour = Colours::transparentBlack;
 	adsrPlotImage.clear(adsrPlotImage.getBounds(), bgColour);
 
@@ -397,6 +391,7 @@ void SpacePanAudioProcessorEditor::constructADSRplot()
 
 void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *const editor, StandardRotary &control, String name, float relX, float relY, Image spriteImg, String tooltipText, Slider::SliderStyle style)
 {
+	/* Adds a StandardRotary with tooltip to the GUI */
 	control.init(name, editor->getBounds(), relX, relY, spriteImg, style);
 	control.setTooltip(tooltipText);
 	control.addListener(editor);
