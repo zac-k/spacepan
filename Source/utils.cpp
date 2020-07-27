@@ -18,7 +18,7 @@
 	{
 		while (val1 < 0)
 		{
-			val1 += val1;
+			val1 += val2;
 		}
 		int mod = val1 % val2;
 		/*while (mod < 0)

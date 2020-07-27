@@ -696,14 +696,21 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	float width = *mState.getRawParameterValue("delay_width");
 	delayverbParams.roomSize = 0.0;// diffusion / 10.0f;
 	delayverbParams.damping = 1.0f;
-
+	int delayverbType = 1;
+	//if (delayverbType == 1)
+	//{
+	//	diffusion /= (10 *mDelayFeedbackGain);
+	//}
 	delayverbParams.wetLevel = diffusion;
 	delayverbParams.dryLevel = 1 - diffusion;
 	delayverbParams.width = width;
 	delayverbParams.freezeMode = 0.0f;
 	delayverb.setParameters(delayverbParams);
-	delayverb.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
-
+	
+	if (delayverbType == 0)
+	{
+		delayverb.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
+	}
 	//delayAllPassFilter.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
 
 	
@@ -780,8 +787,9 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 
 	//delayBuffer.setSize(delayBuffer.getNumChannels(), delayInSamples + 2, true);
 	
-		if ((int)*mState.getRawParameterValue("delay_filter_type") == 1)
+		
 		{
+
 			AudioBuffer<float> delayBufferTemp(samples.getNumChannels(), numSamples);
 			for (int channel = 0; channel < samples.getNumChannels(); ++channel)
 			{
@@ -789,16 +797,41 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 				// TODO: this is hacky at the moment - read position should be set based on delay
 				delayBuffer.setReadPosition(channel, delayBuffer.getWritePosition(channel));
 				delayBuffer.read(channel, delayBufferTemp);
-				delayBuffer.moveReadPosition(channel, delayBuffer.getLoopSize(channel)-numSamples);
+				delayBuffer.moveReadPosition(channel, -numSamples);
+			}
+			// Add saturation to wet delay signal
+			if (*mState.getRawParameterValue("delay_sat") > 0.1)
+			{
+				saturate(delayBufferTemp, *mState.getRawParameterValue("delay_sat"), *mState.getRawParameterValue("delay_sat_char"));
 			}
 			dsp::AudioBlock<float> delayBlock(delayBufferTemp);
-			delayLowPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
-			delayHighPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
+			if (delayverbType == 1)
+			{
+				delayverb.process(dsp::ProcessContextReplacing<float>(delayBlock));
+				float allPassFreqs[4] = { 1051.0f, 337.0f, 113.0f };
+				/*for (int i = 0; i < 4; i++)
+				{
+
+					*delayAllPassFilter.state = *dsp::IIR::Coefficients<float>::makeAllPass(getSampleRate(), allPassFreqs[i], 0.0);
+					delayAllPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
+
+				}*/
+			}
+			if ((int)*mState.getRawParameterValue("delay_filter_type") == 1)
+			{
+
+				*delayLowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), delayLPf, delayLPQ / 5.0f);
+				*delayHighPassFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), delayHPf, delayHPQ / 5.0f);
+				delayLowPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
+				delayHighPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
+			}
+
+			
 			//delayAllPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
 			for (int channel = 0; channel < samples.getNumChannels(); ++channel)
 			{
 				delayBuffer.write(channel, delayBufferTemp);
-				delayBuffer.moveWritePosition(channel, delayBuffer.getLoopSize(channel)-numSamples);
+				delayBuffer.moveWritePosition(channel, -numSamples);
 			}
 
 		}
@@ -868,11 +901,7 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 
 	}
 
-	// Add saturation to wet delay signal
-	if (*mState.getRawParameterValue("delay_sat") > 0.1)
-	{
-		saturate(delayWet, *mState.getRawParameterValue("delay_sat"), *mState.getRawParameterValue("delay_sat_char"));
-	}
+	
 
 	// Apply filters to wet delay signal
 	if ((int)*mState.getRawParameterValue("delay_filter_type") == 0)
