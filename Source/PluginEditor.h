@@ -143,6 +143,8 @@ private:
 	AudioProcessorValueTreeState::SliderAttachment mNoteDotTripAttachment;
 	StandardRotary mDelayFilterTypeSwitch;
 	AudioProcessorValueTreeState::SliderAttachment mDelayFilterTypeAttachment;
+	StandardButton mDelayOnOffButton;
+	AudioProcessorValueTreeState::ButtonAttachment mDelayOnOffAttachment;
 	
 	//==============================================================================
 	
@@ -161,6 +163,8 @@ private:
 	AudioProcessorValueTreeState::SliderAttachment mRevSCamountAttachment;
 	StandardRotary mRevHighPassQKnob;
 	AudioProcessorValueTreeState::SliderAttachment mRevHighPassQAttachment;
+	StandardButton mRevOnOffButton;
+	AudioProcessorValueTreeState::ButtonAttachment mRevOnOffAttachment;
 	//Slider mRevMixKnob;
 
 	//==============================================================================
@@ -184,6 +188,8 @@ private:
 	AudioProcessorValueTreeState::SliderAttachment mSCreleaseShapeAttachment;
 	StandardRotary mSCthresholdKnob;
 	AudioProcessorValueTreeState::SliderAttachment mSCthresholdAttachment;
+	StandardButton mSCOnOffButton;
+	AudioProcessorValueTreeState::ButtonAttachment mSCOnOffAttachment;
 
 	//==============================================================================
 
@@ -192,6 +198,8 @@ private:
 	Typeface::Ptr BPdotsTypeface = Typeface::createSystemTypefaceFor(BinaryData::BPdots_otf, BinaryData::BPdots_otfSize);
 
 	void addControl(SpacePanAudioProcessorEditor *const editor, StandardRotary &control, String name, float relX, float relY, Image spriteImg, String tooltipText, Slider::SliderStyle = Slider::SliderStyle::RotaryVerticalDrag);
+
+	void addControl(SpacePanAudioProcessorEditor *const editor, StandardButton &control, String name, float relX, float relY, Image spriteImg, String tooltipText, Slider::SliderStyle = Slider::SliderStyle::RotaryVerticalDrag);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpacePanAudioProcessorEditor)
 };

@@ -31,6 +31,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() :
 		  std::make_unique<AudioParameterFloat>("rev_highpass", "Reverb Highpass", utils::frequencyRange<float>(100.0f, 2.0e4f), 2.0e2f),
 		  std::make_unique<AudioParameterFloat>("rev_sc_amount", "Reverb Sidechain Amount", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
 		  std::make_unique<AudioParameterFloat>("rev_highpass_Q", "Reverb Highpass Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
+		  std::make_unique<AudioParameterBool>("rev_on_off", "Enable Reverb", true),
 
 		  std::make_unique<AudioParameterFloat>("pan", "Pan", NormalisableRange<float>(-1.0f, 1.0f), 0.0f),
 		  std::make_unique<AudioParameterFloat>("room_size", "Room Size", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
@@ -40,32 +41,34 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() :
 		  std::make_unique<AudioParameterFloat>("delay_time", "Delay Time", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 
 		  //std::make_unique<AudioParameterInt>("delay_time_discrete", "Delay Time", 0, 8, 1, String(), stringFromInt),// delayInBarsDP.labelsLambda()),
-	  std::make_unique<AudioParameterInt>("delay_time_discrete", "Delay Time", 0, delayInBarsDP.getNumParams() - 1, 1, String(), delayInBarsDP.labelsLambda()),
-	  std::make_unique<AudioParameterInt>("delay_modifier", "Delay Modifier", 0, delayModifierDP.getNumParams() - 1, 1, String(), delayModifierDP.labelsLambda()),
-	  std::make_unique<AudioParameterInt>("delay_filter_type", "Delay Filter Type", 0, delayFilterTypeDP.getNumParams() - 1, 1, String(), delayFilterTypeDP.labelsLambda()),
-	  std::make_unique<AudioParameterFloat>("delay_lowpass", "Delay High Cut", utils::frequencyRange(100.0f, 2.0e4f), 2.0e3f),
-	  std::make_unique<AudioParameterFloat>("delay_lowpass_Q", "Delay High Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
-	  std::make_unique<AudioParameterFloat>("delay_highpass", "Delay Low Cut", utils::frequencyRange<float>(100.0f, 2.0e4f), 2.0e2f),
-	  std::make_unique<AudioParameterFloat>("delay_highpass_Q", "Delay Low Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
-	  std::make_unique<AudioParameterFloat>("delay_allpass", "Delay Allpass", NormalisableRange<float>(100.0f, 2.0e4f), 100.0f),
-	  std::make_unique<AudioParameterFloat>("delay_diffusion", "Delay Diffusion", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
-	  std::make_unique<AudioParameterFloat>("delay_sc_amount", "Delay Sidechain Amount", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
-	  std::make_unique<AudioParameterBool>("delay_tempo_lock", "Delay Tempo Lock", true),
+		  std::make_unique<AudioParameterInt>("delay_time_discrete", "Delay Time", 0, delayInBarsDP.getNumParams() - 1, 1, String(), delayInBarsDP.labelsLambda()),
+		  std::make_unique<AudioParameterInt>("delay_modifier", "Delay Modifier", 0, delayModifierDP.getNumParams() - 1, 1, String(), delayModifierDP.labelsLambda()),
+		  std::make_unique<AudioParameterInt>("delay_filter_type", "Delay Filter Type", 0, delayFilterTypeDP.getNumParams() - 1, 1, String(), delayFilterTypeDP.labelsLambda()),
+		  std::make_unique<AudioParameterFloat>("delay_lowpass", "Delay High Cut", utils::frequencyRange(100.0f, 2.0e4f), 2.0e3f),
+		  std::make_unique<AudioParameterFloat>("delay_lowpass_Q", "Delay High Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
+		  std::make_unique<AudioParameterFloat>("delay_highpass", "Delay Low Cut", utils::frequencyRange<float>(100.0f, 2.0e4f), 2.0e2f),
+		  std::make_unique<AudioParameterFloat>("delay_highpass_Q", "Delay Low Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
+		  std::make_unique<AudioParameterFloat>("delay_allpass", "Delay Allpass", NormalisableRange<float>(100.0f, 2.0e4f), 100.0f),
+		  std::make_unique<AudioParameterFloat>("delay_diffusion", "Delay Diffusion", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
+		  std::make_unique<AudioParameterFloat>("delay_sc_amount", "Delay Sidechain Amount", NormalisableRange<float>(0.0f, 1.0f), 0.0f),
+		  std::make_unique<AudioParameterBool>("delay_tempo_lock", "Delay Tempo Lock", true),
+		  std::make_unique<AudioParameterBool>("delay_on_off", "Enable Delay", true),
 
-	  std::make_unique<AudioParameterFloat>("delay_mix", "Delay Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-	  std::make_unique<AudioParameterFloat>("delay_sat", "Delay Saturation", NormalisableRange<float>(0.0f, 10.0f), 0.0f),
-	  std::make_unique<AudioParameterFloat>("delay_sat_char", "Delay Saturation Character", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-	  std::make_unique<AudioParameterFloat>("delay_width", "Delay Width", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+		  std::make_unique<AudioParameterFloat>("delay_mix", "Delay Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+		  std::make_unique<AudioParameterFloat>("delay_sat", "Delay Saturation", NormalisableRange<float>(0.0f, 10.0f), 0.0f),
+		  std::make_unique<AudioParameterFloat>("delay_sat_char", "Delay Saturation Character", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+		  std::make_unique<AudioParameterFloat>("delay_width", "Delay Width", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 
-	  std::make_unique<AudioParameterFloat>("sc_attack", "Sidechain Attack", NormalisableRange<float>(0.01f, ATTACK_MAX), 0.1f),
-	  std::make_unique<AudioParameterFloat>("sc_attack_shape", "Sidechain Attack Shape", NormalisableRange<float>(0.2f, 10.0f), 0.2f),
-	  std::make_unique<AudioParameterFloat>("sc_decay", "Sidechain Decay", NormalisableRange<float>(0.01f, DECAY_MAX), 0.1f),
-	  std::make_unique<AudioParameterFloat>("sc_decay_shape", "Sidechain Decay Shape", NormalisableRange<float>(0.1f, 5.0f), 0.1f),
-	  std::make_unique<AudioParameterFloat>("sc_sustain_level", "Sidechain Sustain Level", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
-	  std::make_unique<AudioParameterFloat>("sc_sustain", "Sidechain Sustain", NormalisableRange<float>(0.0f, SUSTAIN_MAX), 0.1f),
-	  std::make_unique<AudioParameterFloat>("sc_release", "Sidechain Release", NormalisableRange<float>(0.01f, RELEASE_MAX), 0.1f),
-	  std::make_unique<AudioParameterFloat>("sc_release_shape", "Sidechain release Shape", NormalisableRange<float>(0.1f, 10.0f), 0.1f),
-	  std::make_unique<AudioParameterFloat>("sc_threshold", "Sidechain Threshold", NormalisableRange<float>(0.0f, 1.0f), 0.5f) })
+		  std::make_unique<AudioParameterFloat>("sc_attack", "Sidechain Attack", NormalisableRange<float>(0.01f, ATTACK_MAX), 0.1f),
+		  std::make_unique<AudioParameterFloat>("sc_attack_shape", "Sidechain Attack Shape", NormalisableRange<float>(0.2f, 10.0f), 0.2f),
+		  std::make_unique<AudioParameterFloat>("sc_decay", "Sidechain Decay", NormalisableRange<float>(0.01f, DECAY_MAX), 0.1f),
+		  std::make_unique<AudioParameterFloat>("sc_decay_shape", "Sidechain Decay Shape", NormalisableRange<float>(0.1f, 5.0f), 0.1f),
+		  std::make_unique<AudioParameterFloat>("sc_sustain_level", "Sidechain Sustain Level", NormalisableRange<float>(0.0f, 1.0f), 1.0f),
+		  std::make_unique<AudioParameterFloat>("sc_sustain", "Sidechain Sustain", NormalisableRange<float>(0.0f, SUSTAIN_MAX), 0.1f),
+		  std::make_unique<AudioParameterFloat>("sc_release", "Sidechain Release", NormalisableRange<float>(0.01f, RELEASE_MAX), 0.1f),
+		  std::make_unique<AudioParameterFloat>("sc_release_shape", "Sidechain release Shape", NormalisableRange<float>(0.1f, 10.0f), 0.1f),
+		  std::make_unique<AudioParameterFloat>("sc_threshold", "Sidechain Threshold", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+		  std::make_unique<AudioParameterBool>("sc_on_off", "Enable Sidechain", true), })
 #ifndef JucePlugin_PreferredChannelConfigurations
      , AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -82,7 +85,12 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() :
 
 void SpacePanAudioProcessor::parameterChanged(const String &parameterID, float newValue)
 {
-	
+
+	// Reset reverb when it is turned off
+	if (parameterID == "rev_on_off" && !newValue)
+	{
+		mReverb.reset();
+	}
 	
 }
 
@@ -168,6 +176,7 @@ void SpacePanAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 	mState.addParameterListener("sc_sustain_level", this);
 	mState.addParameterListener("sc_release", this);
 	mState.addParameterListener("sc_release_shape", this);
+	mState.addParameterListener("rev_on_off", this);
 
 	
 	
@@ -330,7 +339,12 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 	float delayOffsets[] = { 0, 0 };
 	delay(buffer, mDelayBuffer, buffer.getNumSamples(), delayOffsets, sampleRate, 0, true);		
 
-	reverb(buffer, *mState.getRawParameterValue("pan"));
+	if (*mState.getRawParameterValue("rev_on_off"))
+	{
+		// TODO: fade this out
+		reverb(buffer, *mState.getRawParameterValue("pan"));
+	}
+	
 
 		//=============================================================================
 		/*
@@ -808,11 +822,11 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 			if (delayverbType == 1)
 			{
 				delayverb.process(dsp::ProcessContextReplacing<float>(delayBlock));
-				float allPassFreqs[4] = { 1051.0f, 337.0f, 113.0f };
-				/*for (int i = 0; i < 4; i++)
+				float allPassFreqs[3] = { 1051.0f, 337.0f, 113.0f };
+				/*for (int i = 0; i < 3; i++)
 				{
 
-					*delayAllPassFilter.state = *dsp::IIR::Coefficients<float>::makeAllPass(getSampleRate(), allPassFreqs[i], 0.0);
+					*delayAllPassFilter.state = *dsp::IIR::Coefficients<float>::makeAllPass(getSampleRate(), allPassFreqs[i], 1.0);
 					delayAllPassFilter.process(dsp::ProcessContextReplacing<float>(delayBlock));
 
 				}*/

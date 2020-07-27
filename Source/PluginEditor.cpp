@@ -29,6 +29,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mRevHighPassAttachment(p.mState, "rev_highpass", mRevHighPassKnob),
 	mRevHighPassQAttachment(p.mState, "rev_highpass_Q", mRevHighPassQKnob),
 	mRevSCamountAttachment(p.mState, "rev_sc_amount", mRevSCamountKnob),
+	mRevOnOffAttachment(p.mState, "rev_on_off", mRevOnOffButton),
 
 	mPanAttachment(p.mState, "pan", mPanKnob),
 	mRoomSizeAttachment(p.mState, "room_size", mRoomSizeKnob),
@@ -50,6 +51,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelayWidthAttachment(p.mState, "delay_width", mDelayWidthKnob),
 	mDelayDiffusionAttachment(p.mState, "delay_diffusion", mDelayDiffusionKnob),
 	mDelaySCamountAttachment(p.mState, "delay_sc_amount", mDelaySCamountKnob),
+	mDelayOnOffAttachment(p.mState, "delay_on_off", mDelayOnOffButton),
 
 	mSCattackAttachment(p.mState, "sc_attack", mSCattackKnob),
 	mSCattackShapeAttachment(p.mState, "sc_attack_shape", mSCattackShapeKnob),
@@ -59,7 +61,8 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mSCsustainAttachment(p.mState, "sc_sustain", mSCsustainKnob),
 	mSCreleaseAttachment(p.mState, "sc_release", mSCreleaseKnob),
 	mSCreleaseShapeAttachment(p.mState, "sc_release_shape", mSCreleaseShapeKnob),
-	mSCthresholdAttachment(p.mState, "sc_threshold", mSCthresholdKnob)
+	mSCthresholdAttachment(p.mState, "sc_threshold", mSCthresholdKnob),
+	mSCOnOffAttachment(p.mState, "sc_on_off", mSCOnOffButton)
 	
 {
     setSize (852, 600);
@@ -152,15 +155,29 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	//mDelayOnButton.setImages(false, false, true,);
 	//addAndMakeVisible(mDelayOnButton);
 	mDelayTempoLockButton.setName("delayTempoLockButton");
-
-	mDelayTempoLockButton.setOnOffImages(delayTempoLockButtonImg);
-	
+	mDelayTempoLockButton.setOnOffImages(delayTempoLockButtonImg);	
 	mDelayTempoLockButton.displayAsOn(true);
-	mDelayTempoLockButton.setCentrePosition(200, 100);
-
-	
+	mDelayTempoLockButton.setCentrePosition(200, 100);	
 	mDelayTempoLockButton.addListener(this);
 	addAndMakeVisible(mDelayTempoLockButton);
+
+	/*mRevOnOffButton.setName("revOnOffButton");
+	mRevOnOffButton.setOnOffImages(delayTempoLockButtonImg);
+	mRevOnOffButton.displayAsOn(true);
+	mRevOnOffButton.setCentrePosition(512, 365);
+	mRevOnOffButton.addListener(this);
+	addAndMakeVisible(mRevOnOffButton);*/
+
+	/*mDelayOnOffButton.setName("delayOnOffButton");
+	mDelayOnOffButton.setOnOffImages(delayTempoLockButtonImg);
+	mDelayOnOffButton.displayAsOn(true);
+	mDelayOnOffButton.setCentrePosition(96, 365);
+	mDelayOnOffButton.addListener(this);
+	addAndMakeVisible(mDelayOnOffButton);*/
+
+	addControl(this, mRevOnOffButton, "revOnOffButton", 0.6f, 0.61f, delayTempoLockButtonImg, "On/off");
+	addControl(this, mDelayOnOffButton, "delayOnOffButton", 0.113f, 0.61f, delayTempoLockButtonImg, "On/off");
+	addControl(this, mSCOnOffButton, "scOnOffButton", 0.113f, 0.85f, delayTempoLockButtonImg, "On/off");
 
 
 
@@ -293,10 +310,55 @@ void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
 		
 		//
 	}
+	else if (button->getName() == "revOnOffButton")
+	{
+
+
+		button->setToggleState(!button->getToggleState(), dontSendNotification);
+		if (button->getToggleState())
+		{	
+			mRevOnOffButton.displayAsOn(true);
+		}
+		else
+		{
+			mRevOnOffButton.displayAsOn(false);
+			
+		}
+	}
+	else if (button->getName() == "delayOnOffButton")
+	{
+
+
+		button->setToggleState(!button->getToggleState(), dontSendNotification);
+		if (button->getToggleState())
+		{
+			mDelayOnOffButton.displayAsOn(true);
+		}
+		else
+		{
+			mDelayOnOffButton.displayAsOn(false);
+
+		}
+	}
+	else if (button->getName() == "scOnOffButton")
+	{
+
+
+		button->setToggleState(!button->getToggleState(), dontSendNotification);
+		if (button->getToggleState())
+		{
+			mSCOnOffButton.displayAsOn(true);
+		}
+		else
+		{
+			mSCOnOffButton.displayAsOn(false);
+
+		}
+	}
 
 }
 
-//void SpacePanAudioProcessorEditor::buttonStateChanged(Button* button)
+//void SpacePanAudioProcessorEditor::buttonStateChanged(ImageButton* button)
 //{
 //	
 //}
@@ -396,5 +458,21 @@ void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *cons
 	control.setTooltip(tooltipText);
 	control.addListener(editor);
 	editor->addAndMakeVisible(control);
+
+}
+
+void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *const editor, StandardButton &control, String name, float relX, float relY, Image spriteImg, String tooltipText, Slider::SliderStyle style)
+{
+	/* Adds a StandardButton with tooltip to the GUI */
+
+	control.setName(name);
+	control.setOnOffImages(spriteImg);
+	control.displayAsOn(true);
+	int xpos = (int)(relX * (float)editor->getBounds().getWidth());
+	int ypos = (int)(relY * (float)editor->getBounds().getHeight());
+	control.setCentrePosition(xpos, ypos);
+	control.setTooltip(tooltipText);
+	control.addListener(editor);
+	addAndMakeVisible(control);
 
 }
