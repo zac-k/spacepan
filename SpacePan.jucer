@@ -39,6 +39,10 @@
             file="Source/PluginEditor.cpp"/>
       <FILE id="fKHiQ3" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
+    <FILE id="RScofO" name="all_sprite_0.png" compile="1" resource="1"
+          file="Resource/all_sprite_0.png"/>
+    <FILE id="bHPcww" name="all_sprite_63.png" compile="1" resource="1"
+          file="Resource/all_sprite_63.png"/>
     <FILE id="NJfWns" name="delayTempoLockOnOff.png" compile="1" resource="1"
           file="Resource/delayTempoLockOnOff.png"/>
     <FILE id="tPhND2" name="BPdots.otf" compile="1" resource="1" file="Resource/BPdots.otf"/>
