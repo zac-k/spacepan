@@ -16,8 +16,9 @@
 //#include "PluginProcessor.cpp"
 #include "PluginEditor.h"
 //#include "utils.h"
-
-
+#define NOMINMAX
+#include <windows.h>
+#include <shellapi.h>
 
 
 //==============================================================================
@@ -108,6 +109,8 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mDelayDiffusionKnob, "DelayDiffusionKnob", 0.28f, 0.6f, knobImg, "Diffusion");
 	addControl(this, mDelaySCamountKnob, "DelaySCamountKnob", 0.5f, 0.6f, knobImgPan, "Sidechain Amount");
 
+	mDelayTempoLockButton.setDim(32, 32);
+	addControl(this, mDelayTempoLockButton, "delayTempoLockButton", 0.235f, 0.167f, switchImg, "Lock to tempo", Slider::SliderStyle::LinearVertical);
 
 	mNoteDotTripSlider.setDim(32, 32);
 	addControl(this, mNoteDotTripSlider, "noteDotTripSlider", 0.23f, 0.5f, switchImg, "Delay modifier", Slider::SliderStyle::LinearVertical);
@@ -154,12 +157,13 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	//mDelayOnButton.setBounds(100, 100, 20, 80);
 	//mDelayOnButton.setImages(false, false, true,);
 	//addAndMakeVisible(mDelayOnButton);
-	mDelayTempoLockButton.setName("delayTempoLockButton");
+
+	/*mDelayTempoLockButton.setName("delayTempoLockButton");
 	mDelayTempoLockButton.setOnOffImages(delayTempoLockButtonImg);	
 	mDelayTempoLockButton.displayAsOn(true);
 	mDelayTempoLockButton.setCentrePosition(200, 100);	
 	mDelayTempoLockButton.addListener(this);
-	addAndMakeVisible(mDelayTempoLockButton);
+	addAndMakeVisible(mDelayTempoLockButton);*/
 
 	/*mRevOnOffButton.setName("revOnOffButton");
 	mRevOnOffButton.setOnOffImages(delayTempoLockButtonImg);
@@ -206,7 +210,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addAndMakeVisible(mSigButton);
 
 
-	Rectangle<int> timeTextBounds = Rectangle<int>(137, 227, 60, 41);
+	juce::Rectangle<int> timeTextBounds = juce::Rectangle<int>(137, 227, 60, 41);
 	mDelayTimeUnitsText.setBounds(timeTextBounds);
 	mDelayTimeUnitsText.setEditable(false);
 	mDelayTimeUnitsText.setColour(mDelayTimeUnitsText.textColourId, Colours::lightgreen);	
@@ -228,7 +232,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	timeTextGlass.setBounds(timeTextBounds);
 	addAndMakeVisible(timeTextGlass);
 
-	if (mDelayTempoLockButton.getToggleState())
+	if (mDelayTempoLockButton.getValue())
 	{
 		
 		int index = (int)mNoteDotTripSlider.getValue();
@@ -274,16 +278,35 @@ void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 	{
 		mDelayTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, 1000.0f);
 	}
-	else if ((slider == &mDelayDiscreteTimeKnob || slider == &mNoteDotTripSlider) && mDelayTempoLockButton.getToggleState())
+	else if ((slider == &mDelayDiscreteTimeKnob || slider == &mNoteDotTripSlider) && mDelayTempoLockButton.getValue())
 	{
 		int index = (int)mNoteDotTripSlider.getValue();
 		mDelayDiscreteTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, processor.delayInBarsDP.getNames(), mDelayModifierChar.substring(index, index + 1));
+	}
+	else if (slider->getName() == "delayTempoLockButton")
+	{
+
+
+		//slider->setValue(!slider->getToggleState(), dontSendNotification);
+		if (slider->getValue())
+		{
+			mDelayDiscreteTimeKnob.setVisible(true);
+			mDelayTimeKnob.setVisible(false);
+			int index = (int)mNoteDotTripSlider.getValue();
+			mDelayDiscreteTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, processor.delayInBarsDP.getNames(), (String)mDelayModifierChar.substring(index, index + 1));
+		}
+		else
+		{
+			mDelayDiscreteTimeKnob.setVisible(false);
+			mDelayTimeKnob.setVisible(true);
+			mDelayTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, 1000.0f);
+		}
 	}
 }
 
 void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
 {
-	if (button->getName() == "delayTempoLockButton")
+	/*if (button->getName() == "delayTempoLockButton")
 	{
 		
 		
@@ -303,11 +326,13 @@ void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
 			mDelayTimeKnob.setVisible(true);
 			mDelayTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, 1000.0f);
 		}
-	}
-	else if (button->getName() == "sigButton")
+	}*/
+	if (button->getName() == "sigButton")
 	{
 		// For opening hyperlink
-		
+		const char *url = "http://zac-k.github.io";
+		utils::openHyperlink(url);
+		//ShellExecute(0, 0, url, 0, 0, SW_SHOW);
 		//
 	}
 	else if (button->getName() == "revOnOffButton")
@@ -354,6 +379,8 @@ void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
 			mSCOnOffButton.displayAsOn(false);
 
 		}
+		constructADSRplot();
+		adsrPlot.repaint();
 	}
 
 }
@@ -390,63 +417,67 @@ void SpacePanAudioProcessorEditor::constructADSRplot()
 {
 	/* Draws the ADSR envelope */
 	
-	const float adsrTimeMax = processor.ATTACK_MAX + processor.DECAY_MAX + processor.SUSTAIN_MAX + processor.RELEASE_MAX;
-	float tAttack = *processor.mState.getRawParameterValue("sc_attack");
-	float tDecay = *processor.mState.getRawParameterValue("sc_decay");
-	float tSustain = *processor.mState.getRawParameterValue("sc_sustain");
-	float tRelease = *processor.mState.getRawParameterValue("sc_release");
-
-	float shapeAttack = *processor.mState.getRawParameterValue("sc_attack_shape");
-	float shapeDecay = *processor.mState.getRawParameterValue("sc_decay_shape");
-	float sustainGain = *processor.mState.getRawParameterValue("sc_sustain_level");
-	float shapeRelease = *processor.mState.getRawParameterValue("sc_release_shape");;
-	Colour traceColour = Colours::lightgreen;
-	Colour bgColour = Colours::transparentBlack;
-	adsrPlotImage.clear(adsrPlotImage.getBounds(), bgColour);
-
-	int pixTemp = adsrPlotImage.getHeight();
-	//int pixPrev = 0;
-	for (int i = 0; i < adsrPlotImage.getWidth(); i++)
+		Colour bgColour = Colours::transparentBlack;
+		adsrPlotImage.clear(adsrPlotImage.getBounds(), bgColour);
+	if (mSCOnOffButton.getToggleState())
 	{
-		float val;
-		float t = i * adsrTimeMax / adsrPlotImage.getWidth();
-		if (t < tAttack)
-		{
-			val = std::pow(t / tAttack, shapeAttack);
-		}
-		else if (t < tAttack + tDecay)
-		{
-			val = 1 - std::pow((t - tAttack) / tDecay, shapeDecay) * (1 - sustainGain);
-		}
-		else if (t < tAttack + tDecay + tSustain)
-		{
-			val = sustainGain;
-		}
-		else
-		{
-			val = (1 - std::pow((t - tAttack - tDecay - tSustain) / tRelease, shapeRelease)) * sustainGain;
-		}
-		int pix = (int)((1 - val) * adsrPlotImage.getHeight());
-		pix = std::max(0, pix);
-		pix = std::min(pix, adsrPlotImage.getHeight());
+		const float adsrTimeMax = processor.ATTACK_MAX + processor.DECAY_MAX + processor.SUSTAIN_MAX + processor.RELEASE_MAX;
+		float tAttack = *processor.mState.getRawParameterValue("sc_attack");
+		float tDecay = *processor.mState.getRawParameterValue("sc_decay");
+		float tSustain = *processor.mState.getRawParameterValue("sc_sustain");
+		float tRelease = *processor.mState.getRawParameterValue("sc_release");
 
+		float shapeAttack = *processor.mState.getRawParameterValue("sc_attack_shape");
+		float shapeDecay = *processor.mState.getRawParameterValue("sc_decay_shape");
+		float sustainGain = *processor.mState.getRawParameterValue("sc_sustain_level");
+		float shapeRelease = *processor.mState.getRawParameterValue("sc_release_shape");;
+		Colour traceColour = Colours::lightgreen;
 
-		while (std::abs(pix - pixTemp) > 0)
+		int pixTemp = adsrPlotImage.getHeight();
+		//int pixPrev = 0;
+		for (int i = 0; i < adsrPlotImage.getWidth(); i++)
 		{
-			pixTemp = pixTemp + (int)copysign(1, pix - pixTemp);
-			adsrPlotImage.setPixelAt(i, pixTemp, traceColour);
-			/*if (i != adsrPlotImage.getWidth() - 1)
+			float val;
+			float t = i * adsrTimeMax / adsrPlotImage.getWidth();
+			if (t < tAttack)
 			{
-				adsrPlotImage.setPixelAt(i + 1, pixTemp, traceColourHalf);
+				val = std::pow(t / tAttack, shapeAttack);
 			}
-			if (i != pixPrev && i != 0)
+			else if (t < tAttack + tDecay)
 			{
-				adsrPlotImage.setPixelAt(i - 1, pixTemp, traceColourHalf);
-			}*/
-		}
-		adsrPlotImage.setPixelAt(i, pix, traceColour);
+				val = 1 - std::pow((t - tAttack) / tDecay, shapeDecay) * (1 - sustainGain);
+			}
+			else if (t < tAttack + tDecay + tSustain)
+			{
+				val = sustainGain;
+			}
+			else
+			{
+				val = (1 - std::pow((t - tAttack - tDecay - tSustain) / tRelease, shapeRelease)) * sustainGain;
+			}
+			int pix = (int)((1 - val) * adsrPlotImage.getHeight());
+			pix = std::max(0, pix);
+			pix = std::min(pix, adsrPlotImage.getHeight());
 
+
+			while (std::abs(pix - pixTemp) > 0)
+			{
+				pixTemp = pixTemp + (int)copysign(1, pix - pixTemp);
+				adsrPlotImage.setPixelAt(i, pixTemp, traceColour);
+				/*if (i != adsrPlotImage.getWidth() - 1)
+				{
+					adsrPlotImage.setPixelAt(i + 1, pixTemp, traceColourHalf);
+				}
+				if (i != pixPrev && i != 0)
+				{
+					adsrPlotImage.setPixelAt(i - 1, pixTemp, traceColourHalf);
+				}*/
+			}
+			adsrPlotImage.setPixelAt(i, pix, traceColour);
+
+		}
 	}
+	
 	
 	//adsrPlot.setImage(adsrPlotImage);
 }

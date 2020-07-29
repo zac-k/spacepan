@@ -91,6 +91,11 @@ void SpacePanAudioProcessor::parameterChanged(const String &parameterID, float n
 	{
 		mReverb.reset();
 	}
+	else if (parameterID == "delay_on_off" && !newValue)
+	{
+		// TODO: this doesn't seem to be clearing properly
+		mDelayBuffer.clear();
+	}
 	
 }
 
@@ -337,8 +342,10 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 
 	// TODO: Control this via GUI and put inside delay function
 	float delayOffsets[] = { 0, 0 };
-	delay(buffer, mDelayBuffer, buffer.getNumSamples(), delayOffsets, sampleRate, 0, true);		
-
+	if (*mState.getRawParameterValue("delay_on_off"))
+	{
+		delay(buffer, mDelayBuffer, buffer.getNumSamples(), delayOffsets, sampleRate, 0, true);
+	}
 	if (*mState.getRawParameterValue("rev_on_off"))
 	{
 		// TODO: fade this out
@@ -481,12 +488,15 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 		mReverbBuffer.read(channel, reverbWet);
 
 		// Apply sidechain
-		for (int i = 0; i < reverbWet.getNumSamples(); i++)
+		if (*mState.getRawParameterValue("rev_sc_amount") > 0.01 &&*mState.getRawParameterValue("sc_on_off"))
 		{
-			revEnvelope[channel].trigger(buffer.getReadPointer(channel)[i]);
+			for (int i = 0; i < reverbWet.getNumSamples(); i++)
+			{
+				revEnvelope[channel].trigger(buffer.getReadPointer(channel)[i]);
 			
-			reverbWet.getWritePointer(channel)[i] *= (1 - revEnvelope[channel].getGain() * *mState.getRawParameterValue("rev_sc_amount"));
-			revEnvelope[channel].update(1.0f / getSampleRate());
+				reverbWet.getWritePointer(channel)[i] *= (1 - revEnvelope[channel].getGain() * *mState.getRawParameterValue("rev_sc_amount"));
+				revEnvelope[channel].update(1.0f / getSampleRate());
+			}
 		}
 
 		// Mix wet and dry signals
@@ -931,7 +941,7 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	{
 		// TODO: sidechain is expensive. Do it in blocks for performance
 		// Apply sidechain
-		if (*mState.getRawParameterValue("delay_sc_amount") > 0.01)
+		if (*mState.getRawParameterValue("delay_sc_amount") > 0.01 && *mState.getRawParameterValue("sc_on_off"))
 		{
 			for (int i = 0; i < delayWet.getNumSamples(); i++)
 			{

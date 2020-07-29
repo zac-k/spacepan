@@ -10,8 +10,6 @@
 
 #include "utils.h"
 
-//#include <JuceHeader.h>
-
 
 
 	int utils::modulo(int val1, int val2)
@@ -41,8 +39,9 @@
 		return { min, max, interval, 1.f / std::log2(1.f + std::sqrt(max / min)) };
 	}
 
-	/*void utils::openHyperlink(const char *url)
+	void utils::openHyperlink(const char *url)
 	{
+		
 		ShellExecute(0, 0, url, 0, 0, SW_SHOW);
 	}
-*/
+

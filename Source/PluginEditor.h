@@ -15,7 +15,9 @@
 #include "StandardRotary.h"
 #include "StandardButton.h"
 #include "StandardSwitch.h"
-//#include "utils.h"
+
+
+#include "utils.h"
 
 //==============================================================================
 /**
@@ -113,8 +115,8 @@ private:
 	//ImageButton mDelayOnButton;
 	StandardRotary mDelayFeedbackKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayFeedbackAttachment;
-	StandardButton mDelayTempoLockButton;
-	AudioProcessorValueTreeState::ButtonAttachment mDelayTempoLockAttachment;
+	StandardRotary mDelayTempoLockButton;
+	AudioProcessorValueTreeState::SliderAttachment mDelayTempoLockAttachment;
 	StandardRotary mDelayTimeKnob;
 	AudioProcessorValueTreeState::SliderAttachment mDelayTimeAttachment;
 	StandardRotary mDelayDiscreteTimeKnob;
