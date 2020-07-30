@@ -66,7 +66,17 @@ void CircularAudioBuffer<T>::initLoopSize()
 template <typename T>
 void CircularAudioBuffer<T>::setLoopSize(int channel, int loopSize)
 {
-	mLoopSize[channel] = loopSize;
+	/*mExpectedReadPosition[channel] = utils::modulo(mExpectedReadPosition[channel], loopSize[channel]);
+	mWritePosition[channel] = utils::modulo(mWritePosition[channel], loopSize[channel]);
+	mReadPosition[channel] = utils::modulo(mReadPosition[channel], loopSize[channel]);*/
+	if (loopSize != mLoopSize)
+	{
+		mExpectedReadPosition[channel] = 1;
+		mWritePosition[channel] = 0;
+		mReadPosition[channel] = 0;
+		mLoopSize[channel] = loopSize;
+	}
+	
 	return;
 }
 
@@ -141,6 +151,16 @@ void CircularAudioBuffer<T>::setWritePosition(int channel, int val)
 }
 
 template <typename T>
+void CircularAudioBuffer<T>::write(const AudioBuffer<T>& inputBuffer, bool isAdd)
+{
+	for (int channel = 0; channel < this->getNumChannels(); channel++)
+	{
+		this->write(channel, inputBuffer, isAdd);
+	}
+
+}
+
+template <typename T>
 void CircularAudioBuffer<T>::write(int channel, const AudioBuffer<T>& inputBuffer, bool isAdd)
 {
 	/* Write data into the circular buffer and update write position */
@@ -165,7 +185,15 @@ void CircularAudioBuffer<T>::write(int channel, const AudioBuffer<T>& inputBuffe
 	moveWritePosition(channel, inputBufferLength);
 }
 
-// TODO: make these work for multiple channels in one go
+
+template <typename T>
+void CircularAudioBuffer<T>::read(AudioBuffer<T>& outputBuffer, bool isOverrideSmoothing, bool isAdd, float gain)
+{
+	for (int channel = 0; channel < this->getNumChannels(); channel++)
+	{
+		this->read(channel, outputBuffer, isOverrideSmoothing, isAdd, gain);
+	}
+}
 
 template <typename T>
 void CircularAudioBuffer<T>::read(int channel, AudioBuffer<T>& outputBuffer, bool isOverrideSmoothing, bool isAdd, float gain)
@@ -173,41 +201,6 @@ void CircularAudioBuffer<T>::read(int channel, AudioBuffer<T>& outputBuffer, boo
 	
 	/* Read data from the circular buffer and update read position */
 
-
-	//int outputBufferLength = outputBuffer.getNumSamples();
-	//int thisBufferLength = this->getNumSamples();
-	//int thisBufferRemaining = thisBufferLength - mExpectedReadPosition[channel];
-	//thisBufferRemaining = std::min(thisBufferRemaining, outputBufferLength);
-	//int outputBufferRemaining = std::max(outputBufferLength - thisBufferRemaining, 0);
-	//const float* thisData = this->getReadPointer(channel);
-
-	////AudioBuffer<T>& tempBuffer;
-	////const float* thisDataFromReadPos = this->getReadPointer(channel, mReadPosition[channel]);
-	//if (isAdd)
-	//{
-	//	outputBuffer.addFromWithRamp(channel, 0, thisData + mExpectedReadPosition[channel], thisBufferRemaining, gain, gain);
-	//	outputBuffer.addFromWithRamp(channel, thisBufferRemaining, thisData, outputBufferRemaining, gain, gain);
-	//}
-	//else
-	//{
-	//	outputBuffer.copyFromWithRamp(channel, 0, thisData + mExpectedReadPosition[channel], thisBufferRemaining, gain, gain);
-	//	outputBuffer.copyFromWithRamp(channel, thisBufferRemaining, thisData, outputBufferRemaining, gain, gain);
-	//}
-	//
-	//if (mExpectedReadPosition[channel] != mReadPosition[channel])
-	//{
-	//	// TODO: not sure if something needs to be done with isAdd in this block
-	//	outputBuffer.applyGainRamp(channel, 0, outputBufferLength, 1.0f, 0.0f);
-	//	thisBufferRemaining = thisBufferLength - mReadPosition[channel];
-	//	thisBufferRemaining = std::min(thisBufferRemaining, outputBufferLength);
-	//	outputBufferRemaining = std::max(outputBufferLength - thisBufferRemaining, 0);
-
-	//	float midGain = (float)thisBufferRemaining / outputBufferLength * gain;
-
-	//	outputBuffer.addFromWithRamp(channel, 0, thisData + mReadPosition[channel], thisBufferRemaining, 0.0f, midGain);
-	//	outputBuffer.addFromWithRamp(channel, thisBufferRemaining, thisData, outputBufferRemaining, midGain, gain);
-	//	
-	//}
 
 
 	int outputBufferLength = outputBuffer.getNumSamples();

@@ -80,7 +80,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 
 	
 	// Initialise and add knobs to GUI
-	addControl(this, mRevMixKnob, "RevMixKnob", 0.6f, 0.46f, knobImg, "Mix");
+	addControl(this, mRevMixKnob, "RevMixKnob", 0.6f, 0.5f, knobImg, "Mix");
 	addControl(this, mRevLowPassKnob, "RevLowPassKnob", 0.8f, 0.5f, knobImgPan, "Lowpass");
 	mRevLowPassQKnob.setDim(32, 32);
 	addControl(this, mRevLowPassQKnob, "RevLowPassQKnob", 0.8f, 0.5f, knobImg, "Lowpass Q");
@@ -90,9 +90,9 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mRevSCamountKnob, "RevSCamountKnob", 0.9f, 0.6f, knobImgPan, "Sidechain Amount");
 
 	addControl(this, mDelaySatKnob, "DelaySatKnob", 0.35f, 0.6f, knobImg, "Saturation");
-	addControl(this, mPanKnob, "PanKnob", 0.5f, 0.15f, knobImgPan, "Pan");
+	addControl(this, mPanKnob, "PanKnob", 0.5f, 0.25f, knobImgPan, "Pan");
 	addControl(this, mRoomSizeKnob, "RoomSizeKnob", 0.7f, 0.5f, knobImg, "Room size");
-	addControl(this, mHeadWidthSlider, "HeadWidthKnob", 0.6f, 0.15f, knobImgPan, "Head width");
+	addControl(this, mHeadWidthSlider, "HeadWidthKnob", 0.6f, 0.25f, knobImgPan, "Head width");
 	addControl(this, mDelayFeedbackKnob, "DelayFeedbackKnob", 0.28f, 0.5f, knobImg, "Feedback");
 	addControl(this, mDelayTimeKnob, "DelayTimeKnob", 0.18f, 0.5f, knobImg, "Time");
 	addControl(this, mDelayDiscreteTimeKnob, "DelayDiscreteTimeKnob", 0.18f, 0.5f, knobImg, "Time");
@@ -103,14 +103,14 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mDelayHighPassKnob, "DelayHighPassKnob", 0.42f, 0.5f, knobImgPan, "Highpass");
 	mDelayHighPassQKnob.setDim(32, 32);
 	addControl(this, mDelayHighPassQKnob, "DelayHighPassQKnob", 0.42f, 0.5f, knobImg, "Highpass Q");
-	addControl(this, mDelayMixKnob, "DelayMixKnob", 0.11f, 0.46f, knobImg, "Mix");
+	addControl(this, mDelayMixKnob, "DelayMixKnob", 0.115f, 0.5f, knobImg, "Mix");
 	addControl(this, mDelaySatCharKnob, "DelaySatCharKnob", 0.42f, 0.6f, knobImg, "Saturation character");
 	addControl(this, mDelayWidthKnob, "DelayWidthKnob", 0.18f, 0.6f, knobImg, "Width");
 	addControl(this, mDelayDiffusionKnob, "DelayDiffusionKnob", 0.28f, 0.6f, knobImg, "Diffusion");
 	addControl(this, mDelaySCamountKnob, "DelaySCamountKnob", 0.5f, 0.6f, knobImgPan, "Sidechain Amount");
 
 	mDelayTempoLockButton.setDim(32, 32);
-	addControl(this, mDelayTempoLockButton, "delayTempoLockButton", 0.235f, 0.167f, switchImg, "Lock to tempo", Slider::SliderStyle::LinearVertical);
+	addControl(this, mDelayTempoLockButton, "delayTempoLockButton", 0.14f, 0.42f, switchImg, "Lock to tempo", Slider::SliderStyle::LinearVertical);
 
 	mNoteDotTripSlider.setDim(32, 32);
 	addControl(this, mNoteDotTripSlider, "noteDotTripSlider", 0.23f, 0.5f, switchImg, "Delay modifier", Slider::SliderStyle::LinearVertical);
@@ -179,9 +179,11 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelayOnOffButton.addListener(this);
 	addAndMakeVisible(mDelayOnOffButton);*/
 
-	addControl(this, mRevOnOffButton, "revOnOffButton", 0.6f, 0.61f, delayTempoLockButtonImg, "On/off");
-	addControl(this, mDelayOnOffButton, "delayOnOffButton", 0.113f, 0.61f, delayTempoLockButtonImg, "On/off");
-	addControl(this, mSCOnOffButton, "scOnOffButton", 0.113f, 0.85f, delayTempoLockButtonImg, "On/off");
+	addControl(this, mRevOnOffButton, "revOnOffButton", 0.55f, 0.55f, 0.07f, 0.12f, "On/off");
+	addControl(this, mDelayOnOffButton, "delayOnOffButton", 0.06f, 0.55f, 0.07f, 0.12f, "On/off");
+	addControl(this, mSCOnOffButton, "scOnOffButton", 0.06f, 0.79f, 0.07f, 0.12f, "On/off");
+	/*addControl(this, mDelayOnOffButton, "delayOnOffButton", 0.113f, 0.61f, delayTempoLockButtonImg, "On/off");
+	addControl(this, mSCOnOffButton, "scOnOffButton", 0.113f, 0.85f, delayTempoLockButtonImg, "On/off");*/
 
 
 
@@ -505,5 +507,28 @@ void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *cons
 	control.setTooltip(tooltipText);
 	control.addListener(editor);
 	addAndMakeVisible(control);
+
+}
+
+void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *const editor, StandardButton &control, String name, float relX, float relY, float relW, float relH, String tooltipText, Slider::SliderStyle style)
+{
+	/* Adds a StandardButton with tooltip to the GUI */
+
+	control.setName(name);
+	control.displayAsOn(true);
+	int xpos = (int)(relX * (float)editor->getBounds().getWidth());
+	int ypos = (int)(relY * (float)editor->getBounds().getHeight());
+	int width = (int)(relW * (float)editor->getBounds().getWidth());
+	int height = (int)(relH * (float)editor->getBounds().getHeight());
+	//control.setCentrePosition(xpos, ypos);
+	control.setBounds(xpos, ypos, width, height);
+	control.setOnOffImages(mAllSpriteArray);
+	control.setTooltip(tooltipText);
+	control.addListener(editor);
+	addAndMakeVisible(control);
+	DrawableRectangle border;
+	border.setFill(juce::Colours::black);
+	border.setRectangle(juce::Parallelogram<float>(control.getBounds().toFloat()));
+	addAndMakeVisible(border);
 
 }

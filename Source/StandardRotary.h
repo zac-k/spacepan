@@ -23,7 +23,7 @@ class StandardRotary : public Slider
 public:
 
 	// Public methods
-	void init(String name, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg, Slider::SliderStyle = Slider::SliderStyle::RotaryVerticalDrag);
+	void init(String name, juce::Rectangle<int> parentBounds, float relX, float relY, Image spriteImg, Slider::SliderStyle = Slider::SliderStyle::RotaryVerticalDrag);
 	void setDim(int width, int height);
 	void sendToDisplay(Label &dataLabel, Label &unitsLabel, float multiplier=1.0f);
 	void sendToDisplay(Label &dataLabel, Label &unitsLabel, std::vector<String>, String modifier="");

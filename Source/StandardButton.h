@@ -16,6 +16,7 @@ class StandardButton : public ImageButton
 	// Constructor
 	using ImageButton::ImageButton;
 public:
+	void setOnOffImages(Image spriteArray[2]);
 	void setOnOffImages(Image onImage, Image offImage);
 	void setOnOffImages(Image onOffImage, bool isVertical=true);
 	void displayAsOn(bool isOn);

@@ -15,30 +15,28 @@
 #include "StandardRotary.h"
 #include "StandardButton.h"
 #include "StandardSwitch.h"
-
-
 #include "utils.h"
 
 //==============================================================================
 /**
 */
-class SpacePanAudioProcessorEditor  : public AudioProcessorEditor,
-									  private StandardRotary::Listener,
-									  private Button::Listener
+class SpacePanAudioProcessorEditor : public AudioProcessorEditor,
+	private StandardRotary::Listener,
+	private Button::Listener
 {
 public:
-    SpacePanAudioProcessorEditor (SpacePanAudioProcessor&);
-    ~SpacePanAudioProcessorEditor();
+	SpacePanAudioProcessorEditor(SpacePanAudioProcessor&);
+	~SpacePanAudioProcessorEditor();
 
-    //==============================================================================
-    void paint (Graphics&) override;
-    void resized() override;
+	//==============================================================================
+	void paint(Graphics&) override;
+	void resized() override;
 
 
 	void sliderValueChanged(Slider* slider) override;
 	//virtual void buttonStateChanged(Button* button) override;
 	TextButton debugText;
-	
+
 	//
 	void buttonClicked(Button* button) override;
 	//void buttonStateChanged(Button* button) override;
@@ -48,21 +46,27 @@ public:
 	// Parameters
 	Label mDelayTimeUnitsText;
 	Label mDelayTimeText;
-	
+
 	//TextEditor delayTimeTextBox;
-	
+
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    SpacePanAudioProcessor& processor;
+	// This reference is provided as a quick way for your editor to
+	// access the processor object that created it.
+	SpacePanAudioProcessor& processor;
 	Image adsrPlotImage;
-	
+
 	void constructADSRplot();
+	// Load all_sprite array
+	Image mAllSpriteArray[2] = { ImageCache::getFromMemory(BinaryData::all_sprite_0_png,
+													  BinaryData::all_sprite_0_pngSize),
+								 ImageCache::getFromMemory(BinaryData::all_sprite_63_png,
+													  BinaryData::all_sprite_63_pngSize) };
 
 	// Load background image	
-	Image backgroundImage = ImageCache::getFromMemory(BinaryData::background_png, 
-													  BinaryData::background_pngSize);
+	/*Image backgroundImage = ImageCache::getFromMemory(BinaryData::background_png,
+													  BinaryData::background_pngSize);*/
+	Image backgroundImage{ mAllSpriteArray[0] };
 	Image croGlassImage = ImageCache::getFromMemory(BinaryData::cro_glass_png,
 		BinaryData::cro_glass_pngSize);
 	ImageComponent adsrPlot;
@@ -202,6 +206,8 @@ private:
 	void addControl(SpacePanAudioProcessorEditor *const editor, StandardRotary &control, String name, float relX, float relY, Image spriteImg, String tooltipText, Slider::SliderStyle = Slider::SliderStyle::RotaryVerticalDrag);
 
 	void addControl(SpacePanAudioProcessorEditor *const editor, StandardButton &control, String name, float relX, float relY, Image spriteImg, String tooltipText, Slider::SliderStyle = Slider::SliderStyle::RotaryVerticalDrag);
+
+	void addControl(SpacePanAudioProcessorEditor *const editor, StandardButton &control, String name, float relX, float relY, float relW, float relH, String tooltipText, Slider::SliderStyle = Slider::SliderStyle::RotaryVerticalDrag);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SpacePanAudioProcessorEditor)
 };

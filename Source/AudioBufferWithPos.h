@@ -26,6 +26,8 @@ public:
 	void setReadPosition(int channel, int val);
 	void write(int channel, const AudioBuffer<T>& inputBuffer, bool isAdd=false);
 	void read(int channel, AudioBuffer<T>& outputBuffer, bool isOverrideSmoothing=false, bool isAdd=false, float gain = 1.0f);
+	void write(const AudioBuffer<T>& inputBuffer, bool isAdd = false);
+	void read(AudioBuffer<T>& outputBuffer, bool isOverrideSmoothing = false, bool isAdd = false, float gain = 1.0f);
 private:
 	std::vector<int> mWritePosition;
 	std::vector<int> mReadPosition;

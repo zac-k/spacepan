@@ -10,6 +10,12 @@
 
 #include "StandardButton.h"
 
+void StandardButton::setOnOffImages(Image spriteArray[2])
+{
+	this->mOnImage = spriteArray[0].getClippedImage(this->getBounds());
+	this->mOffImage = spriteArray[1].getClippedImage(this->getBounds());
+}
+
 void StandardButton::setOnOffImages(Image onImage, Image offImage)
 {
 	this->mOnImage = onImage;
@@ -40,5 +46,6 @@ void StandardButton::displayAsOn(bool isOn)
 	this->setImages(true, true, true, *pImage,
 		1.0f, Colours::transparentBlack, *pImage, 1.0f, Colours::transparentBlack,
 		*pImage, 1.0f, Colours::transparentBlack);
+	
 	
 }
