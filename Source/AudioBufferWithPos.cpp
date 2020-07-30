@@ -69,7 +69,7 @@ void CircularAudioBuffer<T>::setLoopSize(int channel, int loopSize)
 	/*mExpectedReadPosition[channel] = utils::modulo(mExpectedReadPosition[channel], loopSize[channel]);
 	mWritePosition[channel] = utils::modulo(mWritePosition[channel], loopSize[channel]);
 	mReadPosition[channel] = utils::modulo(mReadPosition[channel], loopSize[channel]);*/
-	if (loopSize != mLoopSize)
+	if (loopSize != mLoopSize[channel])
 	{
 		mExpectedReadPosition[channel] = 1;
 		mWritePosition[channel] = 0;
