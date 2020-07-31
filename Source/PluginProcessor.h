@@ -113,7 +113,7 @@ public:
 	DiscreteParam<int> delayFilterTypeDP{ delayFilterTypeVals, delayFilterTypeStr, 3 };
 
 	int delayStereoTypeVals[3]{ 0, 1, 2 };
-	String delayStereoTypeStr[3]{ "Widen", "Ping-pong", "Swing-pong" };
+	String delayStereoTypeStr[3]{ "Swing-pong", "Ping-pong", "Widen" };
 	DiscreteParam<int> delayStereoTypeDP{ delayStereoTypeVals, delayStereoTypeStr, 3 };
 	//==============================================================================
 	AudioProcessorValueTreeState mState;

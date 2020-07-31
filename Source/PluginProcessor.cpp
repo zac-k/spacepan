@@ -747,6 +747,16 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	
 	//========================================================================
 
+	// TODO: get swing-pong working
+	if ((int)*mState.getRawParameterValue("delay_stereo_type") == 0)
+	{
+		for (int i = 0; i < numSamples; i++)
+		{
+			samples.applyGain(0, i, 1, std::powf(std::sin(PI * ((delayBuffer.getWritePosition(0) + i)/ (float)delayBuffer.getLoopSize(0))), 2));
+			samples.applyGain(1, i, 1, std::powf(std::cos(PI * ((delayBuffer.getWritePosition(1) + i)/ (float)delayBuffer.getLoopSize(1))), 2));
+		}
+	}
+
 	AudioBuffer<float> delayWet(samples.getNumChannels(), samples.getNumSamples());
 	//delayWet.makeCopyOf(samples);
 
@@ -970,12 +980,7 @@ void SpacePanAudioProcessor::delay_old(AudioBuffer<float> &samples, CircularAudi
 	AudioBuffer<float> delayDry;
 	delayDry.makeCopyOf(samples);
 	float delaySeconds;
-	// TODO: replace with version from DiscreteParam class
-	float delaysInBars[] = { 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f };
-	int timeLockIndex = 1;
-	//float noteDotTrip[3] = { 1.0f, 1.5f, 2.0f/3.0f };
 	float modifier = delayModifierDP.getValues()[(int)*mState.getRawParameterValue("delay_modifier")];// noteDotTrip[timeLockIndex];
-	//float delayInBarsTemp = delaysInBars[(int)*mState.getRawParameterValue("delay_time_discrete")];
 	float delayInBarsTemp = delayInBarsDP.getValues()[(int)*mState.getRawParameterValue("delay_time_discrete")];
 	AudioPlayHead::CurrentPositionInfo cpi;
 	AudioPlayHead *playHead = getPlayHead();
@@ -993,7 +998,7 @@ void SpacePanAudioProcessor::delay_old(AudioBuffer<float> &samples, CircularAudi
 			mState.getParameter("delay_time_discrete")->setValueNotifyingHost(
 				(int)*mState.getRawParameterValue("delay_time_discrete") - 1);
 			//TODO: maybe this one should stay temp?
-			delayInBarsTemp = delaysInBars[(int)*mState.getRawParameterValue("delay_time_discrete")];
+			delayInBarsTemp = delayInBarsDP.getValues()[(int)*mState.getRawParameterValue("delay_time_discrete")];
 			delaySeconds = delayInBarsTemp * 60.0 * 4.0 / cpi.bpm;
 		}
 	}
@@ -1041,7 +1046,7 @@ void SpacePanAudioProcessor::delay_old(AudioBuffer<float> &samples, CircularAudi
 
 	//delayAllPassFilter.process(dsp::ProcessContextReplacing<float>(preDelayBlock));
 
-	// TODO: Use GUI for pre/post filter
+	
 	bool prefilter = true;
 
 	if (prefilter)
