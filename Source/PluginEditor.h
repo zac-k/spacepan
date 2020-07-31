@@ -108,7 +108,7 @@ private:
 	// Global controls
 	StandardRotary mPanKnob;
 	AudioProcessorValueTreeState::SliderAttachment mPanAttachment;
-	// TODO: Change the head width slider to a linear one
+	// TODO: Head Width slider is for testing, remove or set range from approx. 0.15-0.2
 	StandardRotary mHeadWidthSlider;
 	AudioProcessorValueTreeState::SliderAttachment mHeadWidthAttachment;
 
@@ -147,6 +147,8 @@ private:
 	AudioProcessorValueTreeState::SliderAttachment mDelaySCamountAttachment;
 	StandardRotary mNoteDotTripSlider;
 	AudioProcessorValueTreeState::SliderAttachment mNoteDotTripAttachment;
+	StandardRotary mDelayStereoTypeSlider;
+	AudioProcessorValueTreeState::SliderAttachment mDelayStereoTypeAttachment;
 	StandardRotary mDelayFilterTypeSwitch;
 	AudioProcessorValueTreeState::SliderAttachment mDelayFilterTypeAttachment;
 	StandardButton mDelayOnOffButton;

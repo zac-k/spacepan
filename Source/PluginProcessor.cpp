@@ -44,6 +44,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() :
 		  std::make_unique<AudioParameterInt>("delay_time_discrete", "Delay Time", 0, delayInBarsDP.getNumParams() - 1, 1, String(), delayInBarsDP.labelsLambda()),
 		  std::make_unique<AudioParameterInt>("delay_modifier", "Delay Modifier", 0, delayModifierDP.getNumParams() - 1, 1, String(), delayModifierDP.labelsLambda()),
 		  std::make_unique<AudioParameterInt>("delay_filter_type", "Delay Filter Type", 0, delayFilterTypeDP.getNumParams() - 1, 1, String(), delayFilterTypeDP.labelsLambda()),
+		  std::make_unique<AudioParameterInt>("delay_stereo_type", "Delay Stereo Type", 0, delayStereoTypeDP.getNumParams() - 1, 1, String(), delayStereoTypeDP.labelsLambda()),
 		  std::make_unique<AudioParameterFloat>("delay_lowpass", "Delay High Cut", utils::frequencyRange(100.0f, 2.0e4f), 2.0e3f),
 		  std::make_unique<AudioParameterFloat>("delay_lowpass_Q", "Delay High Cut Q", NormalisableRange<float>(1.0f, 5.0f), 1.0f),
 		  std::make_unique<AudioParameterFloat>("delay_highpass", "Delay Low Cut", utils::frequencyRange<float>(100.0f, 2.0e4f), 2.0e2f),

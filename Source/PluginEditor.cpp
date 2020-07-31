@@ -41,6 +41,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelayTimeAttachment(p.mState, "delay_time", mDelayTimeKnob),
 	mDelayDiscreteTimeAttachment(p.mState, "delay_time_discrete", mDelayDiscreteTimeKnob),
 	mNoteDotTripAttachment(p.mState, "delay_modifier", mNoteDotTripSlider),
+	mDelayStereoTypeAttachment(p.mState, "delay_stereo_type", mDelayStereoTypeSlider),
 	mDelayFilterTypeAttachment(p.mState, "delay_filter_type", mDelayFilterTypeSwitch),
 	mDelayLowPassAttachment(p.mState, "delay_lowpass", mDelayLowPassKnob),
 	mDelayLowPassQAttachment(p.mState, "delay_lowpass_Q", mDelayLowPassQKnob),
@@ -90,7 +91,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mRevSCamountKnob, "RevSCamountKnob", 0.9f, 0.6f, knobImgPan, "Sidechain Amount");
 
 	addControl(this, mDelaySatKnob, "DelaySatKnob", 0.35f, 0.6f, knobImg, "Saturation");
-	addControl(this, mPanKnob, "PanKnob", 0.5f, 0.25f, knobImgPan, "Pan");
+	addControl(this, mPanKnob, "PanKnob", 0.5f, 0.213f, knobImg, "Pan");
 	addControl(this, mRoomSizeKnob, "RoomSizeKnob", 0.7f, 0.5f, knobImg, "Room size");
 	addControl(this, mHeadWidthSlider, "HeadWidthKnob", 0.6f, 0.25f, knobImgPan, "Head width");
 	addControl(this, mDelayFeedbackKnob, "DelayFeedbackKnob", 0.28f, 0.5f, knobImg, "Feedback");
@@ -110,13 +111,20 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mDelaySCamountKnob, "DelaySCamountKnob", 0.5f, 0.6f, knobImgPan, "Sidechain Amount");
 
 	mDelayTempoLockButton.setDim(32, 32);
+	mDelayTempoLockButton.setMouseDragSensitivity(32);
 	addControl(this, mDelayTempoLockButton, "delayTempoLockButton", 0.14f, 0.42f, switchImg, "Lock to tempo", Slider::SliderStyle::LinearVertical);
 
 	mNoteDotTripSlider.setDim(32, 32);
+	mNoteDotTripSlider.setMouseDragSensitivity(32);
 	addControl(this, mNoteDotTripSlider, "noteDotTripSlider", 0.23f, 0.5f, switchImg, "Delay modifier", Slider::SliderStyle::LinearVertical);
 
 	mDelayFilterTypeSwitch.setDim(32, 32);
+	mDelayFilterTypeSwitch.setMouseDragSensitivity(32);
 	addControl(this, mDelayFilterTypeSwitch, "DelayFilterTypeSwitch", 0.5f, 0.5f, switchImg, "Filter type", Slider::SliderStyle::LinearVertical);
+
+	mDelayStereoTypeSlider.setDim(32, 32);
+	mDelayStereoTypeSlider.setMouseDragSensitivity(32);
+	addControl(this, mDelayStereoTypeSlider, "DelayStereoTypeSwitch", 0.23f, 0.6f, switchImg, "Stereo type", Slider::SliderStyle::LinearVertical);
 
 	// Sidechain controls
 	mSCattackKnob.setDim(50, 50);

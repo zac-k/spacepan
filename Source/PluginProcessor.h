@@ -111,6 +111,10 @@ public:
 	int delayFilterTypeVals[3]{ 0, 1, 2 };
 	String delayFilterTypeStr[3]{ "Post filter", "Recursive filter", "Pre filter" };
 	DiscreteParam<int> delayFilterTypeDP{ delayFilterTypeVals, delayFilterTypeStr, 3 };
+
+	int delayStereoTypeVals[3]{ 0, 1, 2 };
+	String delayStereoTypeStr[3]{ "Widen", "Ping-pong", "Swing-pong" };
+	DiscreteParam<int> delayStereoTypeDP{ delayStereoTypeVals, delayStereoTypeStr, 3 };
 	//==============================================================================
 	AudioProcessorValueTreeState mState;
 	bool mIsTempoLocked;
