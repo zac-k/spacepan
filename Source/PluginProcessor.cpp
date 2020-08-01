@@ -392,6 +392,7 @@ void SpacePanAudioProcessor::truePan(AudioBuffer<float> &buffer, float panVal, f
 {
 	// TODO: This is faux pan placeholder. Change to true pan algorithm
 	panVal *= maxPan;
+	float headWidth = *mState.getRawParameterValue("head_width");
 	AudioBuffer<float> bufferTemp;// TODO: this isn't used for anything, probably put it here for the true pan algorithm
 	bufferTemp.makeCopyOf(buffer);
 	int bufferLength = buffer.getNumSamples();
@@ -404,6 +405,33 @@ void SpacePanAudioProcessor::truePan(AudioBuffer<float> &buffer, float panVal, f
 		buffer.getWritePointer(0)[i] = (1 - panVal)*buffer.getReadPointer(0)[i] * attenuationFactorL;
 		buffer.getWritePointer(1)[i] = (1 + panVal)*buffer.getReadPointer(1)[i] * attenuationFactorR;
 	}
+
+	int phaseShiftMaxInSamples = (headWidth / SOUND_SPEED) * getSampleRate();
+
+
+	// TODO: The pan part of this should be in the pan function, otherwise it will turn off when the
+	// reverb is disabled
+	for (int channel = 0; channel < buffer.getNumChannels(); channel++)
+	{
+		int delayedChannel = (panVal < 0) ? 1 : 0;
+		// Read position is set before writing because .write() updates writePosition
+		if (channel == delayedChannel)
+		{
+			mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel) - phaseShiftMaxInSamples * abs(panVal));
+		}
+		else
+		{
+			mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel));
+		}
+		mPanBuffer.write(channel, buffer);
+		mPanBuffer.read(channel, buffer);
+
+	}
+
+
+
+
+
 	
 	
 
@@ -466,13 +494,13 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 		// Read position is set before writing because .write() updates writePosition
 		if (channel == delayedChannel)
 		{
-			mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel) - phaseShiftMaxInSamples * abs(panVal));
+			//mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel) - phaseShiftMaxInSamples * abs(panVal));
 		}
 		else
 		{
-			mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel));
+			//mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel));
 		}
-		mPanBuffer.write(channel, buffer);
+		//mPanBuffer.write(channel, buffer);
 
 		mReverbBuffer.setReadPosition(channel, mReverbBuffer.getWritePosition(channel) - reverbPredalay[channel]);
 		mReverbBuffer.write(channel, reverbWet);
@@ -485,7 +513,7 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 	float reverbMix = *mState.getRawParameterValue("rev_mix");
 	for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
 	{
-		mPanBuffer.read(channel, buffer);
+		//mPanBuffer.read(channel, buffer);
 		mReverbBuffer.read(channel, reverbWet);
 
 		// Apply sidechain
