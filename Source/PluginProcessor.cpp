@@ -15,7 +15,7 @@
 
 const float PI = 3.1415926535897932384626f;
 const float HEAD_WIDTH_MAX = 10; //metres
-const float ROOM_SIZE_MAX = 100; //metres
+const float ROOM_SIZE_MAX = 20; //metres
 const float SOUND_SPEED = 343.0; // m/s
 const float FILTER_SKEW = 0.25f;
 
@@ -407,10 +407,6 @@ void SpacePanAudioProcessor::truePan(AudioBuffer<float> &buffer, float panVal, f
 	}
 
 	int phaseShiftMaxInSamples = (headWidth / SOUND_SPEED) * getSampleRate();
-
-
-	// TODO: The pan part of this should be in the pan function, otherwise it will turn off when the
-	// reverb is disabled
 	for (int channel = 0; channel < buffer.getNumChannels(); channel++)
 	{
 		int delayedChannel = (panVal < 0) ? 1 : 0;
@@ -480,30 +476,32 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 	//=============================================================================================
 
 
-	int phaseShiftMaxInSamples = (headWidth / SOUND_SPEED) * getSampleRate();
-	float ppdFactor = std::pow(ROOM_SIZE_MAX, *mState.getRawParameterValue("room_size")) / SOUND_SPEED;
-	int ppdFactorInSamples = (int)ppdFactor * getSampleRate();
-	int reverbPredalay[] = { (int)ppdFactorInSamples * (1 + panVal), (int)ppdFactorInSamples * (1 - panVal) };
+	
+	//float ppdFactor = std::pow(ROOM_SIZE_MAX, *mState.getRawParameterValue("room_size")) / SOUND_SPEED;
+	//float ppdFactor = std::pow(ROOM_SIZE_MAX, *mState.getRawParameterValue("room_size")) / SOUND_SPEED;
+	//int ppdFactorInSamples = (int)ppdFactor * getSampleRate();
+	//int reverbPredalay[] = { (int)ppdFactorInSamples * (1 + panVal), (int)ppdFactorInSamples * (1 - panVal) };
 
 
-	// TODO: The pan part of this should be in the pan function, otherwise it will turn off when the
-	// reverb is disabled
+
 	for (int channel = 0; channel < buffer.getNumChannels(); channel++)
 	{
-		int delayedChannel = (panVal < 0) ? 1 : 0;
-		// Read position is set before writing because .write() updates writePosition
-		if (channel == delayedChannel)
+		float dist;
+		if ((channel == 0 && panVal < 0) || (channel == 1 && panVal >0))
 		{
-			//mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel) - phaseShiftMaxInSamples * abs(panVal));
+			dist = *mState.getRawParameterValue("room_size") * ROOM_SIZE_MAX * (2.0f - std::abs(panVal));
 		}
 		else
 		{
-			//mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel));
+			dist = *mState.getRawParameterValue("room_size") * ROOM_SIZE_MAX * (2.0f + std::abs(panVal));
 		}
-		//mPanBuffer.write(channel, buffer);
+		float ppdFactor = dist / SOUND_SPEED;
+		int ppdFactorInSamples = static_cast<int>(ppdFactor * getSampleRate());
+		
 
-		mReverbBuffer.setReadPosition(channel, mReverbBuffer.getWritePosition(channel) - reverbPredalay[channel]);
+		mReverbBuffer.setReadPosition(channel, mReverbBuffer.getWritePosition(channel) - ppdFactorInSamples);
 		mReverbBuffer.write(channel, reverbWet);
+		mReverbBuffer.read(channel, reverbWet);
 	}
 
 	
@@ -513,8 +511,6 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 	float reverbMix = *mState.getRawParameterValue("rev_mix");
 	for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
 	{
-		//mPanBuffer.read(channel, buffer);
-		mReverbBuffer.read(channel, reverbWet);
 
 		// Apply sidechain
 		if (*mState.getRawParameterValue("rev_sc_amount") > 0.01 &&*mState.getRawParameterValue("sc_on_off"))
