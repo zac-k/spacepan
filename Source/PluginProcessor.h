@@ -51,8 +51,7 @@ public:
 
 	void pan(AudioBuffer<float> &buffer, float pan);
 
-	void delay(AudioBuffer<float> &samples, CircularAudioBuffer<float> &buffer, int numSamples,
-		float* delayOffsets, float sampleRate, int32 comb, bool fb);
+	void delay(AudioBuffer<float> &samples, CircularAudioBuffer<float> &buffer, int numSamples, float sampleRate, int32 comb, bool fb);
 
 	void delay_old(AudioBuffer<float> &samples, CircularAudioBuffer<float> &buffer, int numSamples,
 		float* delayOffsets, float sampleRate, int32 comb, bool fb);

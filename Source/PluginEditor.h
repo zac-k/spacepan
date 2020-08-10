@@ -80,6 +80,8 @@ private:
 	// Load a knob image for testing
 	Image knobImg = ImageCache::getFromMemory(BinaryData::animation_knob_png,
 											  BinaryData::animation_knob_pngSize);
+	Image subKnobImg = ImageCache::getFromMemory(BinaryData::subknob_png,
+		BinaryData::subknob_pngSize);
 	Image knobImgPan = ImageCache::getFromMemory(BinaryData::animation_knob2_png,
 		BinaryData::animation_knob2_pngSize);
 	Image switchImg = ImageCache::getFromMemory(BinaryData::three_pos_switch_png,

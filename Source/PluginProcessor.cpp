@@ -58,7 +58,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() :
 		  std::make_unique<AudioParameterFloat>("delay_mix", "Delay Mix", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
 		  std::make_unique<AudioParameterFloat>("delay_sat", "Delay Saturation", NormalisableRange<float>(0.0f, 10.0f), 0.0f),
 		  std::make_unique<AudioParameterFloat>("delay_sat_char", "Delay Saturation Character", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-		  std::make_unique<AudioParameterFloat>("delay_width", "Delay Width", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
+		  std::make_unique<AudioParameterFloat>("delay_width", "Delay Width", NormalisableRange<float>(-1.0f, 1.0f), 0.0f),
 
 		  std::make_unique<AudioParameterFloat>("sc_attack", "Sidechain Attack", NormalisableRange<float>(0.01f, ATTACK_MAX), 0.1f),
 		  std::make_unique<AudioParameterFloat>("sc_attack_shape", "Sidechain Attack Shape", NormalisableRange<float>(0.2f, 10.0f), 0.2f),
@@ -69,7 +69,7 @@ SpacePanAudioProcessor::SpacePanAudioProcessor() :
 		  std::make_unique<AudioParameterFloat>("sc_release", "Sidechain Release", NormalisableRange<float>(0.01f, RELEASE_MAX), 0.1f),
 		  std::make_unique<AudioParameterFloat>("sc_release_shape", "Sidechain release Shape", NormalisableRange<float>(0.1f, 10.0f), 0.1f),
 		  std::make_unique<AudioParameterFloat>("sc_threshold", "Sidechain Threshold", NormalisableRange<float>(0.0f, 1.0f), 0.5f),
-		  std::make_unique<AudioParameterBool>("sc_on_off", "Enable Sidechain", true), })
+		  std::make_unique<AudioParameterBool>("sc_on_off", "Enable Sidechain", false), })
 #ifndef JucePlugin_PreferredChannelConfigurations
      , AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -341,11 +341,10 @@ void SpacePanAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 
 	
 
-	// TODO: Control this via GUI and put inside delay function
-	float delayOffsets[] = { 0, 0 };
+	
 	if (*mState.getRawParameterValue("delay_on_off"))
 	{
-		delay(buffer, mDelayBuffer, buffer.getNumSamples(), delayOffsets, sampleRate, 0, true);
+		delay(buffer, mDelayBuffer, buffer.getNumSamples(), sampleRate, 0, true);
 	}
 	if (*mState.getRawParameterValue("rev_on_off"))
 	{
@@ -675,7 +674,7 @@ void SpacePanAudioProcessor::mixer(AudioBuffer<float> &dry, AudioBuffer<float> &
 }
 
 void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuffer<float> &delayBuffer, int numSamples,
-	float* delayOffsets, float sampleRate, int32 comb, bool fb)
+	float sampleRate, int32 comb, bool fb)
 {
 	// TODO: A lot is wrong here. Might need to go back to old delay version and vectorise the sample loop one piece at
 	// a time so it's easier to work out where things are going wrong.
@@ -755,6 +754,14 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	delayverbParams.width = width;
 	delayverbParams.freezeMode = 0.0f;
 	delayverb.setParameters(delayverbParams);
+
+	// TODO: Finish widening code
+	float delayOffset;
+	//// Widen
+	//if ((int)*mState.getRawParameterValue("delay_stereo_type") == 2)
+	//{
+	//	delayOffset = width / ;
+	//}
 	
 	if (delayverbType == 0)
 	{
@@ -771,13 +778,19 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	
 	//========================================================================
 
-	// TODO: get swing-pong working
+
 	if ((int)*mState.getRawParameterValue("delay_stereo_type") == 0)
 	{
 		for (int i = 0; i < numSamples; i++)
 		{
-			samples.applyGain(0, i, 1, std::powf(std::sin(PI * ((delayBuffer.getWritePosition(0) + i)/ (float)delayBuffer.getLoopSize(0))), 2));
-			samples.applyGain(1, i, 1, std::powf(std::cos(PI * ((delayBuffer.getWritePosition(1) + i)/ (float)delayBuffer.getLoopSize(1))), 2));
+			float lcurve = std::powf(std::sin(PI * ((delayBuffer.getWritePosition(0) + i) / (float)delayBuffer.getLoopSize(0))), 2);
+			float rcurve = std::powf(std::cos(PI * ((delayBuffer.getWritePosition(1) + i) / (float)delayBuffer.getLoopSize(1))), 2);
+			//lcurve = (lcurve - 0.5f) * width + (1 - std::abs(width));
+			//rcurve = (rcurve - 0.5f) * width + (1 - std::abs(width));
+			lcurve = width * lcurve + 1 - std::max(0.0f, width);
+			rcurve = width * rcurve + 1 - std::max(0.0f, width);
+			samples.applyGain(0, i, 1, lcurve);
+			samples.applyGain(1, i, 1, rcurve);
 		}
 	}
 

@@ -11,7 +11,6 @@
 
 
 // TODO: can probably remove class StandardSwitch
-
 #include "PluginProcessor.h"
 //#include "PluginProcessor.cpp"
 #include "PluginEditor.h"
@@ -97,10 +96,10 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	addControl(this, mDelayFeedbackKnob, "DelayFeedbackKnob", 0.28f, 0.5f, knobImg, "Feedback");
 	addControl(this, mDelayTimeKnob, "DelayTimeKnob", 0.18f, 0.5f, knobImg, "Time");
 	addControl(this, mDelayDiscreteTimeKnob, "DelayDiscreteTimeKnob", 0.18f, 0.5f, knobImg, "Time");
-	
+	mDelayLowPassKnob.setDim(50, 50);
 	addControl(this, mDelayLowPassKnob, "DelayLowPassKnob", 0.35f, 0.5f, knobImgPan, "Lowpass");
-	mDelayLowPassQKnob.setDim(32, 32);
-	addControl(this, mDelayLowPassQKnob, "DelayLowPassQKnob", 0.35f, 0.5f, knobImg, "Lowpass Q");
+	mDelayLowPassQKnob.setDim(8, 8);
+	addControl(this, mDelayLowPassQKnob, "DelayLowPassQKnob", 0.35f, 0.5f, subKnobImg, "Lowpass Q");
 	addControl(this, mDelayHighPassKnob, "DelayHighPassKnob", 0.42f, 0.5f, knobImgPan, "Highpass");
 	mDelayHighPassQKnob.setDim(32, 32);
 	addControl(this, mDelayHighPassQKnob, "DelayHighPassQKnob", 0.42f, 0.5f, knobImg, "Highpass Q");
@@ -129,12 +128,14 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	// Sidechain controls
 	mSCattackKnob.setDim(50, 50);
 	addControl(this, mSCattackKnob, "SCattackKnob", 0.22f, 0.89f, knobImgPan, "Attack");
-	mSCattackShapeKnob.setDim(25, 25);
-	addControl(this, mSCattackShapeKnob, "SCattackShapeKnob", 0.22f, 0.89f, knobImg, "Attack Shape");
+	mSCattackShapeKnob.setDim(8, 8);
+	//addControl(this, mSCattackShapeKnob, "SCattackShapeKnob", 0.214f, 0.896f, subKnobImg, "Attack Shape");
+	addControl(this, mSCattackShapeKnob, "SCattackShapeKnob", 0.22f, 0.89f, subKnobImg, "Attack Shape");
 	mSCdecayKnob.setDim(50, 50);
-	addControl(this, mSCdecayKnob, "SCdecayKnob", 0.31f, 0.89f, knobImgPan, "Decay");
-	mSCdecayShapeKnob.setDim(25, 25);
-	addControl(this, mSCdecayShapeKnob, "SCdecayShapeKnob", 0.31f, 0.89f, knobImg, "Decay Shape");
+	//addControl(this, mSCdecayKnob, "SCdecayKnob", 0.31f, 0.89f, knobImgPan, "Decay");
+	mSCdecayShapeKnob.setDim(8, 8);
+	//addControl(this, mSCdecayShapeKnob, "SCdecayShapeKnob", 0.31f, 0.89f, knobImg, "Decay Shape");
+	addControl(this, mSCdecayShapeKnob, "SCdecayShapeKnob", 0.304f, 0.896f, subKnobImg, "Decay Shape");
 	mSCsustainKnob.setDim(50, 50);
 	addControl(this, mSCsustainKnob, "SCsustainKnob", 0.4f, 0.89f, knobImgPan, "Sustain");
 	mSCsustainLevelKnob.setDim(25, 25);
@@ -214,7 +215,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mSigButton.setImages(true, true, true, sigImg,
 		1.0f, Colours::transparentBlack, sigImg, 1.0f, Colours::transparentBlack,
 		sigDownImg, 1.0f, Colours::transparentBlack);
-	mSigButton.setCentrePosition(770, 100);
+	mSigButton.setCentrePosition(780, 105);
 	mSigButton.setSize(150, 50);
 	mSigButton.addListener(this);
 	addAndMakeVisible(mSigButton);
@@ -254,6 +255,37 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 		mDelayTimeKnob.sendToDisplay(mDelayTimeText, mDelayTimeUnitsText, 1000.0f);
 	}
 
+	// Initialise on/off button images
+
+	if (mDelayOnOffButton.getToggleState())
+	{
+		mDelayOnOffButton.displayAsOn(true);
+	}
+	else
+	{
+		mDelayOnOffButton.displayAsOn(false);
+
+	}
+
+	if (mRevOnOffButton.getToggleState())
+	{
+		mRevOnOffButton.displayAsOn(true);
+	}
+	else
+	{
+		mRevOnOffButton.displayAsOn(false);
+
+	}
+
+	if (mSCOnOffButton.getToggleState())
+	{
+		mSCOnOffButton.displayAsOn(true);
+	}
+	else
+	{
+		mSCOnOffButton.displayAsOn(false);
+
+	}
 }
 
 

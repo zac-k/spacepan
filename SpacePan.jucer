@@ -48,6 +48,7 @@
     <FILE id="tPhND2" name="BPdots.otf" compile="1" resource="1" file="Resource/BPdots.otf"/>
     <FILE id="iJFsGA" name="three_pos_switch.png" compile="1" resource="1"
           file="Resource/three_pos_switch.png"/>
+    <FILE id="R1dh9R" name="subknob.png" compile="1" resource="1" file="Resource/subknob.png"/>
     <FILE id="YieCFY" name="sig.png" compile="1" resource="1" file="Resource/sig.png"/>
     <FILE id="NYZoqM" name="sigDown.png" compile="1" resource="1" file="Resource/sigDown.png"/>
     <FILE id="fGXxlv" name="background.png" compile="1" resource="1" file="Resource/background.png"/>
