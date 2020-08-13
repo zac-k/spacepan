@@ -53,8 +53,8 @@ public:
 
 	void delay(AudioBuffer<float> &samples, CircularAudioBuffer<float> &buffer, int numSamples, float sampleRate, int32 comb, bool fb);
 
-	void delay_old(AudioBuffer<float> &samples, CircularAudioBuffer<float> &buffer, int numSamples,
-		float* delayOffsets, float sampleRate, int32 comb, bool fb);
+	/*void delay_old(AudioBuffer<float> &samples, CircularAudioBuffer<float> &buffer, int numSamples,
+		float* delayOffsets, float sampleRate, int32 comb, bool fb);*/
 
 	float* combFilter(float* samples, float** buffer, int channel, int numSamples,
 		int32 delayInSamples, float** delayOffsets, float decay,
