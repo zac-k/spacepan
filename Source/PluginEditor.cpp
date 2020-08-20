@@ -153,40 +153,11 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	//mDelayTimeKnob.hideTextBox(false);
 	//mDelayTimeKnob.setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxAbove, true, 100, 20);
 	
-	if (p.mIsTempoLocked)
-	{
-		mDelayTimeKnob.setVisible(false);
-	}
-	else
-	{
-		mDelayDiscreteTimeKnob.setVisible(false);
-	}
+	
 
-	// Buttons
-	//mDelayOnButton.setBounds(100, 100, 20, 80);
-	//mDelayOnButton.setImages(false, false, true,);
-	//addAndMakeVisible(mDelayOnButton);
+	mDelayTimeKnob.setVisible(!p.mIsTempoLocked);
+	mDelayDiscreteTimeKnob.setVisible(p.mIsTempoLocked);
 
-	/*mDelayTempoLockButton.setName("delayTempoLockButton");
-	mDelayTempoLockButton.setOnOffImages(delayTempoLockButtonImg);	
-	mDelayTempoLockButton.displayAsOn(true);
-	mDelayTempoLockButton.setCentrePosition(200, 100);	
-	mDelayTempoLockButton.addListener(this);
-	addAndMakeVisible(mDelayTempoLockButton);*/
-
-	/*mRevOnOffButton.setName("revOnOffButton");
-	mRevOnOffButton.setOnOffImages(delayTempoLockButtonImg);
-	mRevOnOffButton.displayAsOn(true);
-	mRevOnOffButton.setCentrePosition(512, 365);
-	mRevOnOffButton.addListener(this);
-	addAndMakeVisible(mRevOnOffButton);*/
-
-	/*mDelayOnOffButton.setName("delayOnOffButton");
-	mDelayOnOffButton.setOnOffImages(delayTempoLockButtonImg);
-	mDelayOnOffButton.displayAsOn(true);
-	mDelayOnOffButton.setCentrePosition(96, 365);
-	mDelayOnOffButton.addListener(this);
-	addAndMakeVisible(mDelayOnOffButton);*/
 
 	addControl(this, mRevOnOffButton, "revOnOffButton", 0.55f, 0.55f, 0.07f, 0.12f, "On/off");
 	addControl(this, mDelayOnOffButton, "delayOnOffButton", 0.06f, 0.55f, 0.07f, 0.12f, "On/off");
@@ -257,35 +228,12 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 
 	// Initialise on/off button images
 
-	if (mDelayOnOffButton.getToggleState())
-	{
-		mDelayOnOffButton.displayAsOn(true);
-	}
-	else
-	{
-		mDelayOnOffButton.displayAsOn(false);
+	mDelayOnOffButton.displayAsOn(mDelayOnOffButton.getToggleState());
+	mRevOnOffButton.displayAsOn(*p.mState.getRawParameterValue("rev_on_off") > 0.5f);
+	mSCOnOffButton.displayAsOn(mSCOnOffButton.getToggleState());
 
-	}
+	//mRevOnOffButton.setToggleState(*p.mState.getRawParameterValue("rev_on_off") > 0.5f, NotificationType::sendNotification);
 
-	if (mRevOnOffButton.getToggleState())
-	{
-		mRevOnOffButton.displayAsOn(true);
-	}
-	else
-	{
-		mRevOnOffButton.displayAsOn(false);
-
-	}
-
-	if (mSCOnOffButton.getToggleState())
-	{
-		mSCOnOffButton.displayAsOn(true);
-	}
-	else
-	{
-		mSCOnOffButton.displayAsOn(false);
-
-	}
 }
 
 
@@ -382,45 +330,22 @@ void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
 
 
 		button->setToggleState(!button->getToggleState(), dontSendNotification);
-		if (button->getToggleState())
-		{	
-			mRevOnOffButton.displayAsOn(true);
-		}
-		else
-		{
-			mRevOnOffButton.displayAsOn(false);
-			
-		}
+		mRevOnOffButton.displayAsOn(button->getToggleState());
 	}
 	else if (button->getName() == "delayOnOffButton")
 	{
 
 
 		button->setToggleState(!button->getToggleState(), dontSendNotification);
-		if (button->getToggleState())
-		{
-			mDelayOnOffButton.displayAsOn(true);
-		}
-		else
-		{
-			mDelayOnOffButton.displayAsOn(false);
-
-		}
+		mDelayOnOffButton.displayAsOn(button->getToggleState());
 	}
 	else if (button->getName() == "scOnOffButton")
 	{
 
 
 		button->setToggleState(!button->getToggleState(), dontSendNotification);
-		if (button->getToggleState())
-		{
-			mSCOnOffButton.displayAsOn(true);
-		}
-		else
-		{
-			mSCOnOffButton.displayAsOn(false);
+		mSCOnOffButton.displayAsOn(button->getToggleState());
 
-		}
 		constructADSRplot();
 		adsrPlot.repaint();
 	}

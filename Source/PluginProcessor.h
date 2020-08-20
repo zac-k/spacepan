@@ -161,6 +161,8 @@ private:
 	CircularAudioBuffer<float> mPreverbBuffer;
 	CircularAudioBuffer<float> mReverbBuffer;
 
+	
+	bool mIsRev{ true };
 	//==============================================================================
 
 	/*void SpacePanAudioProcessor::fillBuffer(int channel, const int delayBufferLength,
