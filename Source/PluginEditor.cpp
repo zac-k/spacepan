@@ -231,6 +231,7 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mRevOnOffButton.displayAsOn(mRevOnOffButton.getToggleState());
 	mSCOnOffButton.displayAsOn(mSCOnOffButton.getToggleState());
 
+
 	//
 
 }
@@ -328,10 +329,12 @@ void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
 	}
 	else if (button->getName().contains("OnOffButton"))
 	{
-
-
-		//button->setToggleState(!button->getToggleState(), dontSendNotification);
 		static_cast<StandardButton*>(button)->displayAsOn(button->getToggleState());
+		if (button->getName() == "scOnOffButton")
+		{
+			constructADSRplot();
+			adsrPlot.repaint();
+		}
 	}
 
 }
