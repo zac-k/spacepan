@@ -61,7 +61,6 @@ public:
 		float sampleRate, int32 comb, bool fb);
 	void truePan(AudioBuffer<float> &buffer, float panVal, float maxPan);
 	void reverb(AudioBuffer<float> &buffer, float panVal);
-	void atmoPan(AudioBuffer<float> &buffer, float panVal, float maxPan);
 
 	void mixer(AudioBuffer<float> &dry, AudioBuffer<float> &wet, float mix, int channel, float vol);
 	/*void fillDelayBuffer(int channel, const int bufferLength, const int delayBufferLength,
@@ -135,7 +134,7 @@ private:
 
 	dsp::ProcessorDuplicator< dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float> > delayLowPassFilter;
 	dsp::ProcessorDuplicator< dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float> > delayHighPassFilter;
-	dsp::ProcessorDuplicator< dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float> > delayAllPassFilter;
+	dsp::ProcessorDuplicator< dsp::FIR::Filter<float>, dsp::FIR::Coefficients<float> > delayAllPassFilter;
 
 
 	dsp::ProcessorDuplicator< dsp::IIR::Filter<float>, dsp::IIR::Coefficients<float> > revLowPassFilter;

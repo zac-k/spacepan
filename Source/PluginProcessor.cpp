@@ -370,8 +370,6 @@ void SpacePanAudioProcessor::truePan(AudioBuffer<float> &buffer, float panVal, f
 	// TODO: This is faux pan placeholder. Change to true pan algorithm
 	panVal *= maxPan;
 	float headWidth = *mState.getRawParameterValue("head_width");
-	AudioBuffer<float> bufferTemp;// TODO: this isn't used for anything, probably put it here for the true pan algorithm
-	bufferTemp.makeCopyOf(buffer);
 	int bufferLength = buffer.getNumSamples();
 	float distanceFactor = *mState.getRawParameterValue("room_size");
 	float attenuationFactor = 1 - distanceFactor * std::pow(panVal, 2);
@@ -431,12 +429,6 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 
 	AudioBuffer<float> reverbWet;
 	reverbWet.makeCopyOf(buffer);
-
-	// TODO: not sure if it's better in mono or stereo.
-	// Make mono
-	/*reverbWet.addFrom(0, 0, reverbWet.getReadPointer(1), reverbWet.getNumSamples());
-	reverbWet.copyFrom(1, 0, reverbWet.getReadPointer(0), reverbWet.getNumSamples());
-	reverbWet.applyGain(0.5);*/
 
 	float revLPf = *mState.getRawParameterValue("rev_lowpass");
 	float revLPQ = *mState.getRawParameterValue("rev_lowpass_Q");
@@ -522,79 +514,7 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 	return;
 }
 
-void SpacePanAudioProcessor::atmoPan(AudioBuffer<float> &buffer, float panVal, float maxPan)
-{
-	dsp::Reverb::Parameters preverbParams;
-	preverbParams.roomSize = *mState.getRawParameterValue("room_size") * 0.8;
-	preverbParams.damping = 0.5f;
-	
-	preverbParams.wetLevel = 1.0f;
-	preverbParams.dryLevel = 0.0f;
-	preverbParams.width = *mState.getRawParameterValue("room_size");
-	preverbParams.freezeMode = 0.0f;
-	preverb.setParameters(preverbParams);
 
-	truePan(buffer, panVal, maxPan);
-	
-	float headWidth = *mState.getRawParameterValue("head_width");
-
-	// Make mono
-	AudioBuffer<float> preverbWet;
-	preverbWet.makeCopyOf(buffer);	
-	preverbWet.addFrom(0, 0, preverbWet.getReadPointer(1), preverbWet.getNumSamples());
-	preverbWet.copyFrom(1, 0, preverbWet.getReadPointer(0), preverbWet.getNumSamples());
-	preverbWet.applyGain(0.5);
-
-
-
-	dsp::AudioBlock<float> block(preverbWet);
-	//dsp::AudioBlock<float> blockL = block.getSingleChannelBlock(0);
-	//dsp::AudioBlock<float> blockR = block.getSingleChannelBlock(1);
-	preverb.process(dsp::ProcessContextReplacing<float>(block));
-	//preverbR.process(dsp::ProcessContextReplacing<float>(blockR));
-
-
-	int phaseShiftMaxInSamples = (headWidth / SOUND_SPEED) * getSampleRate();
-	// TODO: The writing loop should be outside this function so the buffer is always written to, or
-	// there should be a delay before the atmoPan 'kicks in' to allow the buffer to be filled
-	float ppdFactor = std::pow(ROOM_SIZE_MAX, *mState.getRawParameterValue("room_size")) / SOUND_SPEED;
-	int ppdFactorInSamples = (int)ppdFactor * getSampleRate();
-	int preverbPredalay[] = { (int)ppdFactorInSamples * (1 + panVal), (int)ppdFactorInSamples * (1 - panVal) };
-
-	for (int channel = 0; channel < buffer.getNumChannels(); channel++)
-	{
-		int delayedChannel = (panVal < 0) ? 1 : 0;
-		// Read position is set before writing because .write() updates writePosition
-		if (channel == delayedChannel)
-		{
-			mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel) - phaseShiftMaxInSamples * abs(panVal));
-		}
-		else
-		{
-			mPanBuffer.setReadPosition(channel, mPanBuffer.getWritePosition(channel));
-		}
-		mPanBuffer.write(channel, buffer);
-
-		mPreverbBuffer.setReadPosition(channel, mPreverbBuffer.getWritePosition(channel) - preverbPredalay[channel]);
-		mPreverbBuffer.write(channel, preverbWet);
-	}	
-
-
-	float preverbMix = *mState.getRawParameterValue("rev_mix");
-	for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
-	{
-		mPanBuffer.read(channel, buffer);
-		mPreverbBuffer.read(channel, preverbWet);
-		// Mix wet and dry signals
-		mixer(buffer, preverbWet, preverbMix, channel, 1.0f);
-
-	}
-
-	buffer = preverbWet;
-
-	
-	return;
-}
 
 void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
 {
@@ -716,7 +636,7 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 
 	*delayLowPassFilter.state = *dsp::IIR::Coefficients<float>::makeLowPass(getSampleRate(), delayLPf, delayLPQ);
 	*delayHighPassFilter.state = *dsp::IIR::Coefficients<float>::makeHighPass(getSampleRate(), delayHPf, delayHPQ);
-	*delayAllPassFilter.state = *dsp::IIR::Coefficients<float>::makeAllPass(getSampleRate(), delayAPf, 40.0);
+	//*delayAllPassFilter.state = *dsp::FIR::Coefficients<float>::makeLowPass(getSampleRate(), delayAPf, 40.0);
 
 		//========================================================================
 		
