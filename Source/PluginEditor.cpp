@@ -227,12 +227,11 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	}
 
 	// Initialise on/off button images
-
 	mDelayOnOffButton.displayAsOn(mDelayOnOffButton.getToggleState());
-	mRevOnOffButton.displayAsOn(*p.mState.getRawParameterValue("rev_on_off") > 0.5f);
+	mRevOnOffButton.displayAsOn(mRevOnOffButton.getToggleState());
 	mSCOnOffButton.displayAsOn(mSCOnOffButton.getToggleState());
 
-	//mRevOnOffButton.setToggleState(*p.mState.getRawParameterValue("rev_on_off") > 0.5f, NotificationType::sendNotification);
+	//
 
 }
 
@@ -252,6 +251,8 @@ SpacePanAudioProcessorEditor::~SpacePanAudioProcessorEditor()
 
 void SpacePanAudioProcessorEditor::sliderValueChanged(Slider* slider)
 {
+
+	debugText.setButtonText(mRevOnOffButton.getToggleState() ? "true" : "false");
 	// Update sidechain envelope display if a sidechain control is changed
 	bool isSCcontrol = (slider == &mSCattackKnob) || (slider == &mSCattackShapeKnob) ||
 		(slider == &mSCdecayKnob) || (slider == &mSCdecayShapeKnob) ||
@@ -325,29 +326,12 @@ void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
 		//ShellExecute(0, 0, url, 0, 0, SW_SHOW);
 		//
 	}
-	else if (button->getName() == "revOnOffButton")
+	else if (button->getName().contains("OnOffButton"))
 	{
 
 
-		button->setToggleState(!button->getToggleState(), dontSendNotification);
-		mRevOnOffButton.displayAsOn(button->getToggleState());
-	}
-	else if (button->getName() == "delayOnOffButton")
-	{
-
-
-		button->setToggleState(!button->getToggleState(), dontSendNotification);
-		mDelayOnOffButton.displayAsOn(button->getToggleState());
-	}
-	else if (button->getName() == "scOnOffButton")
-	{
-
-
-		button->setToggleState(!button->getToggleState(), dontSendNotification);
-		mSCOnOffButton.displayAsOn(button->getToggleState());
-
-		constructADSRplot();
-		adsrPlot.repaint();
+		//button->setToggleState(!button->getToggleState(), dontSendNotification);
+		static_cast<StandardButton*>(button)->displayAsOn(button->getToggleState());
 	}
 
 }
@@ -478,7 +462,7 @@ void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *cons
 void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *const editor, StandardButton &control, String name, float relX, float relY, float relW, float relH, String tooltipText, Slider::SliderStyle style)
 {
 	/* Adds a StandardButton with tooltip to the GUI */
-
+	control.setClickingTogglesState(true);
 	control.setName(name);
 	control.displayAsOn(true);
 	int xpos = (int)(relX * (float)editor->getBounds().getWidth());
@@ -491,9 +475,5 @@ void SpacePanAudioProcessorEditor::addControl(SpacePanAudioProcessorEditor *cons
 	control.setTooltip(tooltipText);
 	control.addListener(editor);
 	addAndMakeVisible(control);
-	DrawableRectangle border;
-	border.setFill(juce::Colours::black);
-	border.setRectangle(juce::Parallelogram<float>(control.getBounds().toFloat()));
-	addAndMakeVisible(border);
 
 }
