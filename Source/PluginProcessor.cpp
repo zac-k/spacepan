@@ -519,9 +519,6 @@ void SpacePanAudioProcessor::reverb(AudioBuffer<float> &buffer, float panVal)
 void SpacePanAudioProcessor::pan(AudioBuffer<float> &buffer, float panVal)
 {
 	
-
-	// TODO: maybe change this back to atmoPan(). Delete reverb stuff from atmoPan() and move the filtering stuff
-	// from this (pan()) function into atmoPan().
 	truePan(buffer, panVal, 0.8);
 
 	dsp::AudioBlock<float> block(buffer);
@@ -804,7 +801,7 @@ void SpacePanAudioProcessor::delay(AudioBuffer<float> &samples, CircularAudioBuf
 	{
 		// TODO: sidechain is expensive. Do it in blocks for performance
 		// Apply sidechain
-		if (*mState.getRawParameterValue("delay_sc_amount") > 0.01 && *mState.getRawParameterValue("sc_on_off"))
+		if (*mState.getRawParameterValue("delay_sc_amount") > 0.01 && *mState.getRawParameterValue("sc_on_off") > 0.5f)
 		{
 			for (int i = 0; i < delayWet.getNumSamples(); i++)
 			{
