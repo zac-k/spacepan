@@ -107,8 +107,9 @@ private:
 
 	//==============================================================================
 
-	float mControlGridX[15] = { 0.115f, 0.18f, 0.23f, 0.28f, 0.35f, 0.42f, 0.6f, 0.7f, 0.8f, 0.9f, 0.22f, 0.31f , 0.4f , 0.49f , 0.58f };
-	float mControlGridY[4] = { 0.4f, 0.5f, 0.64f, 0.89f };
+
+	float mControlGridX[19] = { 0.115f, 0.18f, 0.23f, 0.28f, 0.35f, 0.42f, 0.6f, 0.7f, 0.8f, 0.9f, 0.22f, 0.26f, 0.31f, 0.35f , 0.4f, 0.44f , 0.49f, 0.53f , 0.58f };
+	float mControlGridY[5] = { 0.445f, 0.5f, 0.6f, 0.89f };
 
 	// Global controls
 	StandardRotary mPanKnob;
