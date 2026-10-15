@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "juceheader.h"
+#include <JuceHeader.h>
 
 class CustomLookAndFeel : public LookAndFeel_V4
 {

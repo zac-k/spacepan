@@ -1,13 +1,14 @@
 
-#pragma once
-
 #include "StandardRotary.h"
 
 
-//StandardRotary::StandardRotary() {}
-		
+StandardRotary::~StandardRotary()
+{
+	// The look and feel is a member, so detach it before it is destroyed
+	this->setLookAndFeel(nullptr);
+}
 
-void StandardRotary::init(String name, Rectangle<int> parentBounds, float relX, float relY, Image spriteImg, Slider::SliderStyle) 
+void StandardRotary::init(String name, juce::Rectangle<int> parentBounds, float relX, float relY, Image spriteImg, Slider::SliderStyle) 
 {
 		
 
@@ -41,9 +42,7 @@ void StandardRotary::setDim(int width, int height)
 void StandardRotary::sendToDisplay(Label &dataLabel, Label &unitsLabel, float multiplier)
 {
 	
-	std::stringstream ss;
-	ss << std::fixed << std::setprecision(0) << this->getValue() * multiplier;
-	String text = ss.str();
+	String text(roundToInt(this->getValue() * multiplier));
 	dataLabel.setText(text, NotificationType::sendNotification);
 	unitsLabel.setText("ms", NotificationType::dontSendNotification);
 	
@@ -52,7 +51,7 @@ void StandardRotary::sendToDisplay(Label &dataLabel, Label &unitsLabel, float mu
 void StandardRotary::sendToDisplay(Label &dataLabel, Label &unitsLabel, std::vector<String> names, String modifier)
 {
 	
-	String text = names[this->getValue()];
+	String text = names[(size_t)jlimit(0, (int)names.size() - 1, roundToInt(this->getValue()))];
 	dataLabel.setText(text+modifier, NotificationType::sendNotification);
 	unitsLabel.setText("bars", NotificationType::dontSendNotification);
 	

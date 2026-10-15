@@ -10,14 +10,8 @@
 
 
 
-// TODO: can probably remove class StandardSwitch
 #include "PluginProcessor.h"
-//#include "PluginProcessor.cpp"
 #include "PluginEditor.h"
-//#include "utils.h"
-#define NOMINMAX
-#include <windows.h>
-#include <shellapi.h>
 
 
 //==============================================================================
@@ -71,14 +65,6 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	*editorLookAndFeel.setDefaultSansSerifTypeface(BPdotsTypeface);*/
 	LookAndFeel::getDefaultLookAndFeel().setDefaultSansSerifTypeface(BPdotsTypeface);
 
-	// Debug textbox
-	debugText.setBounds(0, 0, 150, 100);
-	addAndMakeVisible(debugText);
-	debugText.setButtonText("Debug\nText");
-	//debugText.setText((String)(utils::modulo(-5, 7)));
-
-
-	
 	// Initialise and add knobs to GUI
 	//==============================================================================
 	addControl(this, mRevMixKnob, "RevMixKnob", 6, 1, knobImg, "Mix");
@@ -151,8 +137,9 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mSCthresholdKnob.setDim(50, 50);
 	addControl(this, mSCthresholdKnob, "SCthresholdKnob", 18, 3, knobImgPan, "Threshold");
 
-	mDelayTimeKnob.setVisible(!p.mIsTempoLocked);
-	mDelayDiscreteTimeKnob.setVisible(p.mIsTempoLocked);
+	const bool isTempoLocked = *p.mState.getRawParameterValue("delay_tempo_lock") > 0.5f;
+	mDelayTimeKnob.setVisible(!isTempoLocked);
+	mDelayDiscreteTimeKnob.setVisible(isTempoLocked);
 
 
 	addControl(this, mRevOnOffButton, "revOnOffButton", 0.55f, 0.55f, 0.07f, 0.12f, "On/off");
@@ -191,13 +178,13 @@ SpacePanAudioProcessorEditor::SpacePanAudioProcessorEditor(SpacePanAudioProcesso
 	mDelayTimeUnitsText.setEditable(false);
 	mDelayTimeUnitsText.setColour(mDelayTimeUnitsText.textColourId, Colours::lightgreen);	
 	mDelayTimeUnitsText.setJustificationType(Justification::centredBottom);
-	mDelayTimeUnitsText.setFont(22);
+	mDelayTimeUnitsText.setFont(FontOptions(22.0f));
 
 	mDelayTimeText.setBounds(timeTextBounds);
 	mDelayTimeText.setEditable(true);
 	mDelayTimeText.setColour(mDelayTimeText.textColourId, Colours::lightgreen);
 	mDelayTimeText.setJustificationType(Justification::centredTop);
-	mDelayTimeText.setFont(22);
+	mDelayTimeText.setFont(FontOptions(22.0f));
 	
 	mDelayTimeText.setText("testing", NotificationType::sendNotification);
 	addAndMakeVisible(mDelayTimeUnitsText);
@@ -314,10 +301,7 @@ void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
 	if (button->getName() == "sigButton")
 	{
 		// For opening hyperlink
-		const char *url = "http://zac-k.github.io";
-		utils::openHyperlink(url);
-		//ShellExecute(0, 0, url, 0, 0, SW_SHOW);
-		//
+		utils::openHyperlink("https://zac-k.github.io");
 	}
 	else if (button->getName().contains("OnOffButton"))
 	{

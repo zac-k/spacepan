@@ -61,7 +61,7 @@ void CustomLookAndFeel::drawRotarySlider(Graphics& g,
 	else
 	{
 		static const float textPpercent = 0.35f;
-		Rectangle<float> text_bounds(1.0f + width * (1.0f - textPpercent) / 2.0f,
+		juce::Rectangle<float> text_bounds(1.0f + width * (1.0f - textPpercent) / 2.0f,
 			0.5f * height, width * textPpercent, 0.5f * height);
 
 		g.setColour(Colours::white);
@@ -107,7 +107,7 @@ void CustomLookAndFeel::drawLinearSlider(Graphics &g, int x, int y, int width, i
 	else
 	{
 		static const float textPpercent = 0.35f;
-		Rectangle<float> text_bounds(1.0f + width * (1.0f - textPpercent) / 2.0f,
+		juce::Rectangle<float> text_bounds(1.0f + width * (1.0f - textPpercent) / 2.0f,
 			0.5f * height, width * textPpercent, 0.5f * height);
 
 		g.setColour(Colours::white);

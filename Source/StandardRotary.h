@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "juceheader.h"
+#include <JuceHeader.h>
 #include "CustomLookAndFeel.h"
 
 
@@ -18,9 +18,10 @@ class StandardRotary : public Slider
 {
 
 
+public:
 	// Constructor
 	using Slider::Slider;
-public:
+	~StandardRotary() override;
 
 	// Public methods
 	void init(String name, juce::Rectangle<int> parentBounds, float relX, float relY, Image spriteImg, Slider::SliderStyle = Slider::SliderStyle::RotaryVerticalDrag);

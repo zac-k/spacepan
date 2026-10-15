@@ -18,27 +18,32 @@ Envelope::Envelope()
 
 float Envelope::getGain()
 {
-	float val;
+	// The times can be shortened while a section is running, so clamp the
+	// progress through it. Otherwise the gain can go negative, and trigger()
+	// then takes a fractional power of it, which gives NaN.
+	const float progress = values[section] > 0.0f ? jlimit(0.0f, 1.0f, tSection / values[section]) : 1.0f;
+
+	float val = 0.0f;
 	switch (section)
 	{
 	case 0:
 		val = 0.0f;
 		break;
 	case 1:
-		val = std::pow(tSection / values[1], shapeFactors[1]);
+		val = std::pow(progress, shapeFactors[1]);
 		break;
 	case 2:
-		val = 1 - std::pow(tSection / values[2], shapeFactors[2]) * (1 - sustainGain);
+		val = 1 - std::pow(progress, shapeFactors[2]) * (1 - sustainGain);
 		break;
 	case 3:
 		val = sustainGain;
 		break;
 	case 4:
-		val = (1 - std::pow(tSection / values[4], shapeFactors[4])) * sustainGain;
+		val = (1 - std::pow(progress, shapeFactors[4])) * sustainGain;
 		break;
 	}
 
-	return val;
+	return jlimit(0.0f, 1.0f, val);
 
 }
 
@@ -73,13 +78,13 @@ float Envelope::getThresh()
 void Envelope::trigger()
 {
 
-	tSection = pow(getGain(), 1.0 / shapeFactors[1]) * values[1];
+	tSection = std::pow(getGain(), 1.0f / shapeFactors[1]) * values[1];
 	section = 1;
 }
 
 void Envelope::trigger(float signal)
 {
-	if (signal > this->threshold)
+	if (std::abs(signal) > this->threshold)
 	{
 		this->trigger();
 	}
