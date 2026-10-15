@@ -5,6 +5,8 @@ project(SpacePan VERSION 0.1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(SPACEPAN_BUILD_TESTS "Build the SpacePan test runner" ON)
+
 # JUCE is fetched at a pinned release. To build against a local checkout instead,
 # configure with -DFETCHCONTENT_SOURCE_DIR_JUCE=/path/to/JUCE
 include(FetchContent)
@@ -39,6 +41,7 @@ juce_add_plugin(SpacePan
 
 juce_generate_juce_header(SpacePan)
 
+# Also compiled into the test runner
 set(SPACEPAN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Source/CustomLookAndFeel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Source/Envelope.cpp
@@ -81,3 +84,7 @@ target_link_libraries(SpacePan
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags)
+
+if(SPACEPAN_BUILD_TESTS)
+    add_subdirectory(Tests)
+endif()
