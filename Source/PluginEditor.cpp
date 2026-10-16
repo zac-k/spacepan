@@ -301,7 +301,7 @@ void SpacePanAudioProcessorEditor::buttonClicked(Button* button)
 	if (button->getName() == "sigButton")
 	{
 		// For opening hyperlink
-		utils::openHyperlink("https://zac-k.github.io");
+		utils::openHyperlink("https://eigentoneaudio.com");
 	}
 	else if (button->getName().contains("OnOffButton"))
 	{
