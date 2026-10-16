@@ -23,10 +23,10 @@ if(APPLE)
 endif()
 
 juce_add_plugin(SpacePan
-    COMPANY_NAME "ZacK"
-    COMPANY_WEBSITE "https://zac-k.github.io"
-    BUNDLE_ID com.zack.spacepan
-    PLUGIN_MANUFACTURER_CODE ZacK
+    COMPANY_NAME "Eigentone"
+    COMPANY_WEBSITE "https://eigentoneaudio.com"
+    BUNDLE_ID com.eigentoneaudio.spacepan
+    PLUGIN_MANUFACTURER_CODE Eign
     PLUGIN_CODE Spcp
     FORMATS ${SPACEPAN_FORMATS}
     PRODUCT_NAME "SpacePan"
