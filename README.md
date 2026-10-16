@@ -1,6 +1,6 @@
 # SpacePan
 
-SpacePan is an audio effect plugin that places a sound in a space. It combines:
+SpacePan, by [Eigentone Audio](https://eigentoneaudio.com), is an audio effect plugin that places a sound in a space. It combines:
 
 - **Pan** with an interaural time delay and high-frequency head shadow, so the far ear hears the sound later and duller.
 - **Reverb** with a predelay set by the distance to the walls, which differs between the ears as the sound is panned.
