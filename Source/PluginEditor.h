@@ -14,7 +14,6 @@
 #include "PluginProcessor.h"
 #include "StandardRotary.h"
 #include "StandardButton.h"
-#include "StandardSwitch.h"
 #include "utils.h"
 
 //==============================================================================
@@ -26,7 +25,7 @@ class SpacePanAudioProcessorEditor : public AudioProcessorEditor,
 {
 public:
 	SpacePanAudioProcessorEditor(SpacePanAudioProcessor&);
-	~SpacePanAudioProcessorEditor();
+	~SpacePanAudioProcessorEditor() override;
 
 	//==============================================================================
 	void paint(Graphics&) override;
@@ -34,8 +33,6 @@ public:
 
 
 	void sliderValueChanged(Slider* slider) override;
-	//virtual void buttonStateChanged(Button* button) override;
-	TextButton debugText;
 
 	//
 	void buttonClicked(Button* button) override;

@@ -9,7 +9,7 @@
 */
 
 #pragma once
-#include "juceheader.h"
+#include <JuceHeader.h>
 
 
 class Envelope
@@ -25,12 +25,12 @@ public:
 	float getThresh();
 
 private:
-	int section;
+	int section{ 0 };
 	float tSection{ 0.0f };
-	float values[5];
-	float sustainGain;
-	float shapeFactors[5];
-	float threshold;
+	float values[5]{ 0.0f, 0.1f, 0.1f, 0.1f, 0.1f };
+	float sustainGain{ 1.0f };
+	float shapeFactors[5]{ 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+	float threshold{ 0.5f };
 	void incrementSection();
 
 

@@ -9,25 +9,26 @@
 */
 
 #pragma once
-#include "JuceHeader.h"
-//
-//
-#define NOMINMAX
-#include <windows.h>
-#include <shellapi.h>
+#include <JuceHeader.h>
+
 namespace utils
 {
+	// Wraps val into the range [0, divisor), including for negative values
+	inline int modulo(int val, int divisor)
+	{
+		int mod = val % divisor;
+		return mod < 0 ? mod + divisor : mod;
+	}
 
-
-	int modulo(int val1, int val2);
-
-
+	// Range with a skew that spreads audible frequencies evenly over a knob
 	template <typename T>
-	T frequencySkew(T min, T max, T interval = 0.0);
+	NormalisableRange<T> frequencyRange(T min, T max, T interval = 0)
+	{
+		return { min, max, interval, (T)1 / std::log2((T)1 + std::sqrt(max / min)) };
+	}
 
-	template <typename T>
-	NormalisableRange<T> frequencyRange(T min, T max, T interval = 0.0);
-
-	void openHyperlink(const char *url);
-
-};
+	inline void openHyperlink(const String& url)
+	{
+		URL(url).launchInDefaultBrowser();
+	}
+}

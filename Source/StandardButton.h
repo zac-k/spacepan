@@ -9,13 +9,13 @@
 */
 
 #pragma once
-#include "juceheader.h"
+#include <JuceHeader.h>
 
 class StandardButton : public ImageButton
 {
+public:
 	// Constructor
 	using ImageButton::ImageButton;
-public:
 	void setOnOffImages(Image spriteArray[2]);
 	void setOnOffImages(Image onImage, Image offImage);
 	void setOnOffImages(Image onOffImage, bool isVertical=true);
