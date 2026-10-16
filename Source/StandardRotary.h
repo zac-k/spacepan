@@ -10,40 +10,36 @@
 
 #pragma once
 
-#include "juceheader.h"
+#include <JuceHeader.h>
+#include "CustomLookAndFeel.h"
+
 
 class StandardRotary : public Slider
 {
 
 
+public:
 	// Constructor
 	using Slider::Slider;
-public:
+	~StandardRotary() override;
 
 	// Public methods
-	void init(String name, float min, float max, float value, int x, int y, Image spriteImg);
-	void draw(Graphics& g);
+	void init(String name, juce::Rectangle<int> parentBounds, float relX, float relY, Image spriteImg, Slider::SliderStyle = Slider::SliderStyle::RotaryVerticalDrag);
+	void setDim(int width, int height);
+	void sendToDisplay(Label &dataLabel, Label &unitsLabel, float multiplier=1.0f);
+	void sendToDisplay(Label &dataLabel, Label &unitsLabel, std::vector<String>, String modifier="");
+	void reverse();
 
 private:
 
-	int width = 65;
-	int height = 65;
+	int width = 64;
+	int height = 64;
 	int xpos;
 	int ypos;
 	Image sprite;
-
-
-};
-
-class CustomLookAndFeel : public LookAndFeel_V4
-{
-public:
-	CustomLookAndFeel(Image spriteImg);
-
-	void drawRotarySlider(Graphics& g, int x, int y, int width, int height, float sliderPos,
-		float rotaryStartAngle, float rotaryEndAngle, Slider& slider) override;
-
-private:
-	Image sprite;
+	CustomLookAndFeel mLookAndFeel;
+	bool mReverse{ false };
 
 };
+
+

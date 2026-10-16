@@ -1,125 +1,60 @@
 
-#pragma once
-
 #include "StandardRotary.h"
 
 
-//StandardRotary::StandardRotary() {}
-		
+StandardRotary::~StandardRotary()
+{
+	// The look and feel is a member, so detach it before it is destroyed
+	this->setLookAndFeel(nullptr);
+}
 
-void StandardRotary::init(String name, float min, float max, float value, int x, int y, Image spriteImg) 
+void StandardRotary::init(String name, juce::Rectangle<int> parentBounds, float relX, float relY, Image spriteImg, Slider::SliderStyle) 
 {
 		
 
 	this->setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-	//Listener* pListener;
-
-	CustomLookAndFeel thisLookAndFeel(spriteImg);
-	this->setRange(min, max);
-	this->setValue(value);
-	this->setAlpha(0.0);
+	mLookAndFeel.addSprite(spriteImg);
 	this->setName(name);
-	//this->addListener(pListener);
-
+	this->setLookAndFeel(&mLookAndFeel);
 	this->hideTextBox(true);
 	this->setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
-	//addAndMakeVisible(*this);
-	this->setBounds(x, y, this->width, this->height);
-	this->xpos = x;
-	this->ypos = y;
-	this->sprite = spriteImg;
-	//this->setLookAndFeel(&thisLookAndFeel);
-/*
-	*/
 
-/**/
+	this->xpos = (int)parentBounds.getWidth()*relX - this->width / 2;
+	this->ypos = (int)parentBounds.getHeight()*relY - this->height / 2;
+	this->setBounds(this->xpos, this->ypos, this->width, this->height);
+	this->sprite = spriteImg;
 
 	return;
 }
 
-void StandardRotary::draw(Graphics& g)
+void StandardRotary::reverse()
 {
-
-
-
-	const double rotation = (this->getValue()
-		- this->getMinimum())
-		/ (this->getMaximum()
-			- this->getMinimum());
-
-	const int frames = this->sprite.getHeight() / this->sprite.getWidth();
-	const int frameId = (int)ceil(rotation * ((double)frames - 1.0));
-	const float radius = jmin(this->width / 2.0f, this->height / 2.0f);
-	const float centerX = this->xpos + this->width * 0.5f;
-	const float centerY = this->ypos + this->height * 0.5f;
-	const float rx = centerX - radius - 1.0f;
-	const float ry = centerY - radius;
-
-
-			
-	g.drawImage((this->sprite),
-		(int)rx,
-		(int)ry,
-		2 * (int)radius,
-		2 * (int)radius,
-		0,
-		frameId*this->sprite.getWidth(),
-		this->sprite.getWidth(),
-		this->sprite.getWidth());
-	/*	*/
-
-
+	mReverse = !mReverse;
 }
 
 
-
-CustomLookAndFeel::CustomLookAndFeel(Image spriteImg)
+void StandardRotary::setDim(int width, int height)
 {
-	this->sprite = spriteImg;
+	this->width = width;
+	this->height = height;
 }
 
-//==============================================================================
-void CustomLookAndFeel::drawRotarySlider(Graphics& g,
-	int x, int y, int width, int height, float sliderPos,
-	float rotaryStartAngle, float rotaryEndAngle, Slider& slider)
+void StandardRotary::sendToDisplay(Label &dataLabel, Label &unitsLabel, float multiplier)
 {
+	
+	String text(roundToInt(this->getValue() * multiplier));
+	dataLabel.setText(text, NotificationType::sendNotification);
+	unitsLabel.setText("ms", NotificationType::dontSendNotification);
+	
+}
 
-	if (sprite.isValid())
-	{
-		const double rotation = (slider.getValue()
-			- slider.getMinimum())
-			/ (slider.getMaximum()
-				- slider.getMinimum());
-
-		const int frames = sprite.getHeight() / sprite.getWidth();
-		const int frameId = (int)ceil(rotation * ((double)frames - 1.0));
-		const float radius = jmin(width / 2.0f, height / 2.0f);
-		const float centerX = x + width * 0.5f;
-		const float centerY = y + height * 0.5f;
-		const float rx = centerX - radius - 1.0f;
-		const float ry = centerY - radius;
-
-		g.drawImage(sprite,
-			(int)rx,
-			(int)ry,
-			2 * (int)radius,
-			2 * (int)radius,
-			0,
-			frameId*sprite.getWidth(),
-			sprite.getWidth(),
-			sprite.getWidth());
-	}
-	else
-	{
-		static const float textPpercent = 0.35f;
-		Rectangle<float> text_bounds(1.0f + width * (1.0f - textPpercent) / 2.0f,
-			0.5f * height, width * textPpercent, 0.5f * height);
-
-		g.setColour(Colours::white);
-
-		g.drawFittedText(String("No Image"), text_bounds.getSmallestIntegerContainer(),
-			Justification::horizontallyCentred | Justification::centred, 1);
-	}
+void StandardRotary::sendToDisplay(Label &dataLabel, Label &unitsLabel, std::vector<String> names, String modifier)
+{
+	
+	String text = names[(size_t)jlimit(0, (int)names.size() - 1, roundToInt(this->getValue()))];
+	dataLabel.setText(text+modifier, NotificationType::sendNotification);
+	unitsLabel.setText("bars", NotificationType::dontSendNotification);
+	
 }
 
 
